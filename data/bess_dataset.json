@@ -1,0 +1,328 @@
+{
+  "metadata": {
+    "dataset_name": "BESS Dashboard Dataset",
+    "version": "1.0.0",
+    "created_for": "Streamlit BESS Dashboard",
+    "source_excel": "Key_Battery_Players_25.05.26 1.xlsx",
+    "notes": "This JSON is structured around the dashboard dropdowns: battery container, C-rate, and PCS. New records can be appended under battery_containers, pcs_models, and c_rate_cases."
+  },
+  "dropdowns": {
+    "battery_container": {
+      "label": "Select Battery Container",
+      "source": "battery_containers",
+      "display_field": "display_name",
+      "value_field": "id"
+    },
+    "c_rate": {
+      "label": "Select C-rate",
+      "source": "c_rate_cases",
+      "display_field": "c_rate",
+      "value_field": "c_rate"
+    },
+    "pcs": {
+      "label": "Select PCS",
+      "source": "pcs_models",
+      "display_field": "display_name",
+      "value_field": "id"
+    }
+  },
+  "battery_containers": [
+    {
+      "id": "clou_aqua_c25h_5015_2500",
+      "display_name": "Aqua C2.5H-5015-2500 (Clou Electronics)",
+      "manufacturer": "Clou Electronics",
+      "product_name": "Aqua C2.5H-5015-2500",
+      "chemistry": "LFP",
+      "container": {
+        "nominal_energy_kwh": 5015.96,
+        "nominal_energy_mwh": 5.02,
+        "racks_per_container": 12,
+        "cooling_type": "Liquid",
+        "duration_hr_at_025c": 4,
+        "dc_bus_nominal_voltage_v": 1331,
+        "dc_window_min_v": 1040,
+        "dc_window_max_v": 1518,
+        "dc_bus_current_a": 2411.5
+      },
+      "cell": {
+        "cell_model": null,
+        "nominal_capacity_ah": 314,
+        "nominal_voltage_v": 3.2,
+        "min_voltage_v": 2.5,
+        "max_voltage_v": 3.65,
+        "internal_resistance_mohm": null,
+        "cell_energy_wh": 1004.8
+      },
+      "pack": {
+        "series_s": 104,
+        "parallel_p": 1,
+        "total_cells": 104,
+        "nominal_voltage_v": 332.8,
+        "min_voltage_v": 260,
+        "max_voltage_v": 379.6,
+        "nominal_capacity_ah": 314,
+        "nominal_energy_kwh": 104.5,
+        "protection": "BMS + Fuse"
+      },
+      "rack": {
+        "packs_per_rack": 4,
+        "pack_connection": "Series",
+        "nominal_voltage_v": 1331.2,
+        "min_voltage_v": 1040,
+        "max_voltage_v": 1518.4,
+        "nominal_capacity_ah": 314,
+        "nominal_energy_kwh": 418,
+        "rack_current_a": null,
+        "rack_fuse_a": 350,
+        "protection": {
+          "hvcb": true,
+          "imd": true,
+          "pre_charge": true,
+          "bcmu": true,
+          "bmu_per_string": 4,
+          "bcmu_per_string": 1,
+          "bamu_per_container": 1
+        }
+      },
+      "sld": {
+        "cell_to_pack": "104 cells in series",
+        "pack_to_rack": "4 packs in series",
+        "rack_to_container": "12 racks in parallel",
+        "container_to_pcs": "Based on selected C-rate case",
+        "dc_connection_path": [
+          "String",
+          "Rack Combiner",
+          "DC Bus",
+          "CC Panel",
+          "PCS",
+          "AC Grid"
+        ]
+      },
+      "active": true
+    }
+  ],
+  "c_rate_cases": [
+    {
+      "id": "clou_aqua_c25h_5015_2500__025c",
+      "battery_container_id": "clou_aqua_c25h_5015_2500",
+      "c_rate": "0.25C",
+      "power_kw": 1254,
+      "duration_hr": 4,
+      "dc_bus_current_a": 2411.5,
+      "containers_per_pcs": 4,
+      "racks_per_pcs": 48,
+      "pcs_utilisation_percent": null,
+      "notes": "Containers per PCS should be taken from Excel row for this C-rate."
+    },
+    {
+      "id": "clou_aqua_c25h_5015_2500__05c",
+      "battery_container_id": "clou_aqua_c25h_5015_2500",
+      "c_rate": "0.5C",
+      "power_kw": 2507.98,
+      "duration_hr": 2,
+      "dc_bus_current_a": 2411.5,
+      "containers_per_pcs": 2,
+      "racks_per_pcs": 24,
+      "pcs_utilisation_percent": null,
+      "notes": "Current value 2411.5 A is from the Excel sizing value already confirmed."
+    },
+    {
+      "id": "clou_aqua_c25h_5015_2500__10c",
+      "battery_container_id": "clou_aqua_c25h_5015_2500",
+      "c_rate": "1.0C",
+      "power_kw": 5015.96,
+      "duration_hr": 1,
+      "dc_bus_current_a": 2411.5,
+      "containers_per_pcs": 1,
+      "racks_per_pcs": 12,
+      "pcs_utilisation_percent": null,
+      "notes": "Containers per PCS should update dynamically based on this row."
+    }
+  ],
+  "pcs_models": [
+    {
+      "id": "apex_apcs4500doul",
+      "display_name": "APCS4500DOUL (Apex)",
+      "manufacturer": "Apex",
+      "model": "APCS4500DOUL",
+      "rated_power_kva": 5000,
+      "rated_power_kw": 5000,
+      "ac_voltage_v": 750,
+      "dc_window_min_v": 1040,
+      "dc_window_max_v": 1518,
+      "dc_inputs": 2,
+      "efficiency_percent": 98.8,
+      "max_racks_per_pcs": 47,
+      "active": true
+    },
+    {
+      "id": "kehua_bcs5000k",
+      "display_name": "BCS5000K (Kehua)",
+      "manufacturer": "Kehua",
+      "model": "BCS5000K",
+      "rated_power_kva": null,
+      "rated_power_kw": null,
+      "ac_voltage_v": null,
+      "dc_window_min_v": null,
+      "dc_window_max_v": null,
+      "dc_inputs": null,
+      "efficiency_percent": null,
+      "max_racks_per_pcs": null,
+      "active": true
+    },
+    {
+      "id": "fimer_pvs980_58bc",
+      "display_name": "PVS980-58BC (FIMER)",
+      "manufacturer": "FIMER",
+      "model": "PVS980-58BC",
+      "rated_power_kva": null,
+      "rated_power_kw": null,
+      "ac_voltage_v": null,
+      "dc_window_min_v": null,
+      "dc_window_max_v": null,
+      "dc_inputs": null,
+      "efficiency_percent": null,
+      "max_racks_per_pcs": null,
+      "active": true
+    },
+    {
+      "id": "fimer_flamingo_5100kva",
+      "display_name": "Flamingo 5100kVA (FIMER)",
+      "manufacturer": "FIMER",
+      "model": "Flamingo 5100kVA",
+      "rated_power_kva": 5100,
+      "rated_power_kw": null,
+      "ac_voltage_v": null,
+      "dc_window_min_v": null,
+      "dc_window_max_v": null,
+      "dc_inputs": null,
+      "efficiency_percent": null,
+      "max_racks_per_pcs": null,
+      "active": true
+    },
+    {
+      "id": "fimer_flamingo_6800kva",
+      "display_name": "Flamingo 6800kVA (FIMER)",
+      "manufacturer": "FIMER",
+      "model": "Flamingo 6800kVA",
+      "rated_power_kva": 6800,
+      "rated_power_kw": null,
+      "ac_voltage_v": null,
+      "dc_window_min_v": null,
+      "dc_window_max_v": null,
+      "dc_inputs": null,
+      "efficiency_percent": null,
+      "max_racks_per_pcs": null,
+      "active": true
+    }
+  ],
+  "dashboard_rules": {
+    "selected_battery_container": "clou_aqua_c25h_5015_2500",
+    "selected_c_rate": "0.25C",
+    "selected_pcs": "apex_apcs4500doul",
+    "lookup_keys": {
+      "battery_container": "battery_containers.id",
+      "c_rate_case": [
+        "c_rate_cases.battery_container_id",
+        "c_rate_cases.c_rate"
+      ],
+      "pcs": "pcs_models.id"
+    },
+    "calculation_policy": {
+      "dc_bus_current_a": "Use c_rate_cases.dc_bus_current_a where available. If null, calculate from power_kw and selected DC voltage.",
+      "containers_per_pcs": "Use c_rate_cases.containers_per_pcs from Excel-derived data.",
+      "dc_window": "Use PCS dc_window_min_v and dc_window_max_v. Current target value is 1040-1518 V.",
+      "container_energy": "Use battery_containers.container.nominal_energy_kwh.",
+      "power_kw": "Use c_rate_cases.power_kw.",
+      "duration_hr": "Use c_rate_cases.duration_hr."
+    }
+  },
+  "append_template": {
+    "new_battery_container": {
+      "id": "new_supplier_new_container_model",
+      "display_name": "Container Model (Supplier)",
+      "manufacturer": "Supplier Name",
+      "product_name": "Container Model",
+      "chemistry": "LFP",
+      "container": {
+        "nominal_energy_kwh": null,
+        "nominal_energy_mwh": null,
+        "racks_per_container": null,
+        "cooling_type": null,
+        "duration_hr_at_025c": null,
+        "dc_bus_nominal_voltage_v": null,
+        "dc_window_min_v": null,
+        "dc_window_max_v": null,
+        "dc_bus_current_a": null
+      },
+      "cell": {
+        "cell_model": null,
+        "nominal_capacity_ah": null,
+        "nominal_voltage_v": null,
+        "min_voltage_v": null,
+        "max_voltage_v": null,
+        "internal_resistance_mohm": null,
+        "cell_energy_wh": null
+      },
+      "pack": {
+        "series_s": null,
+        "parallel_p": null,
+        "total_cells": null,
+        "nominal_voltage_v": null,
+        "min_voltage_v": null,
+        "max_voltage_v": null,
+        "nominal_capacity_ah": null,
+        "nominal_energy_kwh": null,
+        "protection": null
+      },
+      "rack": {
+        "packs_per_rack": null,
+        "pack_connection": null,
+        "nominal_voltage_v": null,
+        "min_voltage_v": null,
+        "max_voltage_v": null,
+        "nominal_capacity_ah": null,
+        "nominal_energy_kwh": null,
+        "rack_current_a": null,
+        "rack_fuse_a": null,
+        "protection": {
+          "hvcb": null,
+          "imd": null,
+          "pre_charge": null,
+          "bcmu": null,
+          "bmu_per_string": null,
+          "bcmu_per_string": null,
+          "bamu_per_container": null
+        }
+      },
+      "active": true
+    },
+    "new_c_rate_case": {
+      "id": "battery_container_id__crate",
+      "battery_container_id": "battery_container_id",
+      "c_rate": "0.25C",
+      "power_kw": null,
+      "duration_hr": null,
+      "dc_bus_current_a": null,
+      "containers_per_pcs": null,
+      "racks_per_pcs": null,
+      "pcs_utilisation_percent": null,
+      "notes": null
+    },
+    "new_pcs_model": {
+      "id": "supplier_pcs_model",
+      "display_name": "PCS Model (Supplier)",
+      "manufacturer": "Supplier Name",
+      "model": "PCS Model",
+      "rated_power_kva": null,
+      "rated_power_kw": null,
+      "ac_voltage_v": null,
+      "dc_window_min_v": null,
+      "dc_window_max_v": null,
+      "dc_inputs": null,
+      "efficiency_percent": null,
+      "max_racks_per_pcs": null,
+      "active": true
+    }
+  }
+}
