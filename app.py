@@ -558,6 +558,961 @@ div[data-testid="stSelectbox"] span{
 )
 
 
+
+# ============================================================
+# CSS — polished dashboard and single-line diagram overrides
+# ============================================================
+
+st.markdown(
+    """
+<style>
+/* ---------- Global polish ---------- */
+:root{
+    --navy-950:#030b14;
+    --navy-900:#05101d;
+    --navy-850:#071827;
+    --navy-800:#091b2d;
+    --stroke:#1a4770;
+    --stroke-soft:rgba(111,185,232,.22);
+    --text:#f7fbff;
+    --muted:#a6cbe4;
+    --muted-2:#77a7c6;
+    --cyan:#16d9ec;
+    --cyan-2:#38f3ff;
+    --green:#26e996;
+    --amber:#ffc52e;
+    --orange:#ffb463;
+    --violet:#8882ff;
+    --pink:#ff5b88;
+}
+
+#MainMenu, footer, [data-testid="stToolbar"], [data-testid="stDecoration"]{
+    visibility:hidden;
+    height:0;
+}
+
+.block-container{
+    max-width:1180px;
+    padding-top:8px;
+    padding-left:18px;
+    padding-right:18px;
+    padding-bottom:18px;
+}
+
+.bess-title{
+    font-size:24px;
+    line-height:28px;
+    letter-spacing:.2px;
+    margin-top:-4px;
+}
+
+.bess-subtitle{
+    font-size:11px;
+    line-height:15px;
+    margin-top:1px;
+    margin-bottom:8px;
+    color:#b9e8ff;
+}
+
+/* Streamlit column row containing selectboxes becomes the control shell. */
+div[data-testid="stHorizontalBlock"]:has(div[data-testid="stSelectbox"]){
+    border:1px solid #1c527d;
+    border-radius:8px;
+    background:linear-gradient(180deg,rgba(9,28,46,.96),rgba(5,17,30,.96));
+    padding:7px 14px 8px;
+    box-shadow:0 12px 30px rgba(0,0,0,.23), inset 0 0 0 1px rgba(20,220,255,.04);
+    margin-bottom:8px;
+}
+
+div[data-testid="stHorizontalBlock"]:has(div[data-testid="stSelectbox"]) > div{
+    padding-left:5px;
+    padding-right:5px;
+}
+
+div[data-testid="stSelectbox"] label{
+    color:#a9d9f2 !important;
+    font-size:10px !important;
+    font-weight:800 !important;
+    letter-spacing:.15px;
+    margin-bottom:2px;
+}
+
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div{
+    min-height:34px !important;
+    border-radius:6px !important;
+    border:1px solid #23618e !important;
+    background:#06111f !important;
+    box-shadow:inset 0 0 0 1px rgba(22,217,236,.03) !important;
+}
+
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div:hover,
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within{
+    border-color:var(--cyan) !important;
+    box-shadow:0 0 0 1px rgba(22,217,236,.55),0 0 16px rgba(22,217,236,.16) !important;
+}
+
+div[data-testid="stSelectbox"] span{
+    font-size:12px !important;
+    font-weight:900 !important;
+}
+
+.stTabs [data-baseweb="tab-list"]{
+    gap:8px;
+    justify-content:center;
+    margin-top:0;
+    margin-bottom:10px;
+}
+
+.stTabs [data-baseweb="tab"]{
+    height:36px;
+    min-width:166px;
+    padding-left:22px;
+    padding-right:22px;
+    border-radius:8px;
+    background:linear-gradient(180deg,#0c1b2e,#071321);
+    border:1px solid #244a70;
+    color:#e6f6ff;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.05px;
+}
+
+.stTabs [aria-selected="true"]{
+    background:linear-gradient(90deg,#19d4d7,#13d7ae) !important;
+    color:#021521 !important;
+    border-color:transparent !important;
+    box-shadow:0 9px 22px rgba(16,215,190,.18);
+}
+
+/* ---------- Dashboard card polish ---------- */
+.flow-grid{
+    grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1.05fr) 22px minmax(0,1fr);
+}
+
+.card{
+    min-height:500px;
+    padding:10px;
+    border-radius:8px;
+}
+
+.card-title{
+    font-size:15px;
+    letter-spacing:.1px;
+}
+
+.badge{
+    font-size:9px;
+    padding:3px 7px;
+    white-space:nowrap;
+}
+
+.hero{
+    height:96px;
+    margin-bottom:7px;
+}
+
+.row{
+    padding:5px 8px;
+    min-height:27px;
+}
+
+.row span{
+    font-size:10.5px;
+}
+
+.row b{
+    font-size:12px;
+}
+
+.section-title{
+    font-size:10.5px;
+    letter-spacing:.35px;
+}
+
+.energy-box b{
+    font-size:24px;
+    line-height:26px;
+}
+
+.metric-strip{
+    margin-top:10px;
+}
+
+.metric{
+    padding:10px 13px;
+}
+
+.metric span{
+    font-size:10px;
+    margin-bottom:6px;
+}
+
+.metric b{
+    font-size:17px;
+}
+
+.metric small{
+    font-size:10px;
+    line-height:13px;
+    display:block;
+}
+
+.warn{
+    border:1px solid rgba(255,188,98,.28);
+    border-left:4px solid #ffbc62;
+    background:rgba(255,188,98,.08);
+}
+
+/* ---------- CSS equipment artwork fallback ---------- */
+.equip-art{
+    position:relative;
+    width:100%;
+    height:100%;
+    min-height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    color:white;
+    isolation:isolate;
+}
+
+.equip-art:before{
+    content:"";
+    position:absolute;
+    inset:8px 16px;
+    border-radius:14px;
+    background:radial-gradient(circle at 40% 15%,rgba(255,255,255,.18),transparent 32%);
+    opacity:.55;
+    z-index:-1;
+}
+
+.art-label{
+    position:absolute;
+    right:8px;
+    bottom:6px;
+    color:rgba(255,255,255,.72);
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:.5px;
+}
+
+.art-cell .cell-can{
+    position:relative;
+    width:78px;
+    height:54px;
+    transform:skewY(8deg) rotate(-3deg);
+    background:linear-gradient(135deg,#0f63ce 0%,#0f4aa0 58%,#083275 100%);
+    border:1px solid rgba(180,220,255,.56);
+    box-shadow:0 12px 20px rgba(0,0,0,.45), inset 0 0 18px rgba(255,255,255,.08);
+}
+
+.art-cell .cell-can:before{
+    content:"";
+    position:absolute;
+    left:7px;
+    top:-8px;
+    width:62px;
+    height:12px;
+    background:linear-gradient(90deg,#d8dfe8,#778293);
+    border:1px solid rgba(255,255,255,.5);
+    border-radius:50%;
+}
+
+.art-cell .cell-can:after{
+    content:"";
+    position:absolute;
+    right:10px;
+    top:22px;
+    width:18px;
+    height:20px;
+    border:1px solid rgba(255,255,255,.48);
+    border-radius:2px;
+}
+
+.art-pack .pack-body{
+    position:relative;
+    width:118px;
+    height:58px;
+    transform:perspective(160px) rotateX(8deg) rotateY(-14deg);
+    background:linear-gradient(135deg,#1b222b,#090d13 70%);
+    border:1px solid rgba(220,240,255,.25);
+    box-shadow:0 14px 18px rgba(0,0,0,.5);
+}
+
+.art-pack .pack-body:before{
+    content:"";
+    position:absolute;
+    inset:8px 8px auto 8px;
+    height:14px;
+    background:repeating-linear-gradient(90deg,#222d38 0 13px,#121820 13px 17px);
+    border:1px solid rgba(255,255,255,.1);
+}
+
+.art-pack .pack-body:after{
+    content:"";
+    position:absolute;
+    inset:auto 10px 8px 10px;
+    height:22px;
+    background:repeating-linear-gradient(90deg,#090c10 0 18px,#212a33 18px 21px);
+    border-top:2px solid rgba(255,150,50,.6);
+}
+
+.art-rack .rack-body{
+    position:relative;
+    width:80px;
+    height:74px;
+    background:linear-gradient(180deg,#262d33,#0b0e13);
+    border:2px solid rgba(180,220,255,.25);
+    box-shadow:0 14px 18px rgba(0,0,0,.55), inset 0 0 16px rgba(255,255,255,.04);
+}
+
+.art-rack .rack-body:before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    background:repeating-linear-gradient(180deg,#12171e 0 9px,#c66b29 9px 11px,#10141b 11px 18px);
+    border:1px solid rgba(255,255,255,.12);
+}
+
+.art-rack .rack-body:after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:8px;
+    bottom:8px;
+    width:1px;
+    background:rgba(255,255,255,.16);
+}
+
+.art-container .container-body{
+    position:relative;
+    width:132px;
+    height:62px;
+    background:linear-gradient(90deg,#e8ecef,#bfc6cc 55%,#9fa8b0);
+    border:2px solid rgba(255,255,255,.8);
+    box-shadow:0 14px 20px rgba(0,0,0,.48);
+}
+
+.art-container .container-body:before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    background:repeating-linear-gradient(90deg,rgba(80,90,100,.42) 0 2px,transparent 2px 18px);
+}
+
+.art-container .container-body:after{
+    content:"BESS";
+    position:absolute;
+    right:12px;
+    top:12px;
+    color:#d21730;
+    font-size:9px;
+    font-weight:900;
+}
+
+.art-pcs .pcs-body{
+    position:relative;
+    width:104px;
+    height:66px;
+    transform:perspective(160px) rotateY(-10deg);
+    background:linear-gradient(135deg,#f4f5f5,#b7b9bd 60%,#767b82);
+    border:1px solid rgba(255,255,255,.8);
+    box-shadow:0 13px 18px rgba(0,0,0,.5);
+}
+
+.art-pcs .pcs-body:before{
+    content:"";
+    position:absolute;
+    left:12px;
+    top:12px;
+    width:36px;
+    height:38px;
+    border:1px solid rgba(30,40,50,.35);
+    background:repeating-linear-gradient(180deg,rgba(60,70,80,.4) 0 2px,transparent 2px 7px);
+}
+
+.art-pcs .pcs-body:after{
+    content:"";
+    position:absolute;
+    right:12px;
+    top:14px;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    border:5px solid rgba(70,80,90,.48);
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.55);
+}
+
+.art-grid .tower{
+    position:relative;
+    width:70px;
+    height:76px;
+}
+
+.art-grid .tower:before{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:0;
+    width:2px;
+    height:76px;
+    background:#23def2;
+    transform:translateX(-50%);
+    box-shadow:0 0 10px rgba(35,222,242,.4);
+}
+
+.art-grid .tower:after{
+    content:"";
+    position:absolute;
+    left:14px;
+    top:8px;
+    width:42px;
+    height:60px;
+    border-left:2px solid #23def2;
+    border-right:2px solid #23def2;
+    border-bottom:2px solid #23def2;
+    transform:perspective(80px) rotateX(0deg) skewX(-16deg);
+}
+
+/* ---------- Enhanced single-line diagram ---------- */
+.singleline-frame{
+    border:1px solid var(--cyan);
+    border-radius:8px;
+    background:
+        radial-gradient(circle at 50% -12%,rgba(18,215,236,.18),transparent 35%),
+        linear-gradient(180deg,#081c2e 0%,#04111f 100%);
+    box-shadow:0 18px 42px rgba(0,0,0,.44), inset 0 0 0 1px rgba(20,220,255,.08);
+    padding:14px;
+    color:white;
+}
+
+.sle-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    border-bottom:1px solid rgba(130,210,255,.25);
+    padding-bottom:9px;
+    margin-bottom:11px;
+}
+
+.sle-head h2{
+    font-size:22px;
+    line-height:26px;
+    font-weight:950;
+    color:#fff;
+}
+
+.sle-sub{
+    color:#b7eaff;
+    font-size:11px;
+    margin-top:2px;
+    font-weight:650;
+}
+
+.sle-meta{
+    color:#b7eaff;
+    font-size:10px;
+    line-height:15px;
+    text-align:right;
+    font-weight:800;
+}
+
+.sle-chain{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr) 26px minmax(0,1fr) 26px minmax(0,1.1fr) 26px minmax(0,1fr) 26px minmax(0,.9fr);
+    gap:0;
+    align-items:stretch;
+    margin-bottom:12px;
+}
+
+.sle-node{
+    border-radius:7px;
+    padding:9px;
+    background:linear-gradient(180deg,rgba(10,28,48,.95),rgba(4,13,24,.98));
+    border:1px solid #1ecdf0;
+    min-height:138px;
+    box-shadow:inset 0 0 18px rgba(0,217,255,.07),0 10px 20px rgba(0,0,0,.25);
+}
+
+.sle-node.cell{border-color:#10ddaa;}
+.sle-node.pack{border-color:#ffc027;}
+.sle-node.rack{border-color:#827cff;}
+.sle-node.container{border-color:#ffe000;}
+.sle-node.pcs{border-color:#ff5b88;}
+.sle-node.grid{border-color:#21ddef;}
+
+.sle-node h3{
+    font-size:13px;
+    line-height:16px;
+    margin-bottom:5px;
+    text-transform:uppercase;
+    font-weight:950;
+    color:#fff;
+}
+
+.sle-art{
+    height:54px;
+    border-radius:5px;
+    border:1px solid rgba(160,203,230,.14);
+    background:rgba(5,13,23,.38);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    margin-bottom:6px;
+}
+
+.sle-art img,
+.path-art img{
+    max-height:100%;
+    max-width:100%;
+    object-fit:contain;
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,.55));
+}
+
+.sle-kv{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:2px 7px;
+}
+
+.sle-kv span{
+    color:#aee6ff;
+    font-size:9.5px;
+    line-height:12px;
+}
+
+.sle-kv b{
+    color:#fff;
+    font-size:10px;
+    line-height:12px;
+    text-align:right;
+    white-space:nowrap;
+}
+
+.sle-arrow{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#27dfff;
+    text-shadow:0 0 10px #27dfff;
+    font-weight:950;
+}
+
+.sle-arrow span{
+    font-size:21px;
+    line-height:22px;
+}
+
+.sle-arrow small{
+    margin-top:2px;
+    color:#9ceeff;
+    font-size:7.5px;
+    line-height:9px;
+    text-align:center;
+    text-shadow:none;
+    font-weight:900;
+}
+
+.sle-section-title{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:center;
+    color:#8edbff;
+    font-size:12px;
+    font-weight:950;
+    text-transform:uppercase;
+    margin:8px 0 7px;
+}
+
+.sle-section-title small{
+    color:#d4f4ff;
+    font-size:9px;
+    text-transform:none;
+    text-align:right;
+}
+
+.path-grid{
+    display:grid;
+    grid-template-columns:minmax(0,2.05fr) 26px minmax(0,1.28fr) 26px minmax(0,.82fr) 26px minmax(0,1.28fr) 26px minmax(0,1fr);
+    gap:0;
+    align-items:stretch;
+}
+
+.path-box{
+    border:1px solid #1bcff0;
+    border-radius:7px;
+    background:linear-gradient(180deg,rgba(7,24,41,.9),rgba(3,12,23,.95));
+    padding:10px;
+    min-height:134px;
+    box-shadow:inset 0 0 16px rgba(20,220,255,.06);
+}
+
+.path-box h4{
+    color:#a8e8ff;
+    font-size:11px;
+    line-height:14px;
+    font-weight:950;
+    text-transform:uppercase;
+    margin-bottom:6px;
+}
+
+.path-box p{
+    color:#d6efff;
+    font-size:9.5px;
+    line-height:13px;
+    margin:3px 0;
+}
+
+.path-arrow{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#ff6f6f;
+    font-size:15px;
+    font-weight:950;
+    text-shadow:0 0 8px rgba(255,95,95,.45);
+}
+
+.series-packs{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:6px;
+    margin-top:5px;
+}
+
+.series-pack{
+    border:1px solid #12e1f4;
+    border-radius:5px;
+    background:#071525;
+    padding:5px 4px;
+    text-align:center;
+}
+
+.series-pack .pack-top{
+    height:22px;
+    border:1px solid #f0a000;
+    border-radius:4px;
+    margin-bottom:4px;
+    background:repeating-linear-gradient(90deg,#11c683 0 6px,#103e35 6px 10px);
+}
+
+.series-pack b{
+    display:block;
+    color:white;
+    font-size:9px;
+    line-height:11px;
+}
+
+.series-pack span{
+    display:block;
+    color:#bdefff;
+    font-size:8px;
+    line-height:10px;
+}
+
+.series-pack em{
+    display:block;
+    margin-top:3px;
+    color:#ffd8bf;
+    font-size:7.5px;
+    line-height:9px;
+    font-style:normal;
+    border:1px solid #ff4d4d;
+    border-radius:3px;
+    padding:1px;
+}
+
+.bus-pill{
+    border-radius:6px;
+    background:linear-gradient(180deg,#235dce,#123176);
+    color:#fff;
+    text-align:center;
+    font-weight:950;
+    font-size:12px;
+    padding:14px 5px;
+    margin:8px 2px 7px;
+    box-shadow:inset 0 0 12px rgba(255,255,255,.12);
+}
+
+.cc-line{
+    height:1px;
+    background:rgba(200,240,255,.26);
+    margin:10px 0;
+}
+
+.path-art{
+    height:50px;
+    border-radius:5px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.06);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    margin:5px 0 6px;
+}
+
+.detail-grid{
+    display:grid;
+    grid-template-columns:1.35fr 1.08fr 1.18fr;
+    gap:12px;
+    margin-top:12px;
+}
+
+.detail-panel{
+    border:1px solid #1f527d;
+    border-radius:7px;
+    background:rgba(7,22,38,.82);
+    padding:10px;
+    min-height:160px;
+}
+
+.detail-panel h4{
+    color:#8edbff;
+    font-size:12px;
+    line-height:14px;
+    text-transform:uppercase;
+    font-weight:950;
+    margin-bottom:8px;
+}
+
+.micro-packs{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:8px;
+}
+
+.micro-pack{
+    width:48px;
+    height:26px;
+    border:2px solid #f6b800;
+    border-radius:4px;
+    background:repeating-linear-gradient(90deg,#0fc583 0 7px,#0c4538 7px 11px);
+    box-shadow:inset 0 0 10px rgba(0,0,0,.2);
+}
+
+.micro-caption{
+    color:#ffd958;
+    font-size:9px;
+    font-weight:900;
+    line-height:11px;
+}
+
+.protection-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:7px;
+}
+
+.protection-chip{
+    border:1px dashed #827cff;
+    border-radius:6px;
+    background:rgba(130,124,255,.08);
+    text-align:center;
+    padding:8px 6px;
+}
+
+.protection-chip span{
+    color:#e4e2ff;
+    display:block;
+    font-size:8.5px;
+    line-height:11px;
+}
+
+.protection-chip b{
+    color:#fff;
+    display:block;
+    font-size:11px;
+    margin-top:3px;
+}
+
+.note-band{
+    border-left:3px solid #ffb463;
+    border-radius:6px;
+    background:rgba(255,180,99,.09);
+    color:#ffddb5;
+    font-size:9px;
+    line-height:13px;
+    padding:7px 8px;
+    margin-top:7px;
+}
+
+.dc-bus-visual{
+    border:1px solid #f6d000;
+    border-radius:7px;
+    padding:8px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    align-items:center;
+    background:linear-gradient(180deg,rgba(75,53,5,.42),rgba(6,15,24,.55));
+}
+
+.energy-bar{
+    height:14px;
+    border-radius:999px;
+    background:linear-gradient(90deg,#21d2ff,#24f09f);
+    box-shadow:0 0 12px rgba(33,210,255,.28);
+    margin-bottom:8px;
+}
+
+.detail-metrics{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:7px;
+    margin-top:8px;
+}
+
+.detail-metric{
+    border:1px solid rgba(160,203,230,.18);
+    border-radius:6px;
+    background:rgba(5,15,27,.65);
+    padding:8px;
+}
+
+.detail-metric span{
+    display:block;
+    color:#9edfff;
+    font-size:8.5px;
+    margin-bottom:4px;
+}
+
+.detail-metric b{
+    color:#fff;
+    font-size:14px;
+    font-weight:950;
+}
+
+.fuse-flow{
+    display:grid;
+    grid-template-columns:1fr 18px 1fr 18px 1fr;
+    align-items:center;
+    gap:4px;
+}
+
+.fuse-card{
+    border:1px solid #ffc052;
+    border-radius:6px;
+    background:rgba(255,192,82,.1);
+    padding:8px 6px;
+    text-align:center;
+}
+
+.fuse-card span{
+    display:block;
+    color:#ffdfaa;
+    font-size:8px;
+    line-height:10px;
+}
+
+.fuse-card b{
+    display:block;
+    color:#ffe36c;
+    font-size:16px;
+    line-height:18px;
+    font-weight:950;
+    margin:2px 0;
+}
+
+.fuse-arrow{
+    color:#ff9538;
+    text-align:center;
+    font-size:16px;
+    font-weight:950;
+}
+
+.bms-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:7px;
+    margin-top:8px;
+}
+
+.bms-card{
+    border:1px solid #244e75;
+    border-radius:5px;
+    background:rgba(8,19,34,.8);
+    text-align:center;
+    padding:7px 4px;
+}
+
+.bms-card span{
+    display:block;
+    color:#9fc8df;
+    font-size:8px;
+}
+
+.bms-card b{
+    display:block;
+    color:#fff;
+    font-size:10px;
+    margin-top:3px;
+}
+
+.sle-footer{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    border:1px solid #1f527d;
+    border-radius:7px;
+    background:rgba(5,16,29,.72);
+    overflow:hidden;
+    margin-top:10px;
+}
+
+.sle-foot-item{
+    padding:10px 12px;
+    border-right:1px solid rgba(120,190,240,.18);
+}
+
+.sle-foot-item:last-child{border-right:0;}
+
+.sle-foot-item span{
+    display:block;
+    color:#9edfff;
+    font-size:9px;
+    margin-bottom:5px;
+}
+
+.sle-foot-item b{
+    display:block;
+    color:#fff;
+    font-size:14px;
+    line-height:16px;
+    font-weight:950;
+}
+
+@media(max-width:1100px){
+    div[data-testid="stHorizontalBlock"]:has(div[data-testid="stSelectbox"]){
+        padding:10px;
+    }
+    .sle-chain,
+    .path-grid,
+    .detail-grid,
+    .sle-footer,
+    .series-packs{
+        grid-template-columns:1fr;
+    }
+    .sle-arrow,
+    .path-arrow{
+        display:none;
+    }
+    .sle-node,
+    .path-box,
+    .detail-panel{
+        min-height:auto;
+        margin-bottom:8px;
+    }
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
 # ============================================================
 # Utility functions
 # ============================================================
@@ -720,14 +1675,75 @@ def get_image_src(record: Dict[str, Any], image_key: str) -> Optional[str]:
     return f"data:image/{mime};base64,{encoded}"
 
 
-def hero_html(record: Dict[str, Any], key: str, emoji: str) -> str:
+def equipment_art_html(key: str, fallback_label: str = "") -> str:
+    label = fallback_label or key.upper()
+
+    if key == "cell":
+        return (
+            f'<div class="equip-art art-cell">'
+            f'<div class="cell-can"><span class="art-label">{esc(label)}</span></div>'
+            f'</div>'
+        )
+
+    if key == "pack":
+        return (
+            f'<div class="equip-art art-pack">'
+            f'<div class="pack-body"><span class="art-label">{esc(label)}</span></div>'
+            f'</div>'
+        )
+
+    if key == "rack":
+        return (
+            f'<div class="equip-art art-rack">'
+            f'<div class="rack-body"><span class="art-label">{esc(label)}</span></div>'
+            f'</div>'
+        )
+
+    if key == "container":
+        return (
+            f'<div class="equip-art art-container">'
+            f'<div class="container-body"><span class="art-label">{esc(label)}</span></div>'
+            f'</div>'
+        )
+
+    if key == "pcs":
+        return (
+            f'<div class="equip-art art-pcs">'
+            f'<div class="pcs-body"><span class="art-label">{esc(label)}</span></div>'
+            f'</div>'
+        )
+
+    if key == "grid":
+        return (
+            f'<div class="equip-art art-grid">'
+            f'<div class="tower"><span class="art-label">{esc(label)}</span></div>'
+            f'</div>'
+        )
+
+    return f'<div class="placeholder-icon">{esc(fallback_label or "▣")}</div>'
+
+
+def art_html(record: Dict[str, Any], key: str, fallback_label: str = "") -> str:
     src = get_image_src(record, key)
 
     if src:
         return f'<img src="{esc(src)}" alt="{esc(key)} image"/>'
 
-    return f'<div class="placeholder-icon">{esc(emoji)}</div>'
+    return equipment_art_html(key, fallback_label)
 
+
+def hero_html(record: Dict[str, Any], key: str, emoji: str) -> str:
+    # The emoji argument is retained for backward compatibility with calls in
+    # the renderers; polished CSS artwork is used when no asset is supplied.
+    fallback = {
+        "cell": "CELL",
+        "pack": "PACK",
+        "rack": "RACK",
+        "container": "BESS",
+        "pcs": "PCS",
+        "grid": "GRID",
+    }.get(key, emoji)
+    return art_html(record, key, fallback)
 
 def row_html(label: str, value: Any) -> str:
     return f"""
@@ -1322,160 +2338,339 @@ def render_summary(state: Dict[str, Any]) -> None:
 
 def render_sld(state: Dict[str, Any]) -> None:
     battery = state["battery"]
+    pack = state["pack"]
+    rack = state["rack"]
+    container = state["container"]
     pcs = state["pcs"]
+    c_case = state["c_case"]
 
-    sld_node = lambda title, rows, css_class: f"""
-    <div class="sld-node {css_class}">
-        <h3>{esc(title)}</h3>
-        <div class="sld-kv">
-            {"".join(f"<span>{esc(k)}</span><b>{esc(v)}</b>" for k, v in rows)}
-        </div>
-    </div>
-    """
+    def safe_int(value: Any, default: int = 0) -> int:
+        number = to_float(value)
+        return default if number is None else int(round(number))
 
-    nodes = [
-        sld_node(
-            "Cell",
-            [
-                ("Voltage", fmt_unit(state["cell_nom_v"], "V", 2)),
-                ("Capacity", fmt_unit(state["cell_cap_ah"], "Ah", 0)),
-                ("Energy", fmt_unit(state["cell_energy_wh"], "Wh", 1)),
-            ],
-            "cell",
-        ),
-        sld_node(
-            "Pack",
-            [
-                ("Config", f"{fmt_num(state['pack_series'],0)}S × {fmt_num(state['pack_parallel'],0)}P"),
-                ("Voltage", fmt_unit(state["pack_nom_v"], "V", 1)),
-                ("Energy", fmt_unit(state["pack_energy_kwh"], "kWh", 2)),
-            ],
-            "pack",
-        ),
-        sld_node(
-            "Rack",
-            [
-                ("Packs", fmt_num(state["packs_per_rack"], 0)),
-                ("Voltage", fmt_unit(state["rack_nom_v"], "V", 1)),
-                ("Energy", fmt_unit(state["rack_energy_kwh"], "kWh", 1)),
-            ],
-            "rack",
-        ),
-        sld_node(
-            "Container",
-            [
-                ("Racks", fmt_num(state["racks_per_container"], 0)),
-                ("Bus V", fmt_range(state["dc_window_min_v"], state["dc_window_max_v"], "V", 0)),
-                ("Bus I", fmt_unit(state["dc_bus_current_a"], "A", 1)),
-            ],
-            "container",
-        ),
-        sld_node(
-            "PCS",
-            [
-                ("Rating", fmt_unit(state["pcs_rating_kw"], "kVA", 0)),
-                ("AC V", fmt_unit(pcs.get("ac_voltage_v"), "V", 0)),
-                ("Util.", fmt_unit(state["pcs_utilisation_percent"], "%", 1)),
-            ],
-            "pcs",
-        ),
-        sld_node(
-            "AC Grid",
-            [
-                ("Type", "3 Phase"),
-                ("Voltage", fmt_unit(pcs.get("ac_voltage_v"), "V", 0)),
-                ("Output", "AC"),
-            ],
-            "grid",
-        ),
-    ]
+    def spec_text(*values: Any, default: str = "N/A") -> str:
+        value = prefer(*values)
+        if value is None or str(value).strip() == "":
+            return default
+        return str(value)
 
-    path = get_nested(battery, "sld.dc_connection_path")
-    if not isinstance(path, list) or not path:
-        path = ["String", "Rack Combiner", "DC Bus", "CC Panel", "PCS", "AC Grid"]
+    pack_fuse_a = prefer_float(
+        pack.get("pack_fuse_a"),
+        pack.get("fuse_a"),
+        get_nested(battery, "protection.pack_fuse_a"),
+        get_nested(battery, "sld.pack_fuse_a"),
+    )
+    rack_fuse_a = prefer_float(
+        rack.get("rack_fuse_a"),
+        rack.get("fuse_a"),
+        get_nested(battery, "protection.rack_fuse_a"),
+        get_nested(battery, "sld.rack_fuse_a"),
+    )
+    combiner_fuse_a = prefer_float(
+        container.get("combiner_fuse_a"),
+        get_nested(battery, "protection.combiner_fuse_a"),
+        get_nested(battery, "sld.combiner_fuse_a"),
+        rack_fuse_a,
+    )
+    main_fuse_a = prefer_float(
+        container.get("main_fuse_a"),
+        container.get("cc_panel_main_fuse_a"),
+        c_case.get("main_fuse_a"),
+        get_nested(battery, "protection.main_fuse_a"),
+        get_nested(battery, "sld.main_fuse_a"),
+    )
+    system_fuse_a = prefer_float(
+        container.get("system_fuse_a"),
+        container.get("system_breaker_a"),
+        c_case.get("system_fuse_a"),
+        c_case.get("system_breaker_a"),
+        get_nested(battery, "protection.system_fuse_a"),
+        get_nested(battery, "sld.system_fuse_a"),
+        main_fuse_a,
+    )
+    short_circuit_ka = prefer_float(
+        container.get("short_circuit_ka"),
+        get_nested(battery, "protection.short_circuit_ka"),
+        get_nested(battery, "sld.short_circuit_ka"),
+    )
 
-    detail = {
-        "String": [
-            f"{fmt_num(state['packs_per_rack'],0)} packs in series",
-            f"{fmt_unit(state['rack_nom_v'], 'V', 1)} rack voltage",
-            f"{fmt_unit(state['rack_current_a'], 'A', 1)} string current",
-        ],
-        "Rack Combiner": [
-            f"{fmt_num(state['racks_per_container'],0)} rack inputs",
-            "Parallel DC combining",
-            "HVCB / IMD / Pre-charge",
-        ],
-        "DC Bus": [
-            f"{fmt_range(state['dc_window_min_v'], state['dc_window_max_v'], 'V', 0)}",
-            f"{fmt_unit(state['dc_bus_current_a'], 'A', 1)}",
-            f"{fmt_unit(state['container_energy_mwh'], 'MWh', 2)}",
-        ],
-        "CC Panel": [
-            "Main DC protection",
-            "Copper busbar",
-            "Protection coordination",
-        ],
-        "PCS": [
-            "DC / AC conversion",
-            f"{fmt_unit(state['pcs_rating_kw'], 'kVA', 0)}",
-            f"{fmt_unit(state['pcs_utilisation_percent'], '%', 1)} utilisation",
-        ],
-        "AC Grid": [
-            "3-phase AC output",
-            f"{fmt_unit(pcs.get('ac_voltage_v'), 'V', 0)}",
-            "Grid interface",
-        ],
-    }
+    rack_contactor = spec_text(
+        rack.get("contactor"),
+        rack.get("rack_contactor"),
+        get_nested(battery, "protection.rack_contactor"),
+        get_nested(battery, "sld.rack_contactor"),
+        default="HVCB",
+    )
+    imd_precharge = spec_text(
+        rack.get("imd_precharge"),
+        rack.get("imd_pre_charge"),
+        get_nested(battery, "protection.imd_precharge"),
+        default="IMD + Pre-charge",
+    )
+    bus_cable = spec_text(
+        container.get("dc_bus_cable"),
+        get_nested(battery, "sld.dc_bus_cable"),
+        default="Configured per project",
+    )
+    output_cable = spec_text(
+        container.get("output_cable"),
+        get_nested(battery, "sld.output_cable"),
+        default="Configured per project",
+    )
+    bmu_label = spec_text(
+        get_nested(battery, "bms.bmu_per_string"),
+        get_nested(battery, "sld.bmu_per_string"),
+        default="4 / string",
+    )
+    bcmu_label = spec_text(
+        get_nested(battery, "bms.bcmu_per_string"),
+        get_nested(battery, "sld.bcmu_per_string"),
+        default="1 / string",
+    )
+    bamu_label = spec_text(
+        get_nested(battery, "bms.bamu_per_container"),
+        get_nested(battery, "sld.bamu_per_container"),
+        default="1 / container",
+    )
+    grid_connection = spec_text(
+        pcs.get("grid_connection"),
+        pcs.get("connection"),
+        get_nested(pcs, "grid.connection"),
+        default="3-phase",
+    )
+    grid_standard = spec_text(
+        pcs.get("grid_standard"),
+        pcs.get("standard"),
+        get_nested(pcs, "grid.standard"),
+        default="UL 1741",
+    )
 
-    path_boxes = ""
-    for item in path:
-        lines = detail.get(str(item), ["Configured from JSON"])
-        path_boxes += f"""
-        <div class="electrical-box">
-            <h4>{esc(item)}</h4>
-            {"".join(f"<p>{esc(line)}</p>" for line in lines)}
+    pack_count = max(1, safe_int(state["packs_per_rack"], 1))
+    display_pack_count = min(pack_count, 4)
+
+    def sld_node(title: str, art_key: str, rows: List[Tuple[str, Any]], css_class: str, record: Optional[Dict[str, Any]] = None) -> str:
+        image_record = record if record is not None else battery
+        return f"""
+        <div class="sle-node {esc(css_class)}">
+            <h3>{esc(title)}</h3>
+            <div class="sle-art">{art_html(image_record, art_key, title)}</div>
+            <div class="sle-kv">
+                {''.join(f'<span>{esc(label)}</span><b>{esc(value)}</b>' for label, value in rows)}
+            </div>
         </div>
         """
 
-    containers = state["containers_per_pcs"]
+    def chain_arrow(label: str) -> str:
+        return f'<div class="sle-arrow"><span>→</span><small>{esc(label)}</small></div>'
+
+    pack_cards = "".join(
+        f"""
+        <div class="series-pack">
+            <div class="pack-top"></div>
+            <b>Pack {idx}</b>
+            <span>{esc(fmt_unit(state["pack_nom_v"], "V", 1))}</span>
+            <span>{esc(fmt_unit(state["pack_cap_ah"], "Ah", 0))}</span>
+            <em>Fuse {esc(fmt_unit(pack_fuse_a, "A", 0))}</em>
+        </div>
+        """
+        for idx in range(1, display_pack_count + 1)
+    )
+
+    if pack_count > display_pack_count:
+        pack_cards += f"""
+        <div class="series-pack">
+            <div class="pack-top"></div>
+            <b>+{esc(pack_count - display_pack_count)}</b>
+            <span>additional</span>
+            <span>packs</span>
+            <em>series</em>
+        </div>
+        """
+
+    micro_pack_count = min(pack_count, 4)
+    micro_packs = "".join('<div class="micro-pack"></div>' for _ in range(micro_pack_count))
+
+    bus_voltage_display = prefer_float(state["dc_window_max_v"], state["rack_max_v"], state["nominal_dc_bus_v"])
+    bus_voltage_text = fmt_unit(bus_voltage_display, "V", 1)
+    topology_text = (
+        f"Cell → {fmt_num(state['pack_series'],0)}S Pack → "
+        f"{fmt_num(state['packs_per_rack'],0)}S Rack → "
+        f"{fmt_num(state['racks_per_container'],0)}P Container → PCS"
+    )
+    short_circuit_text = ""
+    if short_circuit_ka is not None:
+        short_circuit_text = f" / {fmt_num(short_circuit_ka, 0)} kA"
 
     st.markdown(
         f"""
-        <div class="sld-frame">
-            <div class="sld-head">
+        <div class="singleline-frame">
+            <div class="sle-head">
                 <div>
                     <h2>Single Line Diagram</h2>
-                    <div class="bess-subtitle" style="text-align:left;margin:4px 0 0;">
-                        {esc(battery.get("display_name"))} | {esc(state["c_rate_label"])} | {esc(pcs.get("display_name"))}
+                    <div class="sle-sub">
+                        {esc(battery.get("display_name"))} | {esc(state["c_rate_label"])} - {esc(pcs.get("display_name"))}
                     </div>
                 </div>
-                <div class="sld-meta">
-                    System Energy: {esc(fmt_unit(state["container_energy_mwh"], "MWh", 2))}<br>
-                    DC Bus: {esc(fmt_range(state["dc_window_min_v"], state["dc_window_max_v"], "V", 0))}<br>
-                    Current: {esc(fmt_unit(state["dc_bus_current_a"], "A", 1))}
+                <div class="sle-meta">
+                    System: {esc(fmt_unit(state["container_energy_mwh"], "MWh", 2))} · {esc(fmt_unit(state["power_kw"], "kW", 0))}<br>
+                    DC Bus: {esc(bus_voltage_text)} · {esc(fmt_unit(state["dc_bus_current_a"], "A", 1))}
                 </div>
             </div>
 
-            <div class="sld-chain">
-                {nodes[0]} <div class="sld-arrow">→</div>
-                {nodes[1]} <div class="sld-arrow">→</div>
-                {nodes[2]} <div class="sld-arrow">→</div>
-                {nodes[3]} <div class="sld-arrow">→</div>
-                {nodes[4]} <div class="sld-arrow">→</div>
-                {nodes[5]}
+            <div class="sle-chain">
+                {sld_node("Cell", "cell", [
+                    ("Capacity", fmt_unit(state["cell_cap_ah"], "Ah", 0)),
+                    ("Voltage", fmt_unit(state["cell_nom_v"], "V", 2)),
+                    ("Energy", fmt_unit(state["cell_energy_kwh"], "kWh", 3)),
+                ], "cell")}
+                {chain_arrow(f'×{fmt_num(state["pack_series"],0)}S')}
+                {sld_node("Pack", "pack", [
+                    ("Config", f'{fmt_num(state["pack_series"],0)}S×{fmt_num(state["pack_parallel"],0)}P'),
+                    ("Voltage", fmt_unit(state["pack_nom_v"], "V", 1)),
+                    ("Energy", fmt_unit(state["pack_energy_kwh"], "kWh", 1)),
+                ], "pack")}
+                {chain_arrow(f'×{fmt_num(state["packs_per_rack"],0)} series')}
+                {sld_node("Rack / String", "rack", [
+                    ("Voltage", bus_voltage_text),
+                    ("Current", fmt_unit(state["rack_current_a"], "A", 1)),
+                    ("Energy", fmt_unit(state["rack_energy_kwh"], "kWh", 1)),
+                ], "rack")}
+                {chain_arrow(f'×{fmt_num(state["racks_per_container"],0)} parallel')}
+                {sld_node("Container", "container", [
+                    ("Energy", fmt_unit(state["container_energy_mwh"], "MWh", 2)),
+                    ("Bus V", fmt_range(state["dc_window_min_v"], state["dc_window_max_v"], "V", 0)),
+                    ("Bus I", fmt_unit(state["dc_bus_current_a"], "A", 1)),
+                ], "container")}
+                {chain_arrow("DC")}
+                {sld_node("PCS", "pcs", [
+                    ("Rating", fmt_unit(state["pcs_rating_kw"], "kVA", 0)),
+                    ("AC", fmt_unit(pcs.get("ac_voltage_v"), "V", 0)),
+                    ("Eff", fmt_unit(pcs.get("efficiency_percent"), "%", 1)),
+                ], "pcs", pcs)}
+                {chain_arrow("AC")}
+                {sld_node("AC Grid", "grid", [
+                    ("Connection", grid_connection),
+                    ("Voltage", fmt_unit(pcs.get("ac_voltage_v"), "V", 0)),
+                    ("Std", grid_standard),
+                ], "grid", {})}
             </div>
 
-            <div class="architecture">
-                {esc(fmt_num(containers, 0))} {plural(containers, "container")} connected to 1 PCS
+            <div class="sle-section-title">
+                <span>Electrical Connection Path</span>
+                <small>Cells → Packs → String/Rack → Rack Combiner → DC Bus → CC Panel → PCS</small>
             </div>
 
-            <div class="electrical-grid">
-                {path_boxes}
+            <div class="path-grid">
+                <div class="path-box">
+                    <h4>String / Rack</h4>
+                    <p>{esc(fmt_num(state["packs_per_rack"], 0))} packs connected in series per string</p>
+                    <div class="series-packs">{pack_cards}</div>
+                </div>
+                <div class="path-arrow">→</div>
+
+                <div class="path-box">
+                    <h4>Rack Combiner</h4>
+                    <p>One combiner per rack string</p>
+                    <div class="cc-line"></div>
+                    <p><b>Combiner fuse</b> &nbsp; {esc(fmt_unit(combiner_fuse_a, "A", 0))}{esc(short_circuit_text)}</p>
+                    <p><b>Rack output</b> &nbsp; {esc(bus_voltage_text)}</p>
+                    <p><b>String current</b> &nbsp; {esc(fmt_unit(state["rack_current_a"], "A", 1))}</p>
+                </div>
+                <div class="path-arrow">→</div>
+
+                <div class="path-box">
+                    <h4>DC Bus</h4>
+                    <div class="bus-pill">{esc(bus_voltage_text)}</div>
+                    <p><b>Cable</b> &nbsp; {esc(bus_cable)}</p>
+                    <p><b>Total current</b> &nbsp; {esc(fmt_unit(state["dc_bus_current_a"], "A", 1))}</p>
+                </div>
+                <div class="path-arrow">→</div>
+
+                <div class="path-box">
+                    <h4>CC Panel</h4>
+                    <p>DC collection and protection panel</p>
+                    <div class="cc-line"></div>
+                    <p><b>Main fuse</b> &nbsp; {esc(fmt_unit(main_fuse_a, "A", 0))}{esc(short_circuit_text)}</p>
+                    <p><b>Output cable</b> &nbsp; {esc(output_cable)}</p>
+                </div>
+                <div class="path-arrow">→</div>
+
+                <div class="path-box">
+                    <h4>PCS</h4>
+                    <p>DC/AC conversion</p>
+                    <div class="path-art">{art_html(pcs, "pcs", "PCS")}</div>
+                    <p><b>Rating</b> &nbsp; {esc(fmt_unit(state["pcs_rating_kw"], "kVA", 0))}</p>
+                    <p><b>Utilisation</b> &nbsp; {esc(fmt_unit(state["pcs_utilisation_percent"], "%", 1))}</p>
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-panel">
+                    <h4>String / Rack Detail</h4>
+                    <div class="micro-packs">
+                        {micro_packs}
+                        <div class="micro-caption">{esc(fmt_num(state["packs_per_rack"], 0))} packs in series<br>{esc(bus_voltage_text)}</div>
+                    </div>
+                    <div class="protection-row">
+                        <div class="protection-chip"><span>Fuse</span><b>{esc(fmt_unit(rack_fuse_a, "A", 0))}</b></div>
+                        <div class="protection-chip"><span>Contactor</span><b>{esc(rack_contactor)}</b></div>
+                        <div class="protection-chip"><span>IMD + Pre-charge</span><b>{esc(imd_precharge)}</b></div>
+                    </div>
+                    <div class="note-band">
+                        HVCB = high-voltage control box. Each string isolates independently; rack fuse trips before pack fuse where reverse coordination is required.
+                    </div>
+                </div>
+
+                <div class="detail-panel">
+                    <h4>DC Bus &amp; Container</h4>
+                    <div class="energy-bar"></div>
+                    <div class="dc-bus-visual">
+                        <div class="path-art" style="height:74px;margin:0;">{art_html(battery, "container", "BESS")}</div>
+                        <div>
+                            <p><b>{esc(fmt_num(state["racks_per_container"], 0))} racks in parallel</b></p>
+                            <p>Bus V: {esc(fmt_range(state["dc_window_min_v"], state["dc_window_max_v"], "V", 0))}</p>
+                            <p>Energy: {esc(fmt_unit(state["container_energy_mwh"], "MWh", 2))}</p>
+                        </div>
+                    </div>
+                    <div class="detail-metrics">
+                        <div class="detail-metric"><span>Power @ C-rate</span><b>{esc(fmt_unit(state["power_kw"], "kW", 0))}</b></div>
+                        <div class="detail-metric"><span>Duration</span><b>{esc(fmt_unit(state["duration_hr"], "h", 1))}</b></div>
+                    </div>
+                </div>
+
+                <div class="detail-panel">
+                    <h4>Protection Coordination</h4>
+                    <div class="fuse-flow">
+                        <div class="fuse-card"><span>Pack Fuse</span><b>{esc(fmt_unit(pack_fuse_a, "A", 0))}</b><span>Pack level</span></div>
+                        <div class="fuse-arrow">→</div>
+                        <div class="fuse-card"><span>Rack Fuse</span><b>{esc(fmt_unit(rack_fuse_a, "A", 0))}</b><span>String level</span></div>
+                        <div class="fuse-arrow">→</div>
+                        <div class="fuse-card"><span>System</span><b>{esc(fmt_unit(system_fuse_a, "A", 0))}</b><span>DC bus</span></div>
+                    </div>
+                    <div class="note-band">
+                        Confirm final fuse, breaker, and cable ratings against NEC / IEC requirements, available fault current, and manufacturer coordination curves.
+                    </div>
+                    <div class="bms-row">
+                        <div class="bms-card"><span>BMU</span><b>{esc(bmu_label)}</b></div>
+                        <div class="bms-card"><span>BCMU</span><b>{esc(bcmu_label)}</b></div>
+                        <div class="bms-card"><span>BAMU</span><b>{esc(bamu_label)}</b></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sle-footer">
+                <div class="sle-foot-item"><span>System Energy</span><b>{esc(fmt_unit(state["container_energy_mwh"], "MWh", 2))}</b></div>
+                <div class="sle-foot-item"><span>System Power</span><b>{esc(fmt_unit(state["power_kw"], "kW", 0))}</b></div>
+                <div class="sle-foot-item"><span>Bus Voltage</span><b>{esc(bus_voltage_text)}</b></div>
+                <div class="sle-foot-item"><span>Bus Current</span><b>{esc(fmt_unit(state["dc_bus_current_a"], "A", 1))}</b></div>
+                <div class="sle-foot-item"><span>Duration</span><b>{esc(fmt_unit(state["duration_hr"], "h", 1))}</b></div>
+                <div class="sle-foot-item"><span>PCS Utilisation</span><b>{esc(fmt_unit(state["pcs_utilisation_percent"], "%", 1))}</b></div>
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
 
 
 # ============================================================
@@ -1550,139 +2745,129 @@ default_pcs_name = (
 )
 
 
-st.markdown('<div class="bess-title">BESS System Dashboard</div>', unsafe_allow_html=True)
+def ensure_session_option(key: str, options: List[str], default_value: Optional[str] = None) -> Optional[str]:
+    if not options:
+        return None
 
-# First select default battery so subtitle can be built after calculation
-st.markdown('<div class="control-shell">', unsafe_allow_html=True)
+    default = default_value if default_value in options else options[0]
 
-col1, col2, col3 = st.columns([1.35, 0.75, 1.1])
+    if st.session_state.get(key) not in options:
+        st.session_state[key] = default
 
-with col1:
-    selected_battery_name = st.selectbox(
-        "Battery Container",
-        battery_names,
-        index=battery_names.index(default_battery_name) if default_battery_name in battery_names else 0,
-    )
+    return st.session_state[key]
 
+
+ensure_session_option("bess_battery_name", battery_names, default_battery_name)
+ensure_session_option("bess_pcs_name", pcs_names, default_pcs_name)
+
+selected_battery_name = st.session_state["bess_battery_name"]
+selected_pcs_name = st.session_state["bess_pcs_name"]
 selected_battery = battery_display_map[selected_battery_name]
+selected_pcs = pcs_display_map[selected_pcs_name]
 
 matching_cases = [
     row for row in c_rate_records
     if str(row.get("battery_container_id")) == str(selected_battery.get("id"))
 ]
-
 matching_cases = sorted(
     matching_cases,
     key=lambda row: parse_c_rate(row.get("c_rate")) if parse_c_rate(row.get("c_rate")) is not None else 999,
 )
+c_rate_options = [str(row.get("c_rate")) for row in matching_cases]
+ensure_session_option("bess_c_rate", c_rate_options, default_c_rate)
 
-if not matching_cases:
-    with col2:
-        st.selectbox("C-rate", ["No C-rate rows found"], disabled=True)
-    selected_case = None
+selected_case = None
+if c_rate_options:
+    selected_case = next(
+        row for row in matching_cases
+        if str(row.get("c_rate")) == str(st.session_state["bess_c_rate"])
+    )
+
+if selected_case is None:
+    subtitle = f"{selected_battery.get('display_name')} | No C-rate case | {selected_pcs.get('display_name')}"
+    state = None
+    calculation_warnings: List[str] = []
 else:
-    c_rate_options = [str(row.get("c_rate")) for row in matching_cases]
-    c_index = c_rate_options.index(default_c_rate) if default_c_rate in c_rate_options else 0
+    state, calculation_warnings = calculate_state(selected_battery, selected_case, selected_pcs)
+    subtitle = (
+        f"{selected_battery.get('display_name')} | "
+        f"{state['c_rate_label']} | "
+        f"{selected_pcs.get('display_name')} | "
+        f"{fmt_unit(state['container_energy_mwh'], 'MWh', 2)} | "
+        f"{fmt_unit(state['power_kw'], 'kW', 0)}"
+    )
 
-    with col2:
-        selected_c_rate = st.selectbox("C-rate", c_rate_options, index=c_index)
+st.markdown('<div class="bess-title">BESS System Dashboard</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="bess-subtitle">{esc(subtitle)}</div>', unsafe_allow_html=True)
 
-    selected_case = next(row for row in matching_cases if str(row.get("c_rate")) == selected_c_rate)
+col1, col2, col3 = st.columns([1.35, 0.7, 1.08])
+
+with col1:
+    selected_battery_name = st.selectbox(
+        "Battery Container",
+        battery_names,
+        key="bess_battery_name",
+    )
+
+# Rebuild the C-rate list immediately after the battery widget value so a user
+# switching battery containers always sees compatible C-rate cases on rerun.
+selected_battery = battery_display_map[selected_battery_name]
+matching_cases = [
+    row for row in c_rate_records
+    if str(row.get("battery_container_id")) == str(selected_battery.get("id"))
+]
+matching_cases = sorted(
+    matching_cases,
+    key=lambda row: parse_c_rate(row.get("c_rate")) if parse_c_rate(row.get("c_rate")) is not None else 999,
+)
+c_rate_options = [str(row.get("c_rate")) for row in matching_cases]
+ensure_session_option("bess_c_rate", c_rate_options, default_c_rate)
+
+with col2:
+    if c_rate_options:
+        selected_c_rate = st.selectbox(
+            "C-rate",
+            c_rate_options,
+            key="bess_c_rate",
+        )
+    else:
+        selected_c_rate = st.selectbox(
+            "C-rate",
+            ["No C-rate rows found"],
+            disabled=True,
+        )
 
 with col3:
     selected_pcs_name = st.selectbox(
         "PCS Inverter",
         pcs_names,
-        index=pcs_names.index(default_pcs_name) if default_pcs_name in pcs_names else 0,
+        key="bess_pcs_name",
     )
 
 selected_pcs = pcs_display_map[selected_pcs_name]
 
-st.markdown("</div>", unsafe_allow_html=True)
-
-
-if selected_case is None:
+if not c_rate_options:
     st.error(
         "The selected battery container has no C-rate cases. "
         "Add matching rows under c_rate_cases in data/bess_dataset.json."
     )
     st.stop()
 
-
+selected_case = next(row for row in matching_cases if str(row.get("c_rate")) == str(selected_c_rate))
 state, calculation_warnings = calculate_state(selected_battery, selected_case, selected_pcs)
 
-subtitle = (
-    f"{selected_battery.get('display_name')} | "
-    f"{state['c_rate_label']} | "
-    f"{selected_pcs.get('display_name')} | "
-    f"{fmt_unit(state['container_energy_mwh'], 'MWh', 2)} | "
-    f"{fmt_unit(state['power_kw'], 'kW', 0)}"
-)
-
-st.markdown(f'<div class="bess-subtitle">{esc(subtitle)}</div>', unsafe_allow_html=True)
-
-
 all_warnings = data_warnings + calculation_warnings
-
 if all_warnings:
-    with st.expander("Validation / calculation warnings", expanded=False):
+    with st.expander("Calculation notices", expanded=False):
         for warning in all_warnings:
             st.markdown(f'<div class="warn">{esc(warning)}</div>', unsafe_allow_html=True)
 
 
-dashboard_tab, sld_tab, data_tab = st.tabs(
-    ["Dashboard", "Single Line Diagram", "Data & Validation"]
-)
-
+dashboard_tab, sld_tab = st.tabs(["Dashboard", "Single Line Diagram"])
 
 with dashboard_tab:
     render_dashboard_cards(state)
     render_metric_strip(state)
 
-    containers = state["containers_per_pcs"]
-    st.markdown(
-        f"""
-        <div class="architecture">
-            Container-to-PCS architecture:
-            {esc(fmt_num(containers, 0))} {plural(containers, "container")} connected to 1 PCS
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    render_summary(state)
-
-
 with sld_tab:
     render_sld(state)
-
-
-with data_tab:
-    st.subheader("Selected calculation state")
-    st.json(
-        {
-            "selected_battery_container": selected_battery.get("id"),
-            "selected_c_rate": selected_case.get("c_rate"),
-            "selected_pcs": selected_pcs.get("id"),
-            "calculated_values": {
-                key: value for key, value in state.items()
-                if key not in {"battery", "cell", "pack", "rack", "container", "pcs", "c_case"}
-            },
-        }
-    )
-
-    st.subheader("Selected JSON records")
-    st.json(
-        {
-            "battery_container": selected_battery,
-            "c_rate_case": selected_case,
-            "pcs": selected_pcs,
-        }
-    )
-
-    st.download_button(
-        "Download current JSON dataset",
-        data=json.dumps(data, indent=2),
-        file_name="bess_dataset.json",
-        mime="application/json",
-    )
