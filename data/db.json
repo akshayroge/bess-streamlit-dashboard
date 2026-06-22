@@ -1,0 +1,124 @@
+{
+  "project": {
+    "name": "BESS Dashboard",
+    "system_type": "CLOU / Midea Energy BESS",
+    "default_c_rate": "0.25C",
+    "description": "JSON based BESS sizing and SLD dashboard"
+  },
+  "selected_components": {
+    "cell": "lfp_314ah",
+    "pack": "pack_104s_314ah",
+    "rack": "rack_4pack_series",
+    "container": "aqua_c2_5h_5015_2500",
+    "pcs": "nextpower_5000kva"
+  },
+  "catalog": {
+    "cells": {
+      "lfp_314ah": {
+        "name": "LFP Cell",
+        "chemistry": "LFP",
+        "nominal_voltage_v": 3.2,
+        "capacity_ah": 314,
+        "energy_kwh": 1.0048
+      }
+    },
+    "packs": {
+      "pack_104s_314ah": {
+        "name": "Battery Pack",
+        "cells_series": 104,
+        "cells_parallel": 1,
+        "nominal_voltage_v": 332.8,
+        "capacity_ah": 314,
+        "energy_kwh": 104.4992,
+        "fuse_a": 400
+      }
+    },
+    "racks": {
+      "rack_4pack_series": {
+        "name": "Rack / String",
+        "packs_series": 4,
+        "packs_parallel": 1,
+        "nominal_voltage_v": 1331.2,
+        "capacity_ah": 314,
+        "energy_kwh": 417.9968,
+        "fuse_a": 350,
+        "hvcb_a": 350,
+        "bmu_count": 4,
+        "bcmu_count": 1
+      }
+    },
+    "containers": {
+      "aqua_c2_5h_5015_2500": {
+        "name": "Aqua C2.5H-5015-2500",
+        "manufacturer": "CLOU / Midea Energy",
+        "technology": "LFP",
+        "racks_per_container": 12,
+        "nominal_voltage_v": 1331.2,
+        "dc_window_min_v": 1040,
+        "dc_window_max_v": 1518,
+        "energy_kwh": 5015.96,
+        "cooling": "Liquid",
+        "image": "assets/images/equipment/bess_container.png"
+      }
+    },
+    "pcs": {
+      "nextpower_5000kva": {
+        "name": "NextPower PCS",
+        "model": "APCS4500DOUL",
+        "rating_kva": 5000,
+        "rated_power_kw": 5000,
+        "ac_voltage_v": 750,
+        "dc_window_min_v": 1040,
+        "dc_window_max_v": 1518,
+        "dc_inputs": 2,
+        "efficiency_percent": 98.8,
+        "image": "assets/images/equipment/pcs_nextpower.png"
+      }
+    },
+    "protection_devices": {
+      "pack_fuse": {
+        "name": "Pack Fuse",
+        "rating_a": 400
+      },
+      "rack_hvcb": {
+        "name": "Rack HVCB",
+        "rating_a": 350
+      },
+      "system_fuse": {
+        "name": "System Fuse",
+        "rating_a": 1800
+      }
+    }
+  },
+  "profiles": {
+    "c_rate_profiles": {
+      "0.25C": {
+        "label": "0.25C",
+        "c_rate": 0.25,
+        "power_kw": 1254,
+        "dc_bus_current_a": 2411.5,
+        "containers_per_pcs": 4
+      },
+      "0.5C": {
+        "label": "0.5C",
+        "c_rate": 0.5,
+        "power_kw": 2508,
+        "dc_bus_current_a": 2411.5,
+        "containers_per_pcs": 2
+      },
+      "1C": {
+        "label": "1C",
+        "c_rate": 1.0,
+        "power_kw": 5016,
+        "dc_bus_current_a": 2411.5,
+        "containers_per_pcs": 1
+      }
+    }
+  },
+  "ui": {
+    "logos": {
+      "clou": "assets/images/logos/clou_logo.png",
+      "midea": "assets/images/logos/midea_logo.png"
+    }
+  }
+}
