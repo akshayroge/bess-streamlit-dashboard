@@ -1,5 +1,4 @@
 import base64
-from pathlib import Path
 
 from src.paths import ROOT, CSS_PATH
 
@@ -11,12 +10,14 @@ def load_css() -> str:
 
 
 def placeholder_svg(label: str) -> str:
+    """
+    Placeholder image without the old 'Add image in assets/images' line.
+    """
     svg = f"""
     <svg xmlns="http://www.w3.org/2000/svg" width="360" height="160" viewBox="0 0 360 160">
       <rect width="360" height="160" rx="16" fill="#101c2f"/>
       <rect x="14" y="14" width="332" height="132" rx="12" fill="#07111f" stroke="#00d9ff" stroke-opacity="0.55"/>
-      <text x="180" y="76" fill="#f4f8ff" font-size="20" text-anchor="middle" font-family="Arial">{label}</text>
-      <text x="180" y="102" fill="#94a7bf" font-size="13" text-anchor="middle" font-family="Arial">Add image in assets/images</text>
+      <text x="180" y="88" fill="#f4f8ff" font-size="20" font-weight="700" text-anchor="middle" font-family="Arial">{label}</text>
     </svg>
     """
     encoded = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
