@@ -1,181 +1,51 @@
-{
-  "project": {
-    "name": "BESS Dashboard",
-    "system_type": "Excel / JSON based BESS comparison dashboard",
-    "default_c_rate": "0.25",
-    "description": "Database generated from provided BESS raw data. Dropdowns are C-rate, Container, and PCS."
-  },
-  "dropdowns": {
-    "c_rates": ["0.25", "0.5", "1"],
-    "containers": [
-      "container__clou_electronics__aqua_c3_0h_6250_3125",
-      "container__byd__haohan_ess_14_568_mwh",
-      "container__hyperstrong_technology__hyperblock_m_dc_version_4h",
-      "container__hyperstrong_technology__hyperblock_m_dc_version_2h",
-      "container__hyperstrong_technology__hyperblock_iii_dc_version",
-      "container__clou_electronics__clc20_1000",
-      "container__clou_electronics__aqua_c2_5h_5015_2500",
-      "container__jinko_solar__2_5_mw_5_01_mwh",
-      "container__aesc__he_l5030a",
-      "container__risen_energy__su836u418km",
-      "container__risen_energy__su5016u2500kc_series",
-      "container__rept__powtrix_2_0",
-      "container__gotion_high_tech__grid_5_mwh_system_5015",
-      "container__byd__mc_cube_t_ess_5_01_mwh",
-      "container__catl__tener_c2_l600",
-      "container__trina_solar__elementa_2_pro",
-      "container__eve__mr_giant_s556h201",
-      "container__catl__ener_one_plus_2h",
-      "container__catl__ener_one_plus_1h",
-      "container__catl__enerx",
-      "container__envision__en_5_pro",
-      "container__trina_solar__elementa_2",
-      "container__sungrow__power_titan_st5015kwh_2500kw_2h",
-      "container__sungrow__st6900ux_4h",
-      "container__tesla__megapack_2_4h_config",
-      "container__tesla__megapack_2_xl_4h_config",
-      "container__cps__cps_es_2_4mw_5mwh",
-      "container__catl__tener_stack",
-      "container__trina_solar__elementa_3",
-      "container__ac_newenergy__ess_c_20_5015d_l",
-      "container__calb__zhijiu",
-      "container__eve__s556h401",
-      "container__hithium__infinity_block",
-      "container__byd__cube_pro_ess",
-      "container__fluence__gridstack_pro_5000_series",
-      "container__sunwoda_electronics__5_mwh_ess_314_ah_cell",
-      "container__hithium__unnamed_model",
-      "container__rept__powtrix_2_0_alt",
-      "container__catl__enerc_plus",
-      "container__eve__s328h101",
-      "container__eve__s430h201",
-      "container__catl__enerc"
-    ],
-    "pcs": [
-      "apcs4500doul_apex",
-      "bcs5000k_kehua",
-      "pvs980_58bc_fimer",
-      "flamingo_5100kva_fimer",
-      "flamingo_6800kva_fimer"
-    ]
-  },
-  "selected_components": {
-    "cell": "cell__aqua_c2_5h_5015_2500",
-    "pack": "pack__aqua_c2_5h_5015_2500",
-    "rack": "rack__aqua_c2_5h_5015_2500",
-    "container": "container__clou_electronics__aqua_c2_5h_5015_2500",
-    "pcs": "apcs4500doul_apex"
-  },
-  "catalog": {
-    "cells": {
-      "cell__aqua_c2_5h_5015_2500": {
-        "name": "LFP Cell - 314Ah",
-        "chemistry": "LFP",
-        "nominal_voltage_v": 3.2,
-        "capacity_ah": 314,
-        "energy_kwh": 1.0048
-      }
-    },
-    "packs": {
-      "pack__aqua_c2_5h_5015_2500": {
-        "name": "Battery Pack - 1P104S",
-        "configuration": "1P104S",
-        "cells_series": 104,
-        "cells_parallel": 1,
-        "nominal_voltage_v": 333,
-        "capacity_ah": 314,
-        "energy_kwh": 104,
-        "fuse_a": 400
-      }
-    },
-    "racks": {
-      "rack__aqua_c2_5h_5015_2500": {
-        "name": "Rack / String - Aqua C2.5H",
-        "packs_series": 4,
-        "packs_parallel": 1,
-        "nominal_voltage_v": 1331.2,
-        "capacity_ah": 314,
-        "energy_kwh": 418,
-        "fuse_a": 350,
-        "hvcb_a": 350,
-        "bmu_count": 4,
-        "bcmu_count": 1
-      }
-    },
-    "containers": {
-      "container__clou_electronics__aqua_c3_0h_6250_3125": {"label": "Clou Electronics | Aqua C3.0H-6250-3125", "name": "Aqua C3.0H-6250-3125", "manufacturer": "Clou Electronics", "model_name": "Aqua C3.0H-6250-3125", "product_type": "Container", "technology": "LFP", "racks_per_container": 8, "energy_kwh": 6251, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 587, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.8784, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 195, "modules_per_string": 4, "rack_energy_kwh": 781, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__byd__haohan_ess_14_568_mwh": {"label": "BYD | Haohan ESS (14.568 MWh)", "name": "Haohan ESS (14.568 MWh)", "manufacturer": "BYD", "model_name": "Haohan ESS (14.568 MWh)", "product_type": "Container", "technology": "LFP", "racks_per_container": 1, "energy_kwh": 14568, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__hyperstrong_technology__hyperblock_m_dc_version_4h": {"label": "HyperStrong Technology | HyperBlock M – DC Version 4h", "name": "HyperBlock M – DC Version 4h", "manufacturer": "HyperStrong Technology", "model_name": "HyperBlock M – DC Version 4h", "product_type": "Container", "technology": "LFP", "racks_per_container": 16, "energy_kwh": 12801, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 601, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.9232, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 200, "modules_per_string": 4, "rack_energy_kwh": 800, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__hyperstrong_technology__hyperblock_m_dc_version_2h": {"label": "HyperStrong Technology | HyperBlock M – DC Version 2h", "name": "HyperBlock M – DC Version 2h", "manufacturer": "HyperStrong Technology", "model_name": "HyperBlock M – DC Version 2h", "product_type": "Container", "technology": "LFP", "racks_per_container": 16, "energy_kwh": 12524, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 588, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.8816, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 196, "modules_per_string": 4, "rack_energy_kwh": 783, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__hyperstrong_technology__hyperblock_iii_dc_version": {"label": "HyperStrong Technology | HyperBlock III – DC Version", "name": "HyperBlock III – DC Version", "manufacturer": "HyperStrong Technology", "model_name": "HyperBlock III – DC Version", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__clou_electronics__clc20_1000": {"label": "Clou Electronics | CLC20-1000", "name": "CLC20-1000", "manufacturer": "Clou Electronics", "model_name": "CLC20-1000", "product_type": "Container", "technology": "LFP", "racks_per_container": 5, "energy_kwh": 2090, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__clou_electronics__aqua_c2_5h_5015_2500": {"label": "Clou Electronics | Aqua C2.5H-5015-2500", "name": "Aqua C2.5H-5015-2500", "manufacturer": "Clou Electronics", "model_name": "Aqua C2.5H-5015-2500", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__jinko_solar__2_5_mw_5_01_mwh": {"label": "Jinko Solar | 2.5 MW / 5.01 MWh", "name": "2.5 MW / 5.01 MWh", "manufacturer": "Jinko Solar", "model_name": "2.5 MW / 5.01 MWh", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1164.8, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__aesc__he_l5030a": {"label": "AESC | HE-L5030A", "name": "HE-L5030A", "manufacturer": "AESC", "model_name": "HE-L5030A", "product_type": "Container", "technology": "LFP", "racks_per_container": 6, "energy_kwh": 5032, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 315, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.008, "cells_series": 52, "cells_parallel": 2, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 105, "modules_per_string": 8, "rack_energy_kwh": 839, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__risen_energy__su836u418km": {"label": "Risen Energy | SU836U418KM", "name": "SU836U418KM", "manufacturer": "Risen Energy", "model_name": "SU836U418KM", "product_type": "Rack", "technology": "LFP", "racks_per_container": 1, "energy_kwh": 836, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 52, "modules_per_string": 8, "rack_energy_kwh": 836, "cooling": "Liquid Cooling", "image": "assets/images/equipment/rack.png"},
-      "container__risen_energy__su5016u2500kc_series": {"label": "Risen Energy | SU5016U2500KC Series", "name": "SU5016U2500KC Series", "manufacturer": "Risen Energy", "model_name": "SU5016U2500KC Series", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__rept__powtrix_2_0": {"label": "REPT | PowTrix 2.0", "name": "PowTrix 2.0", "manufacturer": "REPT", "model_name": "PowTrix 2.0", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__gotion_high_tech__grid_5_mwh_system_5015": {"label": "Gotion High Tech | GRID 5 MWh (System-5015)", "name": "GRID 5 MWh (System-5015)", "manufacturer": "Gotion High Tech", "model_name": "GRID 5 MWh (System-5015)", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__byd__mc_cube_t_ess_5_01_mwh": {"label": "BYD | MC Cube-T ESS (5.01 MWh)", "name": "MC Cube-T ESS (5.01 MWh)", "manufacturer": "BYD", "model_name": "MC Cube-T ESS (5.01 MWh)", "product_type": "Container", "technology": "LFP", "racks_per_container": 10, "energy_kwh": 5010, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1081.6, "dc_window_max_v": 1489.3, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 501, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__catl__tener_c2_l600": {"label": "CATL | Tener C2-L600", "name": "Tener C2-L600", "manufacturer": "CATL", "model_name": "Tener C2-L600", "product_type": "Container", "technology": "LFP", "racks_per_container": 8, "energy_kwh": 6017, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 565, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.808, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 188, "modules_per_string": 4, "rack_energy_kwh": 752, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__trina_solar__elementa_2_pro": {"label": "Trina Solar | Elementa 2 Pro", "name": "Elementa 2 Pro", "manufacturer": "Trina Solar", "model_name": "Elementa 2 Pro", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__eve__mr_giant_s556h201": {"label": "EVE | Mr Giant (S556H201)", "name": "Mr Giant (S556H201)", "manufacturer": "EVE", "model_name": "Mr Giant (S556H201)", "product_type": "Container", "technology": "LFP", "racks_per_container": 6, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 628, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 2.0096, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 209, "modules_per_string": 4, "rack_energy_kwh": 836, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__catl__ener_one_plus_2h": {"label": "CATL | Ener One+ (2h)", "name": "Ener One+ (2h)", "manufacturer": "CATL", "model_name": "Ener One+ (2h)", "product_type": "Rack", "technology": "LFP", "racks_per_container": 1, "energy_kwh": 407, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1497.6, "cell_capacity_ah": 306, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 0.9792, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 51, "modules_per_string": 8, "rack_energy_kwh": 407, "cooling": "Liquid Cooling", "image": "assets/images/equipment/rack.png"},
-      "container__catl__ener_one_plus_1h": {"label": "CATL | Ener One+ (1h)", "name": "Ener One+ (1h)", "manufacturer": "CATL", "model_name": "Ener One+ (1h)", "product_type": "Rack", "technology": "LFP", "racks_per_container": 1, "energy_kwh": 379, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1497.6, "cell_capacity_ah": 285, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 0.912, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 47, "modules_per_string": 8, "rack_energy_kwh": 379, "cooling": "Liquid Cooling", "image": "assets/images/equipment/rack.png"},
-      "container__catl__enerx": {"label": "CATL | EnerX", "name": "EnerX", "manufacturer": "CATL", "model_name": "EnerX", "product_type": "Container", "technology": "LFP", "racks_per_container": 4, "energy_kwh": 5644, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1497.6, "cell_capacity_ah": 530, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.696, "cells_series": 52, "cells_parallel": 2, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 176, "modules_per_string": 8, "rack_energy_kwh": 1411, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__envision__en_5_pro": {"label": "Envision | En 5 Pro", "name": "En 5 Pro", "manufacturer": "Envision", "model_name": "En 5 Pro", "product_type": "Container", "technology": "LFP", "racks_per_container": 6, "energy_kwh": 5032, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 315, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.008, "cells_series": 104, "cells_parallel": 2, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 210, "modules_per_string": 4, "rack_energy_kwh": 839, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__trina_solar__elementa_2": {"label": "Trina Solar | Elementa 2", "name": "Elementa 2", "manufacturer": "Trina Solar", "model_name": "Elementa 2", "product_type": "Container", "technology": "LFP", "racks_per_container": 10, "energy_kwh": 4073, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 306, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 0.9792, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 102, "modules_per_string": 4, "rack_energy_kwh": 407, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__sungrow__power_titan_st5015kwh_2500kw_2h": {"label": "Sungrow | Power Titan (ST5015kWh-2500kW-2h)", "name": "Power Titan (ST5015kWh-2500kW-2h)", "manufacturer": "Sungrow", "model_name": "Power Titan (ST5015kWh-2500kW-2h)", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__sungrow__st6900ux_4h": {"label": "Sungrow | ST6900UX-4H", "name": "ST6900UX-4H", "manufacturer": "Sungrow", "model_name": "ST6900UX-4H", "product_type": "Container", "technology": "LFP", "racks_per_container": 1, "energy_kwh": 6900, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 684, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 2.1888, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__tesla__megapack_2_4h_config": {"label": "Tesla | Megapack 2 4h Config", "name": "Megapack 2 4h Config", "manufacturer": "Tesla", "model_name": "Megapack 2 4h Config", "product_type": "Container", "technology": "LFP", "racks_per_container": 1, "energy_kwh": 3085.6, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 3085.6, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__tesla__megapack_2_xl_4h_config": {"label": "Tesla | Megapack 2 XL 4h Config", "name": "Megapack 2 XL 4h Config", "manufacturer": "Tesla", "model_name": "Megapack 2 XL 4h Config", "product_type": "Container", "technology": "LFP", "racks_per_container": 1, "energy_kwh": 4057, "nominal_voltage_v": 25804.8, "dc_window_min_v": 20160, "dc_window_max_v": 29433.6, "cell_capacity_ah": 157.2, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 0.503, "cells_series": 336, "cells_parallel": 1, "pack_nominal_voltage_v": 1075, "pack_energy_kwh": 169, "modules_per_string": 24, "rack_energy_kwh": 4057, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__cps__cps_es_2_4mw_5mwh": {"label": "CPS | CPS ES-2.4MW/5MWh", "name": "CPS ES-2.4MW/5MWh", "manufacturer": "CPS", "model_name": "CPS ES-2.4MW/5MWh", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 52, "modules_per_string": 8, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__catl__tener_stack": {"label": "CATL | Tener Stack", "name": "Tener Stack", "manufacturer": "CATL", "model_name": "Tener Stack", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 9026, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 565, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.808, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 94, "modules_per_string": 8, "rack_energy_kwh": 752, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__trina_solar__elementa_3": {"label": "Trina Solar | Elementa 3", "name": "Elementa 3", "manufacturer": "Trina Solar", "model_name": "Elementa 3", "product_type": "Container", "technology": "LFP", "racks_per_container": 8, "energy_kwh": 6251, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 587, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.8784, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 98, "modules_per_string": 8, "rack_energy_kwh": 781, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__ac_newenergy__ess_c_20_5015d_l": {"label": "AC NEWENERGY | ESS-C-20-5015D-L", "name": "ESS-C-20-5015D-L", "manufacturer": "AC NEWENERGY", "model_name": "ESS-C-20-5015D-L", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__calb__zhijiu": {"label": "CALB | ZHIJIU", "name": "ZHIJIU", "manufacturer": "CALB", "model_name": "ZHIJIU", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 104, "cells_parallel": 1, "pack_nominal_voltage_v": 333, "pack_energy_kwh": 104, "modules_per_string": 4, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__eve__s556h401": {"label": "EVE | S556H401", "name": "S556H401", "manufacturer": "EVE", "model_name": "S556H401", "product_type": "Container", "technology": "LFP", "racks_per_container": 6, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 628, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 2.0096, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 104, "modules_per_string": 8, "rack_energy_kwh": 836, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__hithium__infinity_block": {"label": "Hithium | ∞Block", "name": "∞Block", "manufacturer": "Hithium", "model_name": "∞Block", "product_type": "Container", "technology": "LFP", "racks_per_container": 6, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 52, "cells_parallel": 2, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 104, "modules_per_string": 8, "rack_energy_kwh": 836, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__byd__cube_pro_ess": {"label": "BYD | Cube Pro ESS", "name": "Cube Pro ESS", "manufacturer": "BYD", "model_name": "Cube Pro ESS", "product_type": "Container", "technology": "LFP", "racks_per_container": 6, "energy_kwh": 2556, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 320, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.024, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 53, "modules_per_string": 8, "rack_energy_kwh": 426, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__fluence__gridstack_pro_5000_series": {"label": "Fluence | Gridstack Pro (5000 series)", "name": "Gridstack Pro (5000 series)", "manufacturer": "Fluence", "model_name": "Gridstack Pro (5000 series)", "product_type": "Container", "technology": "LFP", "racks_per_container": 8, "energy_kwh": 5644, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 530, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.696, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 88, "modules_per_string": 8, "rack_energy_kwh": 706, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__sunwoda_electronics__5_mwh_ess_314_ah_cell": {"label": "Sunwoda Electronics | 5 MWh ESS (314 Ah cell)", "name": "5 MWh ESS (314 Ah cell)", "manufacturer": "Sunwoda Electronics", "model_name": "5 MWh ESS (314 Ah cell)", "product_type": "Container", "technology": "LFP", "racks_per_container": 12, "energy_kwh": 5016, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1518.4, "cell_capacity_ah": 314, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 1.0048, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 52, "modules_per_string": 8, "rack_energy_kwh": 418, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__hithium__unnamed_model": {"label": "Hithium | Unnamed model", "name": "Unnamed model", "manufacturer": "Hithium", "model_name": "Unnamed model", "product_type": "Container", "technology": "LFP", "racks_per_container": 10, "energy_kwh": 3441, "nominal_voltage_v": 1228.8, "dc_window_min_v": 960, "dc_window_max_v": 1382.4, "cell_capacity_ah": 280, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 0.896, "cells_series": 48, "cells_parallel": 1, "pack_nominal_voltage_v": 154, "pack_energy_kwh": 43, "modules_per_string": 8, "rack_energy_kwh": 344, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__rept__powtrix_2_0_alt": {"label": "REPT | PowTrix 2.0", "name": "PowTrix 2.0", "manufacturer": "REPT", "model_name": "PowTrix 2.0", "product_type": "Container", "technology": "LFP", "racks_per_container": 10, "energy_kwh": 3441, "nominal_voltage_v": 1228.8, "dc_window_min_v": 960, "dc_window_max_v": 1382.4, "cell_capacity_ah": 280, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 0.896, "cells_series": 48, "cells_parallel": 1, "pack_nominal_voltage_v": 154, "pack_energy_kwh": 43, "modules_per_string": 8, "rack_energy_kwh": 344, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__catl__enerc_plus": {"label": "CATL | EnerC+", "name": "EnerC+", "manufacturer": "CATL", "model_name": "EnerC+", "product_type": "Container", "technology": "LFP", "racks_per_container": 10, "energy_kwh": 4073, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1497.6, "cell_capacity_ah": 306, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 0.9792, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 51, "modules_per_string": 8, "rack_energy_kwh": 407, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__eve__s328h101": {"label": "EVE | S328H101", "name": "S328H101", "manufacturer": "EVE", "model_name": "S328H101", "product_type": "Container", "technology": "LFP", "racks_per_container": 10, "energy_kwh": 3441, "nominal_voltage_v": 1228.8, "dc_window_min_v": 960, "dc_window_max_v": 1382.4, "cell_capacity_ah": 280, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 0.896, "cells_series": 48, "cells_parallel": 1, "pack_nominal_voltage_v": 154, "pack_energy_kwh": 43, "modules_per_string": 8, "rack_energy_kwh": 344, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__eve__s430h201": {"label": "EVE | S430H201", "name": "S430H201", "manufacturer": "EVE", "model_name": "S430H201", "product_type": "Container", "technology": "LFP", "racks_per_container": 5, "energy_kwh": 4073, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1497.6, "cell_capacity_ah": 306, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 0.9792, "cells_series": 52, "cells_parallel": 2, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 102, "modules_per_string": 8, "rack_energy_kwh": 815, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"},
-      "container__catl__enerc": {"label": "CATL | EnerC", "name": "EnerC", "manufacturer": "CATL", "model_name": "EnerC", "product_type": "Container", "technology": "LFP", "racks_per_container": 10, "energy_kwh": 3794, "nominal_voltage_v": 1331.2, "dc_window_min_v": 1040, "dc_window_max_v": 1497.6, "cell_capacity_ah": 285, "cell_nominal_voltage_v": 3.2, "cell_energy_kwh": 0.912, "cells_series": 52, "cells_parallel": 1, "pack_nominal_voltage_v": 166, "pack_energy_kwh": 47, "modules_per_string": 8, "rack_energy_kwh": 379, "cooling": "Liquid Cooling", "image": "assets/images/equipment/bess_container.png"}
-    },
-    "pcs": {
-      "apcs4500doul_apex": {"name": "APCS4500DOUL", "label": "APCS4500DOUL (Apex)", "manufacturer": "Apex", "model": "APCS4500DOUL", "rating_kva": 5000, "rated_power_kw": 5000, "ac_voltage_v": 750, "dc_window_min_v": 976, "dc_window_max_v": 1061, "dc_inputs": 2, "efficiency_percent": 98.8, "image": "assets/images/equipment/pcs_nextpower.png"},
-      "bcs5000k_kehua": {"name": "BCS5000K", "label": "BCS5000K (Kehua)", "manufacturer": "Kehua", "model": "BCS5000K", "rating_kva": 5000, "rated_power_kw": 5000, "ac_voltage_v": 690, "dc_window_min_v": 1000, "dc_window_max_v": 1500, "dc_inputs": 4, "efficiency_percent": 99, "image": "assets/images/equipment/pcs_nextpower.png"},
-      "pvs980_58bc_fimer": {"name": "PVS980-58BC", "label": "PVS980-58BC (FIMER)", "manufacturer": "FIMER", "model": "PVS980-58BC", "rating_kva": 2091, "rated_power_kw": 2091, "ac_voltage_v": 690, "dc_window_min_v": 978, "dc_window_max_v": 1500, "dc_inputs": 8, "efficiency_percent": 98.7, "image": "assets/images/equipment/pcs_nextpower.png"},
-      "flamingo_5100kva_fimer": {"name": "Flamingo 5100kVA", "label": "Flamingo 5100kVA (FIMER)", "manufacturer": "FIMER", "model": "Flamingo 5100kVA", "rating_kva": 5100, "rated_power_kw": 5100, "ac_voltage_v": 640, "dc_window_min_v": 935, "dc_window_max_v": 1350, "dc_inputs": 4, "efficiency_percent": 98.8, "image": "assets/images/equipment/pcs_nextpower.png"},
-      "flamingo_6800kva_fimer": {"name": "Flamingo 6800kVA", "label": "Flamingo 6800kVA (FIMER)", "manufacturer": "FIMER", "model": "Flamingo 6800kVA", "rating_kva": 6800, "rated_power_kw": 6800, "ac_voltage_v": 640, "dc_window_min_v": 935, "dc_window_max_v": 1350, "dc_inputs": 4, "efficiency_percent": 98.8, "image": "assets/images/equipment/pcs_nextpower.png"}
-    },
-    "protection_devices": {
-      "pack_fuse": {"name": "Pack Fuse", "rating_a": 400},
-      "rack_hvcb": {"name": "Rack HVCB", "rating_a": 350},
-      "system_fuse": {"name": "System Fuse", "rating_a": 1800}
-    }
-  },
-  "profiles": {
-    "c_rate_profiles": {
-      "0.25": {"label": "0.25", "c_rate": 0.25, "power_kw": 1254, "dc_bus_current_a": 2411.5, "containers_per_pcs": 4},
-      "0.5": {"label": "0.5", "c_rate": 0.5, "power_kw": 2508, "dc_bus_current_a": 2411.5, "containers_per_pcs": 2},
-      "1": {"label": "1", "c_rate": 1.0, "power_kw": 5016, "dc_bus_current_a": 2411.5, "containers_per_pcs": 1}
-    }
-  },
-  "calculation_rules": {
-    "power_kw": "selected_container.energy_kwh * selected_c_rate",
-    "dc_bus_current_a": "power_kw * 1000 / selected_container.dc_window_min_v",
-    "containers_per_pcs": "max(1, round(selected_pcs.rated_power_kw / power_kw))",
-    "pcs_utilisation_percent": "containers_per_pcs * power_kw / selected_pcs.rated_power_kw * 100"
-  },
-  "ui": {
-    "logos": {
-      "clou": "assets/images/logos/clou_logo.png",
-      "midea": "assets/images/logos/midea_logo.png"
-    }
-  }
-}
+import base64
+
+from src.paths import ROOT, CSS_PATH
+
+
+def load_css() -> str:
+    if CSS_PATH.exists():
+        return CSS_PATH.read_text(encoding="utf-8")
+    return ""
+
+
+def placeholder_svg(label: str) -> str:
+    """
+    Clean placeholder image.
+    Does not show the old 'Add image in assets/images' text.
+    """
+    svg = f"""
+    <svg xmlns="http://www.w3.org/2000/svg" width="360" height="160" viewBox="0 0 360 160">
+      <rect width="360" height="160" rx="16" fill="#101c2f"/>
+      <rect x="14" y="14" width="332" height="132" rx="12" fill="#07111f" stroke="#00d9ff" stroke-opacity="0.55"/>
+      <text x="180" y="88" fill="#f4f8ff" font-size="20" font-weight="700" text-anchor="middle" font-family="Arial">{label}</text>
+    </svg>
+    """
+    encoded = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
+    return f"data:image/svg+xml;base64,{encoded}"
+
+
+def asset_to_data_uri(path_text: str, label: str = "IMAGE") -> str:
+    if not path_text:
+        return placeholder_svg(label)
+
+    path = ROOT / path_text
+
+    if not path.exists():
+        return placeholder_svg(label)
+
+    suffix = path.suffix.lower()
+
+    if suffix in [".jpg", ".jpeg"]:
+        mime = "jpeg"
+    elif suffix == ".png":
+        mime = "png"
+    elif suffix == ".webp":
+        mime = "webp"
+    elif suffix == ".svg":
+        mime = "svg+xml"
+    else:
+        return placeholder_svg(label)
+
+    encoded = base64.b64encode(path.read_bytes()).decode("utf-8")
+    return f"data:image/{mime};base64,{encoded}"
