@@ -32,7 +32,7 @@ def eval_row(label: str, value: str) -> str:
     """
 
 
-def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
+def get_dashboard_objects(db: Dict[str, Any], c_rate_key: str) -> Dict[str, Any]:
     objs = selected_objects(db)
 
     cell = objs["cell"]
@@ -41,7 +41,6 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
     container = objs["container"]
     pcs = objs["pcs"]
     protection = objs["protection"]
-
     calc = calculate_dashboard(db, c_rate_key)
 
     container_img = asset_to_data_uri(container.get("image"), "BESS CONTAINER")
@@ -53,17 +52,59 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
     pack_config = pack.get("configuration")
     if not pack_config:
-        pack_config = f'{pack.get("cells_series", 104)}S × {pack.get("cells_parallel", 1)}P'
+        pack_config = f'{pack.get("cells_series", 104)}S x {pack.get("cells_parallel", 1)}P'
 
     rack_dc_window = (
         f'{fmt(rack.get("minimum_voltage_v", container.get("dc_window_min_v", 0)), 0)}-'
         f'{fmt(rack.get("maximum_voltage_v", container.get("dc_window_max_v", 0)), 0)} V'
     )
 
-    pack_tag = f'{pack.get("cells_series", 104)}S × {pack.get("cells_parallel", 1)}P'
+    pack_tag = f'{pack.get("cells_series", 104)}S x {pack.get("cells_parallel", 1)}P'
     rack_tag = f'{rack.get("packs_series", rack.get("modules_per_string", 4))} packs series'
     container_tag = f'{container.get("racks_per_container", 0)} racks'
     pcs_tag = pcs.get("model", pcs.get("name", "PCS"))
+
+    return {
+        "cell": cell,
+        "pack": pack,
+        "rack": rack,
+        "container": container,
+        "pcs": pcs,
+        "calc": calc,
+        "container_img": container_img,
+        "pcs_img": pcs_img,
+        "pack_fuse": pack_fuse,
+        "rack_hvcb": rack_hvcb,
+        "system_fuse": system_fuse,
+        "pack_config": pack_config,
+        "rack_dc_window": rack_dc_window,
+        "pack_tag": pack_tag,
+        "rack_tag": rack_tag,
+        "container_tag": container_tag,
+        "pcs_tag": pcs_tag,
+    }
+
+
+def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
+    ctx = get_dashboard_objects(db, c_rate_key)
+
+    cell = ctx["cell"]
+    pack = ctx["pack"]
+    rack = ctx["rack"]
+    container = ctx["container"]
+    pcs = ctx["pcs"]
+    calc = ctx["calc"]
+
+    container_img = ctx["container_img"]
+    pcs_img = ctx["pcs_img"]
+
+    pack_config = ctx["pack_config"]
+    rack_dc_window = ctx["rack_dc_window"]
+    pack_tag = ctx["pack_tag"]
+    rack_tag = ctx["rack_tag"]
+    container_tag = ctx["container_tag"]
+    pcs_tag = ctx["pcs_tag"]
+    rack_hvcb = ctx["rack_hvcb"]
 
     return f"""
 <div class="bess-shell">
@@ -78,9 +119,9 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <span class="tag">LFP</span>
       </div>
 
-      <div class="imgband module-imgband">
-        <div class="placeholder-icon">
-          <div class="big-symbol">▦</div>
+      <div class="imgband module-imgband label-imgband">
+        <div class="module-visual-label">
+          <div class="module-visual-icon">▦</div>
           <b>CELL</b>
         </div>
       </div>
@@ -102,9 +143,9 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <span class="tag">{pack_tag}</span>
       </div>
 
-      <div class="imgband module-imgband">
-        <div class="placeholder-icon">
-          <div class="big-symbol">▤</div>
+      <div class="imgband module-imgband label-imgband">
+        <div class="module-visual-label">
+          <div class="module-visual-icon">▤</div>
           <b>PACK</b>
         </div>
       </div>
@@ -126,9 +167,9 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <span class="tag">{rack_tag}</span>
       </div>
 
-      <div class="imgband module-imgband">
-        <div class="placeholder-icon">
-          <div class="big-symbol">▥</div>
+      <div class="imgband module-imgband label-imgband">
+        <div class="module-visual-label">
+          <div class="module-visual-icon">▥</div>
           <b>RACK</b>
         </div>
       </div>
@@ -186,6 +227,31 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
   </div>
 
+</div>
+"""
+
+
+def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
+    ctx = get_dashboard_objects(db, c_rate_key)
+
+    cell = ctx["cell"]
+    pack = ctx["pack"]
+    rack = ctx["rack"]
+    container = ctx["container"]
+    pcs = ctx["pcs"]
+    calc = ctx["calc"]
+
+    container_img = ctx["container_img"]
+    pcs_img = ctx["pcs_img"]
+
+    pack_fuse = ctx["pack_fuse"]
+    rack_hvcb = ctx["rack_hvcb"]
+    system_fuse = ctx["system_fuse"]
+    pack_config = ctx["pack_config"]
+
+    return f"""
+<div class="bess-shell">
+
   <section class="sld-wrap">
 
     <div class="section-title">
@@ -216,7 +282,7 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <div class="ckv"><span>Energy</span><b>{fmt(calc["pack_kwh"], 1)} kWh</b></div>
       </div>
 
-      <div class="conn"><div class="ar">→</div><small>×{rack.get("packs_series", 4)} series</small></div>
+      <div class="conn"><div class="ar">→</div><small>x{rack.get("packs_series", 4)} series</small></div>
 
       <div class="cn">
         <h3>Rack</h3>
@@ -226,7 +292,7 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <div class="ckv"><span>HVCB</span><b>{rack_hvcb} A</b></div>
       </div>
 
-      <div class="conn"><div class="ar">→</div><small>×{container["racks_per_container"]} parallel</small></div>
+      <div class="conn"><div class="ar">→</div><small>x{container["racks_per_container"]} parallel</small></div>
 
       <div class="cn">
         <h3>Container</h3>
@@ -341,3 +407,7 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
 </div>
 """
+
+
+def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
+    return render_cards_html(db, c_rate_key) + render_sld_html(db, c_rate_key)
