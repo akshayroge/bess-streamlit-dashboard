@@ -14,10 +14,6 @@ def dash(value: Any, fallback: str = "—") -> str:
     return str(value)
 
 
-def safe_get(obj: Dict[str, Any], key: str, default: Any = None) -> Any:
-    return obj.get(key, default)
-
-
 def kv(label: str, value: str) -> str:
     return f"""
     <div class="kv">
@@ -57,55 +53,63 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
     pack_config = pack.get("configuration")
     if not pack_config:
-        pack_config = f'{pack.get("cells_parallel", 1)}P{pack.get("cells_series", 104)}S'
+        pack_config = f'{pack.get("cells_series", 104)}S × {pack.get("cells_parallel", 1)}P'
 
-    rack_dc_window = f'{fmt(rack.get("minimum_voltage_v", container.get("dc_window_min_v", 0)), 0)}-{fmt(rack.get("maximum_voltage_v", container.get("dc_window_max_v", 0)), 0)} V'
+    rack_dc_window = (
+        f'{fmt(rack.get("minimum_voltage_v", container.get("dc_window_min_v", 0)), 0)}-'
+        f'{fmt(rack.get("maximum_voltage_v", container.get("dc_window_max_v", 0)), 0)} V'
+    )
+
+    pack_tag = f'{pack.get("cells_series", 104)}S × {pack.get("cells_parallel", 1)}P'
+    rack_tag = f'{rack.get("packs_series", rack.get("modules_per_string", 4))} packs series'
+    container_tag = f'{container.get("racks_per_container", 0)} racks'
+    pcs_tag = pcs.get("model", pcs.get("name", "PCS"))
 
     return f"""
 <div class="bess-shell">
 
   <div class="grid5">
 
-    <section class="card cell">
+    <section class="card cell module-card">
       <div class="card-head">
         <div>
-          <h3>Cell</h3>
-          <p class="footer-note">{dash(cell.get("chemistry"), "LFP")} battery cell</p>
+          <h3>CELL</h3>
         </div>
-        <span class="tag">CELL</span>
+        <span class="tag">LFP</span>
       </div>
 
-      <div class="imgband">
+      <div class="imgband module-imgband">
         <div class="placeholder-icon">
           <div class="big-symbol">▦</div>
-          <b>Cell</b>
+          <b>CELL</b>
         </div>
       </div>
 
+      <div class="module-param-title">CELL PARAMETERS</div>
       {kv("Chemistry", dash(cell.get("chemistry"), "LFP"))}
       {kv("Nominal Voltage", f'{fmt(cell.get("nominal_voltage_v", 0), 1)} V')}
       {kv("Capacity", f'{fmt(cell.get("capacity_ah", 0), 0)} Ah')}
       {kv("Energy", f'{fmt(calc["cell_kwh"], 3)} kWh')}
-      {kv("Max Cell Voltage", f'{fmt(cell.get("maximum_cell_voltage_v", 3.65), 2)} V')}
-      {kv("Min Cell Voltage", f'{fmt(cell.get("minimum_cell_voltage_v", 2.5), 2)} V')}
+      {kv("Max Voltage", f'{fmt(cell.get("maximum_cell_voltage_v", 3.65), 2)} V')}
+      {kv("Min Voltage", f'{fmt(cell.get("minimum_cell_voltage_v", 2.5), 2)} V')}
     </section>
 
-    <section class="card pack">
+    <section class="card pack module-card">
       <div class="card-head">
         <div>
-          <h3>Pack</h3>
-          <p class="footer-note">Cell series / parallel module</p>
+          <h3>PACK</h3>
         </div>
-        <span class="tag">PACK</span>
+        <span class="tag">{pack_tag}</span>
       </div>
 
-      <div class="imgband">
+      <div class="imgband module-imgband">
         <div class="placeholder-icon">
           <div class="big-symbol">▤</div>
-          <b>Pack</b>
+          <b>PACK</b>
         </div>
       </div>
 
+      <div class="module-param-title">PACK PARAMETERS</div>
       {kv("Configuration", str(pack_config))}
       {kv("Series", f'{pack.get("cells_series", 104)} S')}
       {kv("Parallel", f'{pack.get("cells_parallel", 1)} P')}
@@ -114,22 +118,22 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
       {kv("Energy", f'{fmt(calc["pack_kwh"], 1)} kWh')}
     </section>
 
-    <section class="card rack">
+    <section class="card rack module-card">
       <div class="card-head">
         <div>
-          <h3>Rack / String</h3>
-          <p class="footer-note">Packs connected in series</p>
+          <h3>RACK</h3>
         </div>
-        <span class="tag">RACK</span>
+        <span class="tag">{rack_tag}</span>
       </div>
 
-      <div class="imgband">
+      <div class="imgband module-imgband">
         <div class="placeholder-icon">
           <div class="big-symbol">▥</div>
-          <b>Rack / String</b>
+          <b>RACK</b>
         </div>
       </div>
 
+      <div class="module-param-title">RACK (STRING) PARAMETERS</div>
       {kv("Modules / String", f'{rack.get("modules_per_string", rack.get("packs_series", 4))}')}
       {kv("Voltage", f'{fmt(calc["rack_v"], 1)} V')}
       {kv("DC Window", rack_dc_window)}
@@ -138,40 +142,40 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
       {kv("HVCB", f'{rack_hvcb} A')}
     </section>
 
-    <section class="card container">
+    <section class="card container module-card">
       <div class="card-head">
         <div>
-          <h3>Container</h3>
-          <p class="footer-note">{container["name"]}</p>
+          <h3>CONTAINER</h3>
         </div>
-        <span class="tag">BESS</span>
+        <span class="tag">{container_tag}</span>
       </div>
 
-      <div class="imgband">
+      <div class="imgband module-imgband">
         <img src="{container_img}" alt="BESS Container"/>
       </div>
 
+      <div class="module-param-title">CONTAINER PARAMETERS</div>
+      {kv("Model", dash(container.get("name")))}
       {kv("Total Energy", f'{fmt(calc["container_mwh"], 2)} MWh')}
       {kv("Racks / Container", f'{container["racks_per_container"]}')}
       {kv("DC Window", calc["dc_window_text"])}
       {kv("DC Bus Current", f'{fmt(calc["dc_bus_current_a"], 1)} A')}
-      {kv("Power @ C-rate", f'{fmt(calc["power_kw"], 0)} kW')}
       {kv("Cooling", container.get("cooling", "Liquid Cooling"))}
     </section>
 
-    <section class="card pcs">
+    <section class="card pcs module-card">
       <div class="card-head">
         <div>
           <h3>PCS</h3>
-          <p class="footer-note">{pcs["model"]}</p>
         </div>
-        <span class="tag">PCS</span>
+        <span class="tag">{pcs_tag}</span>
       </div>
 
-      <div class="imgband">
+      <div class="imgband module-imgband">
         <img src="{pcs_img}" alt="PCS"/>
       </div>
 
+      <div class="module-param-title">PCS PARAMETERS</div>
       {kv("Rated Power", f'{fmt(pcs["rating_kva"], 0)} kVA')}
       {kv("AC Voltage", f'{fmt(pcs["ac_voltage_v"], 0)} V')}
       {kv("DC Window", f'{int(pcs["dc_window_min_v"])}-{int(pcs["dc_window_max_v"])} V')}
@@ -180,29 +184,6 @@ def render_dashboard_html(db: Dict[str, Any], c_rate_key: str) -> str:
       {kv("Utilisation", f'{fmt(calc["pcs_utilization"], 1)} %')}
     </section>
 
-  </div>
-
-  <div class="summary">
-    <div class="sum-box">
-      <span>Container Energy</span>
-      <b>{fmt(calc["container_mwh"], 2)} MWh</b>
-    </div>
-    <div class="sum-box">
-      <span>Power @ C-rate</span>
-      <b>{fmt(calc["power_kw"], 0)} kW</b>
-    </div>
-    <div class="sum-box">
-      <span>DC Bus Current</span>
-      <b>{fmt(calc["dc_bus_current_a"], 1)} A</b>
-    </div>
-    <div class="sum-box">
-      <span>Containers / PCS</span>
-      <b>{calc["containers_per_pcs"]}</b>
-    </div>
-    <div class="sum-box">
-      <span>Duration</span>
-      <b>{fmt(calc["duration_h"], 1)} h</b>
-    </div>
   </div>
 
   <section class="sld-wrap">
