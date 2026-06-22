@@ -43,8 +43,11 @@ def get_dashboard_objects(db: Dict[str, Any], c_rate_key: str) -> Dict[str, Any]
     protection = objs["protection"]
     calc = calculate_dashboard(db, c_rate_key)
 
-    container_img = asset_to_data_uri(container.get("image"), "BESS CONTAINER")
-    pcs_img = asset_to_data_uri(pcs.get("image"), "PCS")
+    cell_img = asset_to_data_uri(cell.get("image", "assets/images/equipment/cell.png"), "CELL")
+    pack_img = asset_to_data_uri(pack.get("image", "assets/images/equipment/pack.png"), "PACK")
+    rack_img = asset_to_data_uri(rack.get("image", "assets/images/equipment/rack.png"), "RACK")
+    container_img = asset_to_data_uri(container.get("image", "assets/images/equipment/bess_container.png"), "BESS CONTAINER")
+    pcs_img = asset_to_data_uri(pcs.get("image", "assets/images/equipment/pcs_nextpower.png"), "PCS")
 
     pack_fuse = protection.get("pack_fuse", {}).get("rating_a", pack.get("fuse_a", 400))
     rack_hvcb = protection.get("rack_hvcb", {}).get("rating_a", rack.get("hvcb_a", 350))
@@ -71,6 +74,9 @@ def get_dashboard_objects(db: Dict[str, Any], c_rate_key: str) -> Dict[str, Any]
         "container": container,
         "pcs": pcs,
         "calc": calc,
+        "cell_img": cell_img,
+        "pack_img": pack_img,
+        "rack_img": rack_img,
         "container_img": container_img,
         "pcs_img": pcs_img,
         "pack_fuse": pack_fuse,
@@ -95,6 +101,9 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
     pcs = ctx["pcs"]
     calc = ctx["calc"]
 
+    cell_img = ctx["cell_img"]
+    pack_img = ctx["pack_img"]
+    rack_img = ctx["rack_img"]
     container_img = ctx["container_img"]
     pcs_img = ctx["pcs_img"]
 
@@ -119,11 +128,8 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <span class="tag">LFP</span>
       </div>
 
-      <div class="imgband module-imgband label-imgband">
-        <div class="module-visual-label">
-          <div class="module-visual-icon">▦</div>
-          <b>CELL</b>
-        </div>
+      <div class="imgband module-imgband">
+        <img src="{cell_img}" alt="Cell"/>
       </div>
 
       <div class="module-param-title">CELL PARAMETERS</div>
@@ -143,11 +149,8 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <span class="tag">{pack_tag}</span>
       </div>
 
-      <div class="imgband module-imgband label-imgband">
-        <div class="module-visual-label">
-          <div class="module-visual-icon">▤</div>
-          <b>PACK</b>
-        </div>
+      <div class="imgband module-imgband">
+        <img src="{pack_img}" alt="Pack"/>
       </div>
 
       <div class="module-param-title">PACK PARAMETERS</div>
@@ -167,11 +170,8 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <span class="tag">{rack_tag}</span>
       </div>
 
-      <div class="imgband module-imgband label-imgband">
-        <div class="module-visual-label">
-          <div class="module-visual-icon">▥</div>
-          <b>RACK</b>
-        </div>
+      <div class="imgband module-imgband">
+        <img src="{rack_img}" alt="Rack"/>
       </div>
 
       <div class="module-param-title">RACK (STRING) PARAMETERS</div>
@@ -241,6 +241,9 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
     pcs = ctx["pcs"]
     calc = ctx["calc"]
 
+    cell_img = ctx["cell_img"]
+    pack_img = ctx["pack_img"]
+    rack_img = ctx["rack_img"]
     container_img = ctx["container_img"]
     pcs_img = ctx["pcs_img"]
 
@@ -266,7 +269,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
       <div class="cn">
         <h3>Cell</h3>
-        <div class="ico">CELL</div>
+        <div class="ico"><img src="{cell_img}" alt="Cell"/></div>
         <div class="ckv"><span>Voltage</span><b>{fmt(cell["nominal_voltage_v"], 1)} V</b></div>
         <div class="ckv"><span>Capacity</span><b>{fmt(cell["capacity_ah"], 0)} Ah</b></div>
         <div class="ckv"><span>Energy</span><b>{fmt(calc["cell_kwh"], 3)} kWh</b></div>
@@ -276,7 +279,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
       <div class="cn">
         <h3>Pack</h3>
-        <div class="ico">PACK</div>
+        <div class="ico"><img src="{pack_img}" alt="Pack"/></div>
         <div class="ckv"><span>Config</span><b>{pack_config}</b></div>
         <div class="ckv"><span>Voltage</span><b>{fmt(calc["pack_v"], 1)} V</b></div>
         <div class="ckv"><span>Energy</span><b>{fmt(calc["pack_kwh"], 1)} kWh</b></div>
@@ -286,7 +289,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
       <div class="cn">
         <h3>Rack</h3>
-        <div class="ico">RACK</div>
+        <div class="ico"><img src="{rack_img}" alt="Rack"/></div>
         <div class="ckv"><span>Voltage</span><b>{fmt(calc["rack_v"], 1)} V</b></div>
         <div class="ckv"><span>Energy</span><b>{fmt(calc["rack_kwh"], 1)} kWh</b></div>
         <div class="ckv"><span>HVCB</span><b>{rack_hvcb} A</b></div>
