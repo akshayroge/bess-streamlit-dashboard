@@ -29,7 +29,6 @@ def inject_css() -> None:
     st.markdown(
         """
 <style>
-/* Native Streamlit dropdown area placed below BESS Dashboard header */
 .selector-panel {
     margin: -4px 0 18px 0;
     padding: 16px 18px 18px 18px;
@@ -49,7 +48,6 @@ def inject_css() -> None:
 .selector-panel-subtitle {
     color: #94a7bf;
     font-size: 13px;
-    margin-bottom: 2px;
 }
 
 .selection-summary {
@@ -174,7 +172,7 @@ def default_index(options: List[str], preferred: Optional[str]) -> int:
 # HTML rendering helpers
 # ---------------------------------------------------------------------
 
-def build_inline_dashboard_html(dashboard_html: str) -> str:
+def build_inline_html(html: str) -> str:
     css = load_css()
 
     return f"""
@@ -195,15 +193,14 @@ html, body {{
 .bess-shell {{
   max-width: 1500px;
   margin: 0 auto;
-  padding: 10px 10px 28px 10px;
 }}
 </style>
 
-{dashboard_html}
+{html}
 """
 
 
-def build_iframe_dashboard_document(dashboard_html: str) -> str:
+def build_iframe_document(html: str) -> str:
     css = load_css()
 
     return f"""<!doctype html>
@@ -228,46 +225,41 @@ def build_iframe_dashboard_document(dashboard_html: str) -> str:
     .bess-shell {{
       max-width: 1500px;
       margin: 0 auto;
-      padding: 10px 10px 28px 10px;
     }}
   </style>
 </head>
 <body>
-{dashboard_html}
+{html}
 </body>
 </html>
 """
 
 
-def render_dashboard_raw_html(dashboard_html: str) -> None:
+def render_html_block(html: str, height: int = 160, scrolling: bool = False) -> None:
+    """
+    Render HTML without Markdown parsing.
+
+    This prevents the raw <div>, <section>, and base64 <img> code from
+    appearing in the Streamlit page.
+    """
     html_renderer = getattr(st, "html", None)
 
     if html_renderer is not None:
-        html_renderer(build_inline_dashboard_html(dashboard_html))
+        html_renderer(build_inline_html(html))
     else:
         components.html(
-            build_iframe_dashboard_document(dashboard_html),
-            height=DASHBOARD_IFRAME_HEIGHT,
-            scrolling=True,
+            build_iframe_document(html),
+            height=height,
+            scrolling=scrolling,
         )
 
 
-def strip_bess_header_from_dashboard_html(dashboard_html: str) -> str:
-    """
-    src.ui.render_dashboard_html() already includes the BESS header.
-    Since we render the header separately to place Streamlit widgets below it,
-    remove the duplicate header before rendering the rest of the dashboard.
-    """
-    start_marker = '<div class="bess-top">'
-    next_section_marker = '<div class="grid3">'
-
-    start = dashboard_html.find(start_marker)
-    next_section = dashboard_html.find(next_section_marker, start)
-
-    if start == -1 or next_section == -1:
-        return dashboard_html
-
-    return dashboard_html[:start] + dashboard_html[next_section:]
+def render_dashboard_raw_html(dashboard_html: str) -> None:
+    render_html_block(
+        dashboard_html,
+        height=DASHBOARD_IFRAME_HEIGHT,
+        scrolling=True,
+    )
 
 
 def render_exception_box(title: str, exc: Exception) -> None:
@@ -279,7 +271,7 @@ def render_exception_box(title: str, exc: Exception) -> None:
 
 
 # ---------------------------------------------------------------------
-# Dropdown options and display labels
+# Dropdown options
 # ---------------------------------------------------------------------
 
 def get_c_rate_options(db: Dict[str, Any]) -> List[str]:
@@ -372,7 +364,7 @@ def c_rate_display_label(c_rate_key: str) -> str:
 
 
 # ---------------------------------------------------------------------
-# Header and selector rendering
+# Header and dropdown panel
 # ---------------------------------------------------------------------
 
 def ensure_selection_state(db: Dict[str, Any]) -> None:
@@ -397,6 +389,12 @@ def ensure_selection_state(db: Dict[str, Any]) -> None:
 
 
 def render_bess_header(db: Dict[str, Any]) -> None:
+    """
+    Header intentionally has no subtitle line.
+
+    Removed:
+    Excel / JSON based BESS comparison dashboard · Selected C-rate: ...
+    """
     clou_logo = asset_to_data_uri(
         db.get("ui", {}).get("logos", {}).get("clou"),
         "CLOU"
@@ -407,14 +405,11 @@ def render_bess_header(db: Dict[str, Any]) -> None:
         "MIDEA"
     )
 
-    selected_c_rate = st.session_state.get("selected_c_rate", db.get("project", {}).get("default_c_rate", "0.25"))
-
     header_html = f"""
 <div class="bess-shell">
   <div class="bess-top">
     <div class="bess-title">
-      <h1>{db["project"]["name"]}</h1>
-      <p>{db["project"]["system_type"]} · Selected C-rate: <b>{selected_c_rate}</b></p>
+      <h1>{db.get("project", {}).get("name", "BESS Dashboard")}</h1>
     </div>
 
     <div class="logo-row">
@@ -428,7 +423,7 @@ def render_bess_header(db: Dict[str, Any]) -> None:
   </div>
 </div>
 """
-    st.markdown(header_html, unsafe_allow_html=True)
+    render_html_block(header_html, height=130, scrolling=False)
 
 
 def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
@@ -440,7 +435,7 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
         """
 <div class="selector-panel">
   <div class="selector-panel-title">System Selection</div>
-  <div class="selector-panel-subtitle">Choose C-rate, BESS container, and PCS. The dashboard below updates automatically.</div>
+  <div class="selector-panel-subtitle">Choose C-rate, BESS container, and PCS. The dashboard updates automatically.</div>
 </div>
 """,
         unsafe_allow_html=True,
@@ -455,7 +450,6 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
             index=default_index(c_rate_options, st.session_state.get("selected_c_rate")),
             format_func=c_rate_display_label,
             key="selected_c_rate",
-            help="Options loaded from db.json → dropdowns.c_rates."
         )
 
     with col2:
@@ -465,7 +459,6 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
             index=default_index(container_options, st.session_state.get("selected_container")),
             format_func=lambda key: container_display_label(key, db),
             key="selected_container",
-            help="Options loaded from db.json → dropdowns.containers / catalog.containers."
         )
 
     with col3:
@@ -475,7 +468,6 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
             index=default_index(pcs_options, st.session_state.get("selected_pcs")),
             format_func=lambda key: pcs_display_label(key, db),
             key="selected_pcs",
-            help="Options loaded from db.json → dropdowns.pcs / catalog.pcs."
         )
 
     return {
@@ -486,7 +478,7 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
 
 
 # ---------------------------------------------------------------------
-# Calculation and temporary working DB
+# Calculation working DB
 # ---------------------------------------------------------------------
 
 def resolve_selected_container(db: Dict[str, Any], container_id: str) -> Dict[str, Any]:
@@ -747,6 +739,8 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         "name": f"{container.get('name', 'Selected Container')} Cell",
         "chemistry": first_value(container.get("technology"), container.get("chemistry"), default="LFP"),
         "nominal_voltage_v": cell_nominal_v,
+        "maximum_cell_voltage_v": safe_float(container.get("maximum_cell_voltage_v"), 3.65),
+        "minimum_cell_voltage_v": safe_float(container.get("minimum_cell_voltage_v"), 2.5),
         "capacity_ah": cell_capacity,
         "energy_kwh": cell_energy_kwh
     }
@@ -897,7 +891,7 @@ def validate_minimum_db(db: Dict[str, Any]) -> List[str]:
 
 
 # ---------------------------------------------------------------------
-# Table edit helpers
+# Table editor helpers
 # ---------------------------------------------------------------------
 
 def flatten_item(item_id: str, item: Dict[str, Any]) -> Dict[str, Any]:
@@ -999,8 +993,7 @@ def dashboard_page(db: Dict[str, Any]) -> None:
 
         calc = calculate_dashboard(working_db, selection["c_rate"])
 
-        st.markdown(
-            f"""
+        summary_html = f"""
 <div class="selection-summary">
   <b>Selected:</b>
   C-rate {selection["c_rate"]} ·
@@ -1013,9 +1006,8 @@ def dashboard_page(db: Dict[str, Any]) -> None:
   Containers / PCS {calc.get("containers_per_pcs")} ·
   PCS Utilisation {format_number(calc.get("pcs_utilization"), 1)} %
 </div>
-""",
-            unsafe_allow_html=True,
-        )
+"""
+        st.markdown(summary_html, unsafe_allow_html=True)
 
         if st.button("Save current selection as default"):
             db.setdefault("project", {})
@@ -1029,7 +1021,6 @@ def dashboard_page(db: Dict[str, Any]) -> None:
             st.success("Default selection saved to data/db.json.")
 
         dashboard_html = render_dashboard_html(working_db, selection["c_rate"])
-        dashboard_html = strip_bess_header_from_dashboard_html(dashboard_html)
         render_dashboard_raw_html(dashboard_html)
 
     except Exception as exc:
