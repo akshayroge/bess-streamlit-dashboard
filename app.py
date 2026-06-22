@@ -7,7 +7,7 @@ import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
-from src.assets import asset_to_data_uri, load_css
+from src.assets import load_css
 from src.calculations import calculate_dashboard
 from src.excel_importer import detect_excel_values
 from src.store import load_db, save_db
@@ -25,60 +25,6 @@ def inject_css() -> None:
     css = load_css()
     if css:
         st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
-
-    st.markdown(
-        """
-<style>
-.selector-panel {
-    margin: -4px 0 18px 0;
-    padding: 16px 18px 18px 18px;
-    border: 1px solid rgba(0,217,255,.35);
-    border-radius: 18px;
-    background: linear-gradient(135deg, rgba(0,217,255,.075), rgba(240,185,0,.045));
-    box-shadow: 0 0 22px rgba(0,217,255,.08);
-}
-
-.selector-panel-title {
-    color: #f4f8ff;
-    font-size: 17px;
-    font-weight: 800;
-    margin-bottom: 4px;
-}
-
-.selector-panel-subtitle {
-    color: #94a7bf;
-    font-size: 13px;
-}
-
-.selection-summary {
-    margin: 4px 0 18px 0;
-    padding: 12px 16px;
-    border: 1px solid rgba(255,255,255,.12);
-    border-radius: 14px;
-    background: rgba(255,255,255,.04);
-    color: #f4f8ff;
-    font-size: 13px;
-}
-
-.selection-summary b {
-    color: #00d9ff;
-}
-
-div[data-testid="stSelectbox"] label {
-    color: #f4f8ff !important;
-    font-weight: 800 !important;
-}
-
-div[data-baseweb="select"] > div {
-    background-color: rgba(7,17,31,.92) !important;
-    border-color: rgba(0,217,255,.38) !important;
-    border-radius: 12px !important;
-    color: #f4f8ff !important;
-}
-</style>
-""",
-        unsafe_allow_html=True,
-    )
 
 
 def safe_float(value: Any, default: float = 0.0) -> float:
@@ -239,8 +185,7 @@ def render_html_block(html: str, height: int = 160, scrolling: bool = False) -> 
     """
     Render HTML without Markdown parsing.
 
-    This prevents the raw <div>, <section>, and base64 <img> code from
-    appearing in the Streamlit page.
+    This avoids raw <div>, <section>, and <img> code appearing on the dashboard.
     """
     html_renderer = getattr(st, "html", None)
 
@@ -390,40 +335,21 @@ def ensure_selection_state(db: Dict[str, Any]) -> None:
 
 def render_bess_header(db: Dict[str, Any]) -> None:
     """
-    Header intentionally has no subtitle line.
-
-    Removed:
-    Excel / JSON based BESS comparison dashboard · Selected C-rate: ...
+    Clean header:
+    - no CLOU/Midea logo placeholders
+    - no subtitle line
+    - larger bold title
     """
-    clou_logo = asset_to_data_uri(
-        db.get("ui", {}).get("logos", {}).get("clou"),
-        "CLOU"
-    )
-
-    midea_logo = asset_to_data_uri(
-        db.get("ui", {}).get("logos", {}).get("midea"),
-        "MIDEA"
-    )
-
     header_html = f"""
 <div class="bess-shell">
-  <div class="bess-top">
+  <div class="bess-top clean-bess-header">
     <div class="bess-title">
       <h1>{db.get("project", {}).get("name", "BESS Dashboard")}</h1>
-    </div>
-
-    <div class="logo-row">
-      <div class="logo-box">
-        <img src="{clou_logo}" alt="CLOU"/>
-      </div>
-      <div class="logo-box">
-        <img src="{midea_logo}" alt="Midea"/>
-      </div>
     </div>
   </div>
 </div>
 """
-    render_html_block(header_html, height=130, scrolling=False)
+    render_html_block(header_html, height=120, scrolling=False)
 
 
 def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
@@ -993,21 +919,37 @@ def dashboard_page(db: Dict[str, Any]) -> None:
 
         calc = calculate_dashboard(working_db, selection["c_rate"])
 
-        summary_html = f"""
-<div class="selection-summary">
-  <b>Selected:</b>
-  C-rate {selection["c_rate"]} ·
-  {container_display_label(selection["container"], db)} ·
-  {pcs_display_label(selection["pcs"], db)}
-  <br/>
-  <b>Calculated:</b>
-  Power {format_number(calc.get("power_kw"), 1)} kW ·
-  DC Current {format_number(calc.get("dc_bus_current_a"), 1)} A ·
-  Containers / PCS {calc.get("containers_per_pcs")} ·
-  PCS Utilisation {format_number(calc.get("pcs_utilization"), 1)} %
+        output_html = f"""
+<div class="output-strip">
+  <div class="output-label">OUTPUT</div>
+
+  <div class="output-item">
+    <span>Container Energy</span>
+    <b>{format_number(calc.get("container_mwh"), 2)} MWh</b>
+  </div>
+
+  <div class="output-item">
+    <span>Power @ C-rate</span>
+    <b>{format_number(calc.get("power_kw"), 0)} kW</b>
+  </div>
+
+  <div class="output-item">
+    <span>DC Bus Current</span>
+    <b>{format_number(calc.get("dc_bus_current_a"), 1)} A</b>
+  </div>
+
+  <div class="output-item">
+    <span>Containers / PCS</span>
+    <b>{calc.get("containers_per_pcs")}</b>
+  </div>
+
+  <div class="output-item">
+    <span>Duration</span>
+    <b>{format_number(calc.get("duration_h"), 1)} h</b>
+  </div>
 </div>
 """
-        st.markdown(summary_html, unsafe_allow_html=True)
+        st.markdown(output_html, unsafe_allow_html=True)
 
         if st.button("Save current selection as default"):
             db.setdefault("project", {})
