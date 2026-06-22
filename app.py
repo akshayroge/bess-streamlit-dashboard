@@ -15,7 +15,7 @@ from src.ui import render_cards_html, render_sld_html
 
 
 DASHBOARD_IFRAME_HEIGHT = 1250
-CARDS_IFRAME_HEIGHT = 520
+CARDS_IFRAME_HEIGHT = 560
 
 
 def inject_css() -> None:
@@ -633,7 +633,12 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         "maximum_cell_voltage_v": safe_float(container.get("maximum_cell_voltage_v"), 3.65),
         "minimum_cell_voltage_v": safe_float(container.get("minimum_cell_voltage_v"), 2.5),
         "capacity_ah": cell_capacity,
-        "energy_kwh": cell_energy_kwh
+        "energy_kwh": cell_energy_kwh,
+        "image": first_value(
+            container.get("cell_image"),
+            container.get("cell_image_path"),
+            default="assets/images/equipment/cell.png"
+        )
     }
 
     pack = {
@@ -644,7 +649,12 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         "nominal_voltage_v": pack_v,
         "capacity_ah": rack_capacity_ah,
         "energy_kwh": pack_energy_kwh,
-        "fuse_a": safe_int(container.get("pack_fuse_a"), 400)
+        "fuse_a": safe_int(container.get("pack_fuse_a"), 400),
+        "image": first_value(
+            container.get("pack_image"),
+            container.get("pack_image_path"),
+            default="assets/images/equipment/pack.png"
+        )
     }
 
     rack = {
@@ -662,7 +672,12 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         "fuse_a": safe_int(container.get("rack_fuse_a"), 350),
         "hvcb_a": safe_int(container.get("rack_hvcb_a"), 350),
         "bmu_count": safe_int(container.get("bmu_count"), 4),
-        "bcmu_count": safe_int(container.get("bcmu_count"), 1)
+        "bcmu_count": safe_int(container.get("bcmu_count"), 1),
+        "image": first_value(
+            container.get("rack_image"),
+            container.get("rack_image_path"),
+            default="assets/images/equipment/rack.png"
+        )
     }
 
     return {
