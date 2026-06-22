@@ -478,3 +478,42 @@ textarea{
     align-items:flex-start;
   }
 }
+/* ===== Streamlit header layout safety fix ===== */
+
+.bess-top{
+  overflow:hidden;
+}
+
+.bess-title{
+  flex:1 1 auto;
+  min-width:260px;
+}
+
+.bess-title h1{
+  white-space:nowrap;
+  word-break:keep-all;
+  overflow-wrap:normal;
+}
+
+.logo-row{
+  flex:0 0 auto;
+}
+
+.logo-box img{
+  display:block;
+}
+
+@media(max-width:700px){
+  .bess-title{
+    min-width:0;
+  }
+
+  .bess-title h1{
+    white-space:normal;
+    font-size:24px;
+  }
+
+  .logo-row{
+    flex-wrap:wrap;
+  }
+}
