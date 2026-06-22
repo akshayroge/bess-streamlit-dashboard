@@ -11,15 +11,12 @@ from src.assets import load_css
 from src.calculations import calculate_dashboard
 from src.excel_importer import detect_excel_values
 from src.store import load_db, save_db
-from src.ui import render_dashboard_html
+from src.ui import render_cards_html, render_sld_html
 
 
-DASHBOARD_IFRAME_HEIGHT = 2600
+DASHBOARD_IFRAME_HEIGHT = 1250
+CARDS_IFRAME_HEIGHT = 520
 
-
-# ---------------------------------------------------------------------
-# Base helpers
-# ---------------------------------------------------------------------
 
 def inject_css() -> None:
     css = load_css()
@@ -114,10 +111,6 @@ def default_index(options: List[str], preferred: Optional[str]) -> int:
     return 0
 
 
-# ---------------------------------------------------------------------
-# HTML rendering helpers
-# ---------------------------------------------------------------------
-
 def build_inline_html(html: str) -> str:
     css = load_css()
 
@@ -181,11 +174,10 @@ def build_iframe_document(html: str) -> str:
 """
 
 
-def render_html_block(html: str, height: int = 160, scrolling: bool = False) -> None:
+def render_html_block(html: str, height: int = 600, scrolling: bool = False) -> None:
     """
     Render HTML without Markdown parsing.
-
-    This avoids raw <div>, <section>, and <img> code appearing on the dashboard.
+    This prevents raw HTML from appearing on the page.
     """
     html_renderer = getattr(st, "html", None)
 
@@ -199,14 +191,6 @@ def render_html_block(html: str, height: int = 160, scrolling: bool = False) -> 
         )
 
 
-def render_dashboard_raw_html(dashboard_html: str) -> None:
-    render_html_block(
-        dashboard_html,
-        height=DASHBOARD_IFRAME_HEIGHT,
-        scrolling=True,
-    )
-
-
 def render_exception_box(title: str, exc: Exception) -> None:
     st.error(title)
     st.caption(str(exc))
@@ -214,10 +198,6 @@ def render_exception_box(title: str, exc: Exception) -> None:
     with st.expander("Technical details"):
         st.code(traceback.format_exc(), language="python")
 
-
-# ---------------------------------------------------------------------
-# Dropdown options
-# ---------------------------------------------------------------------
 
 def get_c_rate_options(db: Dict[str, Any]) -> List[str]:
     options = get_nested(db, ["dropdowns", "c_rates"], None)
@@ -308,10 +288,6 @@ def c_rate_display_label(c_rate_key: str) -> str:
     return str(c_rate_key)
 
 
-# ---------------------------------------------------------------------
-# Header and dropdown panel
-# ---------------------------------------------------------------------
-
 def ensure_selection_state(db: Dict[str, Any]) -> None:
     c_rate_options = get_c_rate_options(db)
     container_options = get_container_options(db)
@@ -334,12 +310,6 @@ def ensure_selection_state(db: Dict[str, Any]) -> None:
 
 
 def render_bess_header(db: Dict[str, Any]) -> None:
-    """
-    Clean header:
-    - no CLOU/Midea logo placeholders
-    - no subtitle line
-    - larger bold title
-    """
     header_html = f"""
 <div class="bess-shell">
   <div class="bess-top clean-bess-header">
@@ -357,44 +327,43 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
     container_options = get_container_options(db)
     pcs_options = get_pcs_options(db)
 
-    st.markdown(
-        """
-<div class="selector-panel">
-  <div class="selector-panel-title">System Selection</div>
-  <div class="selector-panel-subtitle">Choose C-rate, BESS container, and PCS. The dashboard updates automatically.</div>
-</div>
+    with st.container(border=True):
+        st.markdown(
+            """
+<div class="selector-panel-title">System Selection</div>
+<div class="selector-panel-subtitle">Choose C-rate, BESS container, and PCS. The dashboard updates automatically.</div>
 """,
-        unsafe_allow_html=True,
-    )
-
-    col1, col2, col3 = st.columns([1, 2.4, 1.7], gap="medium")
-
-    with col1:
-        selected_c_rate = st.selectbox(
-            "1. C-rate",
-            c_rate_options,
-            index=default_index(c_rate_options, st.session_state.get("selected_c_rate")),
-            format_func=c_rate_display_label,
-            key="selected_c_rate",
+            unsafe_allow_html=True,
         )
 
-    with col2:
-        selected_container = st.selectbox(
-            "2. Container",
-            container_options,
-            index=default_index(container_options, st.session_state.get("selected_container")),
-            format_func=lambda key: container_display_label(key, db),
-            key="selected_container",
-        )
+        col1, col2, col3 = st.columns([1, 2.4, 1.7], gap="medium")
 
-    with col3:
-        selected_pcs = st.selectbox(
-            "3. PCS",
-            pcs_options,
-            index=default_index(pcs_options, st.session_state.get("selected_pcs")),
-            format_func=lambda key: pcs_display_label(key, db),
-            key="selected_pcs",
-        )
+        with col1:
+            selected_c_rate = st.selectbox(
+                "1. C-rate",
+                c_rate_options,
+                index=default_index(c_rate_options, st.session_state.get("selected_c_rate")),
+                format_func=c_rate_display_label,
+                key="selected_c_rate",
+            )
+
+        with col2:
+            selected_container = st.selectbox(
+                "2. Container",
+                container_options,
+                index=default_index(container_options, st.session_state.get("selected_container")),
+                format_func=lambda key: container_display_label(key, db),
+                key="selected_container",
+            )
+
+        with col3:
+            selected_pcs = st.selectbox(
+                "3. PCS",
+                pcs_options,
+                index=default_index(pcs_options, st.session_state.get("selected_pcs")),
+                format_func=lambda key: pcs_display_label(key, db),
+                key="selected_pcs",
+            )
 
     return {
         "c_rate": selected_c_rate,
@@ -402,10 +371,6 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
         "pcs": selected_pcs,
     }
 
-
-# ---------------------------------------------------------------------
-# Calculation working DB
-# ---------------------------------------------------------------------
 
 def resolve_selected_container(db: Dict[str, Any], container_id: str) -> Dict[str, Any]:
     container = get_nested(db, ["catalog", "containers", container_id], None)
@@ -816,10 +781,6 @@ def validate_minimum_db(db: Dict[str, Any]) -> List[str]:
     return errors
 
 
-# ---------------------------------------------------------------------
-# Table editor helpers
-# ---------------------------------------------------------------------
-
 def flatten_item(item_id: str, item: Dict[str, Any]) -> Dict[str, Any]:
     row = {"id": item_id}
 
@@ -892,10 +853,6 @@ def unflatten_table(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
     return result
 
 
-# ---------------------------------------------------------------------
-# Pages
-# ---------------------------------------------------------------------
-
 def dashboard_page(db: Dict[str, Any]) -> None:
     validation_errors = validate_minimum_db(db)
 
@@ -918,6 +875,9 @@ def dashboard_page(db: Dict[str, Any]) -> None:
         )
 
         calc = calculate_dashboard(working_db, selection["c_rate"])
+
+        cards_html = render_cards_html(working_db, selection["c_rate"])
+        render_html_block(cards_html, height=CARDS_IFRAME_HEIGHT, scrolling=False)
 
         output_html = f"""
 <div class="output-strip">
@@ -951,6 +911,10 @@ def dashboard_page(db: Dict[str, Any]) -> None:
 """
         st.markdown(output_html, unsafe_allow_html=True)
 
+        with st.expander("Expand Single Line Diagram", expanded=False):
+            sld_html = render_sld_html(working_db, selection["c_rate"])
+            render_html_block(sld_html, height=DASHBOARD_IFRAME_HEIGHT, scrolling=True)
+
         if st.button("Save current selection as default"):
             db.setdefault("project", {})
             db.setdefault("selected_components", {})
@@ -961,9 +925,6 @@ def dashboard_page(db: Dict[str, Any]) -> None:
 
             save_db(db)
             st.success("Default selection saved to data/db.json.")
-
-        dashboard_html = render_dashboard_html(working_db, selection["c_rate"])
-        render_dashboard_raw_html(dashboard_html)
 
     except Exception as exc:
         render_exception_box(
