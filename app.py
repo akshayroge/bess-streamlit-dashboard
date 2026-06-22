@@ -7,7 +7,7 @@ import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
-from src.assets import load_css
+from src.assets import asset_to_data_uri, load_css
 from src.calculations import calculate_dashboard
 from src.excel_importer import detect_excel_values
 from src.store import load_db, save_db
@@ -17,10 +17,70 @@ from src.ui import render_dashboard_html
 DASHBOARD_IFRAME_HEIGHT = 2600
 
 
+# ---------------------------------------------------------------------
+# Base helpers
+# ---------------------------------------------------------------------
+
 def inject_css() -> None:
     css = load_css()
     if css:
         st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+
+    st.markdown(
+        """
+<style>
+/* Native Streamlit dropdown area placed below BESS Dashboard header */
+.selector-panel {
+    margin: -4px 0 18px 0;
+    padding: 16px 18px 18px 18px;
+    border: 1px solid rgba(0,217,255,.35);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(0,217,255,.075), rgba(240,185,0,.045));
+    box-shadow: 0 0 22px rgba(0,217,255,.08);
+}
+
+.selector-panel-title {
+    color: #f4f8ff;
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.selector-panel-subtitle {
+    color: #94a7bf;
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+
+.selection-summary {
+    margin: 4px 0 18px 0;
+    padding: 12px 16px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 14px;
+    background: rgba(255,255,255,.04);
+    color: #f4f8ff;
+    font-size: 13px;
+}
+
+.selection-summary b {
+    color: #00d9ff;
+}
+
+div[data-testid="stSelectbox"] label {
+    color: #f4f8ff !important;
+    font-weight: 800 !important;
+}
+
+div[data-baseweb="select"] > div {
+    background-color: rgba(7,17,31,.92) !important;
+    border-color: rgba(0,217,255,.38) !important;
+    border-radius: 12px !important;
+    color: #f4f8ff !important;
+}
+</style>
+""",
+        unsafe_allow_html=True,
+    )
 
 
 def safe_float(value: Any, default: float = 0.0) -> float:
@@ -104,6 +164,16 @@ def format_number(value: Any, decimals: int = 1) -> str:
     return f"{number:,.{decimals}f}"
 
 
+def default_index(options: List[str], preferred: Optional[str]) -> int:
+    if preferred in options:
+        return options.index(preferred)
+    return 0
+
+
+# ---------------------------------------------------------------------
+# HTML rendering helpers
+# ---------------------------------------------------------------------
+
 def build_inline_dashboard_html(dashboard_html: str) -> str:
     css = load_css()
 
@@ -182,6 +252,24 @@ def render_dashboard_raw_html(dashboard_html: str) -> None:
         )
 
 
+def strip_bess_header_from_dashboard_html(dashboard_html: str) -> str:
+    """
+    src.ui.render_dashboard_html() already includes the BESS header.
+    Since we render the header separately to place Streamlit widgets below it,
+    remove the duplicate header before rendering the rest of the dashboard.
+    """
+    start_marker = '<div class="bess-top">'
+    next_section_marker = '<div class="grid3">'
+
+    start = dashboard_html.find(start_marker)
+    next_section = dashboard_html.find(next_section_marker, start)
+
+    if start == -1 or next_section == -1:
+        return dashboard_html
+
+    return dashboard_html[:start] + dashboard_html[next_section:]
+
+
 def render_exception_box(title: str, exc: Exception) -> None:
     st.error(title)
     st.caption(str(exc))
@@ -189,6 +277,10 @@ def render_exception_box(title: str, exc: Exception) -> None:
     with st.expander("Technical details"):
         st.code(traceback.format_exc(), language="python")
 
+
+# ---------------------------------------------------------------------
+# Dropdown options and display labels
+# ---------------------------------------------------------------------
 
 def get_c_rate_options(db: Dict[str, Any]) -> List[str]:
     options = get_nested(db, ["dropdowns", "c_rates"], None)
@@ -279,11 +371,123 @@ def c_rate_display_label(c_rate_key: str) -> str:
     return str(c_rate_key)
 
 
-def default_index(options: List[str], preferred: Optional[str]) -> int:
-    if preferred in options:
-        return options.index(preferred)
-    return 0
+# ---------------------------------------------------------------------
+# Header and selector rendering
+# ---------------------------------------------------------------------
 
+def ensure_selection_state(db: Dict[str, Any]) -> None:
+    c_rate_options = get_c_rate_options(db)
+    container_options = get_container_options(db)
+    pcs_options = get_pcs_options(db)
+
+    selected = db.get("selected_components", {})
+
+    default_c_rate = db.get("project", {}).get("default_c_rate", c_rate_options[0])
+    default_container = selected.get("container", container_options[0])
+    default_pcs = selected.get("pcs", pcs_options[0])
+
+    if "selected_c_rate" not in st.session_state or st.session_state["selected_c_rate"] not in c_rate_options:
+        st.session_state["selected_c_rate"] = default_c_rate if default_c_rate in c_rate_options else c_rate_options[0]
+
+    if "selected_container" not in st.session_state or st.session_state["selected_container"] not in container_options:
+        st.session_state["selected_container"] = default_container if default_container in container_options else container_options[0]
+
+    if "selected_pcs" not in st.session_state or st.session_state["selected_pcs"] not in pcs_options:
+        st.session_state["selected_pcs"] = default_pcs if default_pcs in pcs_options else pcs_options[0]
+
+
+def render_bess_header(db: Dict[str, Any]) -> None:
+    clou_logo = asset_to_data_uri(
+        db.get("ui", {}).get("logos", {}).get("clou"),
+        "CLOU"
+    )
+
+    midea_logo = asset_to_data_uri(
+        db.get("ui", {}).get("logos", {}).get("midea"),
+        "MIDEA"
+    )
+
+    selected_c_rate = st.session_state.get("selected_c_rate", db.get("project", {}).get("default_c_rate", "0.25"))
+
+    header_html = f"""
+<div class="bess-shell">
+  <div class="bess-top">
+    <div class="bess-title">
+      <h1>{db["project"]["name"]}</h1>
+      <p>{db["project"]["system_type"]} · Selected C-rate: <b>{selected_c_rate}</b></p>
+    </div>
+
+    <div class="logo-row">
+      <div class="logo-box">
+        <img src="{clou_logo}" alt="CLOU"/>
+      </div>
+      <div class="logo-box">
+        <img src="{midea_logo}" alt="Midea"/>
+      </div>
+    </div>
+  </div>
+</div>
+"""
+    st.markdown(header_html, unsafe_allow_html=True)
+
+
+def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
+    c_rate_options = get_c_rate_options(db)
+    container_options = get_container_options(db)
+    pcs_options = get_pcs_options(db)
+
+    st.markdown(
+        """
+<div class="selector-panel">
+  <div class="selector-panel-title">System Selection</div>
+  <div class="selector-panel-subtitle">Choose C-rate, BESS container, and PCS. The dashboard below updates automatically.</div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+    col1, col2, col3 = st.columns([1, 2.4, 1.7], gap="medium")
+
+    with col1:
+        selected_c_rate = st.selectbox(
+            "1. C-rate",
+            c_rate_options,
+            index=default_index(c_rate_options, st.session_state.get("selected_c_rate")),
+            format_func=c_rate_display_label,
+            key="selected_c_rate",
+            help="Options loaded from db.json → dropdowns.c_rates."
+        )
+
+    with col2:
+        selected_container = st.selectbox(
+            "2. Container",
+            container_options,
+            index=default_index(container_options, st.session_state.get("selected_container")),
+            format_func=lambda key: container_display_label(key, db),
+            key="selected_container",
+            help="Options loaded from db.json → dropdowns.containers / catalog.containers."
+        )
+
+    with col3:
+        selected_pcs = st.selectbox(
+            "3. PCS",
+            pcs_options,
+            index=default_index(pcs_options, st.session_state.get("selected_pcs")),
+            format_func=lambda key: pcs_display_label(key, db),
+            key="selected_pcs",
+            help="Options loaded from db.json → dropdowns.pcs / catalog.pcs."
+        )
+
+    return {
+        "c_rate": selected_c_rate,
+        "container": selected_container,
+        "pcs": selected_pcs,
+    }
+
+
+# ---------------------------------------------------------------------
+# Calculation and temporary working DB
+# ---------------------------------------------------------------------
 
 def resolve_selected_container(db: Dict[str, Any], container_id: str) -> Dict[str, Any]:
     container = get_nested(db, ["catalog", "containers", container_id], None)
@@ -402,37 +606,10 @@ def normalise_pcs(pcs: Dict[str, Any], pcs_id: str) -> Dict[str, Any]:
         5000
     )
 
-    ac_voltage = safe_float(
-        first_value(
-            pcs.get("ac_voltage_v"),
-            default=750
-        ),
-        750
-    )
-
-    dc_min = safe_float(
-        first_value(
-            pcs.get("dc_window_min_v"),
-            default=976
-        ),
-        976
-    )
-
-    dc_max = safe_float(
-        first_value(
-            pcs.get("dc_window_max_v"),
-            default=1061
-        ),
-        1061
-    )
-
-    efficiency = safe_float(
-        first_value(
-            pcs.get("efficiency_percent"),
-            default=98.8
-        ),
-        98.8
-    )
+    ac_voltage = safe_float(first_value(pcs.get("ac_voltage_v"), default=750), 750)
+    dc_min = safe_float(first_value(pcs.get("dc_window_min_v"), default=976), 976)
+    dc_max = safe_float(first_value(pcs.get("dc_window_max_v"), default=1061), 1061)
+    efficiency = safe_float(first_value(pcs.get("efficiency_percent"), default=98.8), 98.8)
 
     pcs["id"] = pcs_id
     pcs["name"] = first_value(pcs.get("name"), pcs.get("model"), pcs_id, default=pcs_id)
@@ -469,29 +646,7 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         3.2
     )
 
-    cell_max_v = safe_float(
-        first_value(
-            container.get("maximum_cell_voltage_v"),
-            default=3.65
-        ),
-        3.65
-    )
-
-    cell_min_v = safe_float(
-        first_value(
-            container.get("minimum_cell_voltage_v"),
-            default=2.5
-        ),
-        2.5
-    )
-
-    cell_energy_kwh = safe_float(
-        first_value(
-            container.get("cell_energy_kwh"),
-            default=0
-        ),
-        0
-    )
+    cell_energy_kwh = safe_float(first_value(container.get("cell_energy_kwh"), default=0), 0)
 
     if cell_energy_kwh <= 0:
         cell_energy_kwh = cell_capacity * cell_nominal_v / 1000
@@ -592,10 +747,7 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         "name": f"{container.get('name', 'Selected Container')} Cell",
         "chemistry": first_value(container.get("technology"), container.get("chemistry"), default="LFP"),
         "nominal_voltage_v": cell_nominal_v,
-        "maximum_cell_voltage_v": cell_max_v,
-        "minimum_cell_voltage_v": cell_min_v,
         "capacity_ah": cell_capacity,
-        "nominal_capacity_ah": cell_capacity,
         "energy_kwh": cell_energy_kwh
     }
 
@@ -635,11 +787,7 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
     }
 
 
-def compute_dynamic_profile(
-    container: Dict[str, Any],
-    pcs: Dict[str, Any],
-    c_rate_key: str
-) -> Dict[str, Any]:
+def compute_dynamic_profile(container: Dict[str, Any], pcs: Dict[str, Any], c_rate_key: str) -> Dict[str, Any]:
     c_rate = parse_c_rate(c_rate_key)
 
     container_energy_kwh = safe_float(container.get("energy_kwh"), 0)
@@ -684,15 +832,8 @@ def build_working_db(
 ) -> Dict[str, Any]:
     working_db = deepcopy(db)
 
-    container = normalise_container(
-        resolve_selected_container(db, selected_container_id),
-        selected_container_id
-    )
-
-    pcs = normalise_pcs(
-        resolve_selected_pcs(db, selected_pcs_id),
-        selected_pcs_id
-    )
+    container = normalise_container(resolve_selected_container(db, selected_container_id), selected_container_id)
+    pcs = normalise_pcs(resolve_selected_pcs(db, selected_pcs_id), selected_pcs_id)
 
     virtual_components = build_virtual_cell_pack_rack(container)
     dynamic_profile = compute_dynamic_profile(container, pcs, selected_c_rate)
@@ -754,6 +895,10 @@ def validate_minimum_db(db: Dict[str, Any]) -> List[str]:
 
     return errors
 
+
+# ---------------------------------------------------------------------
+# Table edit helpers
+# ---------------------------------------------------------------------
 
 def flatten_item(item_id: str, item: Dict[str, Any]) -> Dict[str, Any]:
     row = {"id": item_id}
@@ -827,6 +972,10 @@ def unflatten_table(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
     return result
 
 
+# ---------------------------------------------------------------------
+# Pages
+# ---------------------------------------------------------------------
+
 def dashboard_page(db: Dict[str, Any]) -> None:
     validation_errors = validate_minimum_db(db)
 
@@ -836,72 +985,51 @@ def dashboard_page(db: Dict[str, Any]) -> None:
             st.warning(item)
         return
 
-    c_rate_options = get_c_rate_options(db)
-    container_options = get_container_options(db)
-    pcs_options = get_pcs_options(db)
-
-    selected = db.get("selected_components", {})
-    default_c_rate = db.get("project", {}).get("default_c_rate", c_rate_options[0])
-    default_container = selected.get("container", container_options[0])
-    default_pcs = selected.get("pcs", pcs_options[0])
-
-    st.sidebar.subheader("System Selection")
-
-    selected_c_rate = st.sidebar.selectbox(
-        "1. C-rate",
-        c_rate_options,
-        index=default_index(c_rate_options, default_c_rate),
-        format_func=c_rate_display_label,
-        help="Options loaded from db.json dropdowns.c_rates."
-    )
-
-    selected_container = st.sidebar.selectbox(
-        "2. Container",
-        container_options,
-        index=default_index(container_options, default_container),
-        format_func=lambda key: container_display_label(key, db),
-        help="Options loaded from db.json dropdowns.containers."
-    )
-
-    selected_pcs = st.sidebar.selectbox(
-        "3. PCS",
-        pcs_options,
-        index=default_index(pcs_options, default_pcs),
-        format_func=lambda key: pcs_display_label(key, db),
-        help="Options loaded from db.json dropdowns.pcs."
-    )
+    ensure_selection_state(db)
+    render_bess_header(db)
+    selection = render_dropdown_panel(db)
 
     try:
         working_db = build_working_db(
             db=db,
-            selected_c_rate=selected_c_rate,
-            selected_container_id=selected_container,
-            selected_pcs_id=selected_pcs
+            selected_c_rate=selection["c_rate"],
+            selected_container_id=selection["container"],
+            selected_pcs_id=selection["pcs"]
         )
 
-        calc = calculate_dashboard(working_db, selected_c_rate)
+        calc = calculate_dashboard(working_db, selection["c_rate"])
 
-        with st.sidebar.expander("Current calculated selection", expanded=True):
-            st.write("**C-rate:**", selected_c_rate)
-            st.write("**Container:**", container_display_label(selected_container, db))
-            st.write("**PCS:**", pcs_display_label(selected_pcs, db))
-            st.write("**Power @ C-rate:**", f"{format_number(calc.get('power_kw'), 1)} kW")
-            st.write("**DC Bus Current:**", f"{format_number(calc.get('dc_bus_current_a'), 1)} A")
-            st.write("**Containers / PCS:**", calc.get("containers_per_pcs"))
-            st.write("**PCS Utilisation:**", f"{format_number(calc.get('pcs_utilization'), 1)} %")
+        st.markdown(
+            f"""
+<div class="selection-summary">
+  <b>Selected:</b>
+  C-rate {selection["c_rate"]} ·
+  {container_display_label(selection["container"], db)} ·
+  {pcs_display_label(selection["pcs"], db)}
+  <br/>
+  <b>Calculated:</b>
+  Power {format_number(calc.get("power_kw"), 1)} kW ·
+  DC Current {format_number(calc.get("dc_bus_current_a"), 1)} A ·
+  Containers / PCS {calc.get("containers_per_pcs")} ·
+  PCS Utilisation {format_number(calc.get("pcs_utilization"), 1)} %
+</div>
+""",
+            unsafe_allow_html=True,
+        )
 
-        if st.sidebar.button("Save current selection as default"):
+        if st.button("Save current selection as default"):
             db.setdefault("project", {})
             db.setdefault("selected_components", {})
 
-            db["project"]["default_c_rate"] = selected_c_rate
-            db["selected_components"]["container"] = selected_container
-            db["selected_components"]["pcs"] = selected_pcs
+            db["project"]["default_c_rate"] = selection["c_rate"]
+            db["selected_components"]["container"] = selection["container"]
+            db["selected_components"]["pcs"] = selection["pcs"]
 
             save_db(db)
-            st.sidebar.success("Default selection saved to data/db.json.")
+            st.success("Default selection saved to data/db.json.")
 
-        dashboard_html = render_dashboard_html(working_db, selected_c_rate)
+        dashboard_html = render_dashboard_html(working_db, selection["c_rate"])
+        dashboard_html = strip_bess_header_from_dashboard_html(dashboard_html)
         render_dashboard_raw_html(dashboard_html)
 
     except Exception as exc:
