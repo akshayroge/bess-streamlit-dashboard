@@ -18,21 +18,121 @@ from src.ui import render_cards_html, render_sld_html
 DASHBOARD_IFRAME_HEIGHT = 1600
 CARDS_IFRAME_HEIGHT = 560
 SCENARIO_SLD_IFRAME_HEIGHT = 1600
+COMPARISON_TABLE_HEIGHT = 560
 
 SCENARIO_ACCENTS = ["cyan", "yellow", "pink", "green"]
 SCENARIO_NAMES = [
     "Scenario 1 (Baseline)",
     "Scenario 2",
     "Scenario 3",
-    "Scenario 4"
+    "Scenario 4",
 ]
 
+
+# ---------------------------------------------------------------------
+# CSS / HTML rendering
+# ---------------------------------------------------------------------
 
 def inject_css() -> None:
     css = load_css()
     if css:
         st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
+
+def build_inline_html(html: str) -> str:
+    css = load_css()
+
+    return f"""
+<style>
+html, body {{
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow-x: hidden;
+}}
+
+* {{
+  box-sizing: border-box;
+}}
+
+{css}
+
+.bess-shell {{
+  max-width: 1500px;
+  margin: 0 auto;
+}}
+</style>
+
+{html}
+"""
+
+
+def build_iframe_document(html: str) -> str:
+    css = load_css()
+
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body {{
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow-x: hidden;
+    }}
+
+    * {{
+      box-sizing: border-box;
+    }}
+
+    {css}
+
+    .bess-shell {{
+      max-width: 1500px;
+      margin: 0 auto;
+    }}
+  </style>
+</head>
+<body>
+{html}
+</body>
+</html>
+"""
+
+
+def render_html_block(html: str, height: int = 600, scrolling: bool = False) -> None:
+    """
+    Render HTML without Markdown parsing.
+
+    This is important for scenario comparison tables and SLD blocks, because
+    st.markdown can treat indented table rows as code blocks and display raw
+    HTML instead of rendering it.
+    """
+    html_renderer = getattr(st, "html", None)
+
+    if html_renderer is not None:
+        html_renderer(build_inline_html(html))
+    else:
+        components.html(
+            build_iframe_document(html),
+            height=height,
+            scrolling=scrolling,
+        )
+
+
+def render_exception_box(title: str, exc: Exception) -> None:
+    st.error(title)
+    st.caption(str(exc))
+
+    with st.expander("Technical details"):
+        st.code(traceback.format_exc(), language="python")
+
+
+# ---------------------------------------------------------------------
+# Safe conversion helpers
+# ---------------------------------------------------------------------
 
 def safe_float(value: Any, default: float = 0.0) -> float:
     if value is None:
@@ -132,89 +232,9 @@ def default_index(options: List[str], preferred: Optional[str]) -> int:
     return 0
 
 
-def build_inline_html(html: str) -> str:
-    css = load_css()
-
-    return f"""
-<style>
-html, body {{
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  overflow-x: hidden;
-}}
-
-* {{
-  box-sizing: border-box;
-}}
-
-{css}
-
-.bess-shell {{
-  max-width: 1500px;
-  margin: 0 auto;
-}}
-</style>
-
-{html}
-"""
-
-
-def build_iframe_document(html: str) -> str:
-    css = load_css()
-
-    return f"""<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    html, body {{
-      margin: 0;
-      padding: 0;
-      background: transparent;
-      overflow-x: hidden;
-    }}
-
-    * {{
-      box-sizing: border-box;
-    }}
-
-    {css}
-
-    .bess-shell {{
-      max-width: 1500px;
-      margin: 0 auto;
-    }}
-  </style>
-</head>
-<body>
-{html}
-</body>
-</html>
-"""
-
-
-def render_html_block(html: str, height: int = 600, scrolling: bool = False) -> None:
-    html_renderer = getattr(st, "html", None)
-
-    if html_renderer is not None:
-        html_renderer(build_inline_html(html))
-    else:
-        components.html(
-            build_iframe_document(html),
-            height=height,
-            scrolling=scrolling,
-        )
-
-
-def render_exception_box(title: str, exc: Exception) -> None:
-    st.error(title)
-    st.caption(str(exc))
-
-    with st.expander("Technical details"):
-        st.code(traceback.format_exc(), language="python")
-
+# ---------------------------------------------------------------------
+# Dropdown helpers
+# ---------------------------------------------------------------------
 
 def get_c_rate_options(db: Dict[str, Any]) -> List[str]:
     options = get_nested(db, ["dropdowns", "c_rates"], None)
@@ -259,7 +279,7 @@ def container_display_label(container_id: str, db: Dict[str, Any]) -> str:
     company = first_value(
         container.get("manufacturer"),
         container.get("company"),
-        default=""
+        default="",
     )
 
     model = first_value(
@@ -267,7 +287,7 @@ def container_display_label(container_id: str, db: Dict[str, Any]) -> str:
         container.get("model"),
         container.get("name"),
         container_id,
-        default=container_id
+        default=container_id,
     )
 
     if company:
@@ -286,13 +306,13 @@ def pcs_display_label(pcs_id: str, db: Dict[str, Any]) -> str:
         pcs.get("model"),
         pcs.get("name"),
         pcs_id,
-        default=pcs_id
+        default=pcs_id,
     )
 
     manufacturer = first_value(
         pcs.get("manufacturer"),
         pcs.get("company"),
-        default=""
+        default="",
     )
 
     if manufacturer:
@@ -301,10 +321,36 @@ def pcs_display_label(pcs_id: str, db: Dict[str, Any]) -> str:
     return str(model)
 
 
+# ---------------------------------------------------------------------
+# Navigation helpers
+# ---------------------------------------------------------------------
+
+def request_navigation(page_name: str) -> None:
+    """
+    Do not write directly to st.session_state['nav_page'] after the sidebar
+    radio has been instantiated. Streamlit blocks that mutation. Instead,
+    store a pending page and apply it at the start of the next run, before
+    the sidebar radio widget is created.
+    """
+    st.session_state["pending_nav_page"] = page_name
+    st.rerun()
+
+
+# ---------------------------------------------------------------------
+# Main selection state
+# ---------------------------------------------------------------------
+
 def ensure_selection_state(db: Dict[str, Any]) -> None:
     c_rate_options = get_c_rate_options(db)
     container_options = get_container_options(db)
     pcs_options = get_pcs_options(db)
+
+    if not c_rate_options:
+        c_rate_options = ["0.25"]
+    if not container_options:
+        container_options = [""]
+    if not pcs_options:
+        pcs_options = [""]
 
     selected = db.get("selected_components", {})
 
@@ -322,6 +368,19 @@ def ensure_selection_state(db: Dict[str, Any]) -> None:
         st.session_state["selected_pcs"] = default_pcs if default_pcs in pcs_options else pcs_options[0]
 
 
+def current_dashboard_selection(db: Dict[str, Any]) -> Dict[str, str]:
+    ensure_selection_state(db)
+    return {
+        "c_rate": st.session_state["selected_c_rate"],
+        "container": st.session_state["selected_container"],
+        "pcs": st.session_state["selected_pcs"],
+    }
+
+
+# ---------------------------------------------------------------------
+# Header and dashboard controls
+# ---------------------------------------------------------------------
+
 def render_bess_header(db: Dict[str, Any]) -> None:
     header_html = f"""
 <div class="bess-shell">
@@ -333,16 +392,6 @@ def render_bess_header(db: Dict[str, Any]) -> None:
 </div>
 """
     render_html_block(header_html, height=120, scrolling=False)
-
-
-def request_navigation(page_name: str) -> None:
-    """
-    Do not write to st.session_state['nav_page'] directly after the sidebar radio
-    has been instantiated. Streamlit blocks that. Instead, set a pending target
-    page and apply it at the start of the next run, before the radio is created.
-    """
-    st.session_state["pending_nav_page"] = page_name
-    st.rerun()
 
 
 def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
@@ -401,6 +450,10 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
     }
 
 
+# ---------------------------------------------------------------------
+# Working DB construction
+# ---------------------------------------------------------------------
+
 def resolve_selected_container(db: Dict[str, Any], container_id: str) -> Dict[str, Any]:
     container = get_nested(db, ["catalog", "containers", container_id], None)
 
@@ -425,18 +478,18 @@ def normalise_container(container: Dict[str, Any], container_id: str) -> Dict[st
             container.get("energy_kwh"),
             container.get("total_energy_per_container_kwh"),
             container.get("total_energy_kwh"),
-            default=0
+            default=0,
         ),
-        0.0
+        0.0,
     )
 
     racks_per_container = safe_int(
         first_value(
             container.get("racks_per_container"),
             container.get("strings_per_container"),
-            default=12
+            default=12,
         ),
-        12
+        12,
     )
 
     if racks_per_container <= 0:
@@ -446,9 +499,9 @@ def normalise_container(container: Dict[str, Any], container_id: str) -> Dict[st
         first_value(
             container.get("nominal_voltage_v"),
             container.get("rack_nominal_voltage_v"),
-            default=1331.2
+            default=1331.2,
         ),
-        1331.2
+        1331.2,
     )
 
     dc_min = safe_float(
@@ -456,9 +509,9 @@ def normalise_container(container: Dict[str, Any], container_id: str) -> Dict[st
             container.get("dc_window_min_v"),
             container.get("minimum_voltage_v"),
             container.get("rack_minimum_voltage_v"),
-            default=1040
+            default=1040,
         ),
-        1040
+        1040,
     )
 
     dc_max = safe_float(
@@ -466,9 +519,9 @@ def normalise_container(container: Dict[str, Any], container_id: str) -> Dict[st
             container.get("dc_window_max_v"),
             container.get("maximum_voltage_v"),
             container.get("rack_maximum_voltage_v"),
-            default=1518.4
+            default=1518.4,
         ),
-        1518.4
+        1518.4,
     )
 
     container["id"] = container_id
@@ -477,17 +530,17 @@ def normalise_container(container: Dict[str, Any], container_id: str) -> Dict[st
         container.get("model_name"),
         container.get("label"),
         container_id,
-        default=container_id
+        default=container_id,
     )
     container["manufacturer"] = first_value(
         container.get("manufacturer"),
         container.get("company"),
-        default=""
+        default="",
     )
     container["technology"] = first_value(
         container.get("technology"),
         container.get("chemistry"),
-        default="LFP"
+        default="LFP",
     )
     container["racks_per_container"] = racks_per_container
     container["strings_per_container"] = racks_per_container
@@ -498,11 +551,11 @@ def normalise_container(container: Dict[str, Any], container_id: str) -> Dict[st
     container["cooling"] = first_value(
         container.get("cooling"),
         container.get("cooling_type"),
-        default="Liquid Cooling"
+        default="Liquid Cooling",
     )
     container["image"] = first_value(
         container.get("image"),
-        default="assets/images/equipment/bess_container.png"
+        default="assets/images/equipment/bess_container.png",
     )
 
     return container
@@ -513,9 +566,9 @@ def normalise_pcs(pcs: Dict[str, Any], pcs_id: str) -> Dict[str, Any]:
         first_value(
             pcs.get("rating_kva"),
             pcs.get("rated_power_kw"),
-            default=5000
+            default=5000,
         ),
-        5000
+        5000,
     )
 
     ac_voltage = safe_float(first_value(pcs.get("ac_voltage_v"), default=750), 750)
@@ -544,18 +597,18 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
             container.get("cell_capacity_ah"),
             container.get("nominal_capacity_ah"),
             container.get("capacity_ah"),
-            default=314
+            default=314,
         ),
-        314
+        314,
     )
 
     cell_nominal_v = safe_float(
         first_value(
             container.get("cell_nominal_voltage_v"),
             container.get("nominal_cell_voltage_v"),
-            default=3.2
+            default=3.2,
         ),
-        3.2
+        3.2,
     )
 
     cell_energy_kwh = safe_float(first_value(container.get("cell_energy_kwh"), default=0), 0)
@@ -570,9 +623,9 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         first_value(
             container.get("rack_energy_kwh"),
             container.get("energy_per_rack_kwh"),
-            default=0
+            default=0,
         ),
-        0
+        0,
     )
 
     if rack_energy_kwh <= 0 and container_energy_kwh > 0 and racks_per_container > 0:
@@ -589,9 +642,9 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         first_value(
             container.get("modules_per_string"),
             container.get("packs_series"),
-            default=4
+            default=4,
         ),
-        4
+        4,
     )
 
     if modules_per_string <= 0:
@@ -601,9 +654,9 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         first_value(
             container.get("pack_nominal_voltage_v"),
             container.get("module_nominal_voltage_v"),
-            default=0
+            default=0,
         ),
-        0
+        0,
     )
 
     if pack_v <= 0:
@@ -613,9 +666,9 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         first_value(
             container.get("pack_energy_kwh"),
             container.get("module_energy_kwh"),
-            default=0
+            default=0,
         ),
-        0
+        0,
     )
 
     if pack_energy_kwh <= 0:
@@ -625,9 +678,9 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         first_value(
             container.get("cells_series"),
             container.get("series_per_module"),
-            default=0
+            default=0,
         ),
-        0
+        0,
     )
 
     if cells_series <= 0 and cell_nominal_v > 0:
@@ -640,9 +693,9 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         first_value(
             container.get("cells_parallel"),
             container.get("parallel_per_module"),
-            default=1
+            default=1,
         ),
-        1
+        1,
     )
 
     rack_capacity_ah = safe_float(
@@ -650,9 +703,9 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
             container.get("rack_capacity_ah"),
             container.get("capacity_ah"),
             cell_capacity,
-            default=cell_capacity
+            default=cell_capacity,
         ),
-        cell_capacity
+        cell_capacity,
     )
 
     cell = {
@@ -666,8 +719,8 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         "image": first_value(
             container.get("cell_image"),
             container.get("cell_image_path"),
-            default="assets/images/equipment/cell.png"
-        )
+            default="assets/images/equipment/cell.png",
+        ),
     }
 
     pack = {
@@ -682,8 +735,8 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         "image": first_value(
             container.get("pack_image"),
             container.get("pack_image_path"),
-            default="assets/images/equipment/pack.png"
-        )
+            default="assets/images/equipment/pack.png",
+        ),
     }
 
     rack = {
@@ -705,21 +758,21 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
         "image": first_value(
             container.get("rack_image"),
             container.get("rack_image_path"),
-            default="assets/images/equipment/rack.png"
-        )
+            default="assets/images/equipment/rack.png",
+        ),
     }
 
     return {
         "cell": cell,
         "pack": pack,
-        "rack": rack
+        "rack": rack,
     }
 
 
 def compute_dynamic_profile(
     container: Dict[str, Any],
     pcs: Dict[str, Any],
-    c_rate_key: str
+    c_rate_key: str,
 ) -> Dict[str, Any]:
     c_rate = parse_c_rate(c_rate_key)
 
@@ -749,7 +802,7 @@ def compute_dynamic_profile(
         "dc_bus_current_a": round(dc_bus_current_a, 3),
         "containers_per_pcs": containers_per_pcs,
         "pcs_total_power_kw": round(pcs_total_power_kw, 3),
-        "pcs_utilization_percent": round(pcs_utilization, 3)
+        "pcs_utilization_percent": round(pcs_utilization, 3),
     }
 
 
@@ -757,17 +810,17 @@ def build_working_db(
     db: Dict[str, Any],
     selected_c_rate: str,
     selected_container_id: str,
-    selected_pcs_id: str
+    selected_pcs_id: str,
 ) -> Dict[str, Any]:
     working_db = deepcopy(db)
 
     container = normalise_container(
         resolve_selected_container(db, selected_container_id),
-        selected_container_id
+        selected_container_id,
     )
     pcs = normalise_pcs(
         resolve_selected_pcs(db, selected_pcs_id),
-        selected_pcs_id
+        selected_pcs_id,
     )
 
     virtual_components = build_virtual_cell_pack_rack(container)
@@ -812,7 +865,7 @@ def validate_minimum_db(db: Dict[str, Any]) -> List[str]:
         ["selected_components"],
         ["catalog"],
         ["catalog", "containers"],
-        ["catalog", "pcs"]
+        ["catalog", "pcs"],
     ]
 
     for path in required_paths:
@@ -831,14 +884,9 @@ def validate_minimum_db(db: Dict[str, Any]) -> List[str]:
     return errors
 
 
-def current_dashboard_selection(db: Dict[str, Any]) -> Dict[str, str]:
-    ensure_selection_state(db)
-    return {
-        "c_rate": st.session_state["selected_c_rate"],
-        "container": st.session_state["selected_container"],
-        "pcs": st.session_state["selected_pcs"],
-    }
-
+# ---------------------------------------------------------------------
+# Scenario analysis state and calculations
+# ---------------------------------------------------------------------
 
 def option_at(options: List[str], index: int, fallback: Optional[str] = None) -> str:
     if not options:
@@ -899,7 +947,7 @@ def clear_scenario_widget_keys() -> None:
         "cmp_enabled_",
         "cmp_c_rate_",
         "cmp_container_",
-        "cmp_pcs_"
+        "cmp_pcs_",
     ]
 
     for key in list(st.session_state.keys()):
@@ -966,7 +1014,7 @@ def reset_comparison_scenarios(db: Dict[str, Any]) -> None:
 def build_scenario_result(
     db: Dict[str, Any],
     scenario: Dict[str, Any],
-    index: int
+    index: int,
 ) -> Dict[str, Any]:
     working_db = build_working_db(
         db=db,
@@ -1048,7 +1096,7 @@ def metric_display(result: Dict[str, Any], key: str) -> str:
 
 def best_result_for_metric(
     results: List[Dict[str, Any]],
-    key: str
+    key: str,
 ) -> Optional[Dict[str, Any]]:
     if not results:
         return None
@@ -1070,7 +1118,7 @@ def best_result_for_metric(
 def status_class(
     result: Dict[str, Any],
     key: str,
-    best: Optional[Dict[str, Any]]
+    best: Optional[Dict[str, Any]],
 ) -> str:
     value = metric_value(result, key)
     util = metric_value(result, "utilisation")
@@ -1114,6 +1162,10 @@ def status_class(
 
 
 def render_comparison_table(results: List[Dict[str, Any]]) -> str:
+    """
+    Build scenario comparison table without indented HTML rows.
+    Render this with render_html_block(), not st.markdown().
+    """
     metrics = [
         ("energy", "Total Energy", "MWh"),
         ("power", "Power @ C-rate", "kW"),
@@ -1125,68 +1177,69 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
     ]
 
     header_cells = "".join(
-        f"<th class='scenario-col scenario-accent-{escape(result['accent'])}'>Scenario {result['index'] + 1}</th>"
+        f"<th class='scenario-col scenario-accent-{escape(result['accent'])}'>"
+        f"Scenario {result['index'] + 1}"
+        f"</th>"
         for result in results
     )
 
-    body_rows = []
+    body_rows: List[str] = []
 
     for key, label, unit in metrics:
         best = best_result_for_metric(results, key)
 
-        scenario_cells = []
-        for result in results:
-            cls = status_class(result, key, best)
-            scenario_cells.append(
-                f"<td class='{cls}'>{escape(metric_display(result, key))}</td>"
-            )
+        scenario_cells = "".join(
+            f"<td class='{status_class(result, key, best)}'>"
+            f"{escape(metric_display(result, key))}"
+            f"</td>"
+            for result in results
+        )
 
         best_text = escape(metric_display(best, key)) if best else "-"
 
-        body_rows.append(
-            f"""
-            <tr>
-              <td class="metric-name">{escape(label)}</td>
-              {''.join(scenario_cells)}
-              <td class="best-cell">{best_text}</td>
-              <td class="unit-cell">{escape(unit)}</td>
-            </tr>
-            """
+        row_html = (
+            "<tr>"
+            f"<td class='metric-name'>{escape(label)}</td>"
+            f"{scenario_cells}"
+            f"<td class='best-cell'>{best_text}</td>"
+            f"<td class='unit-cell'>{escape(unit)}</td>"
+            "</tr>"
         )
+        body_rows.append(row_html)
 
-    return f"""
-<div class="comparison-panel">
-  <div class="comparison-panel-head">
-    <div>
-      <h2>Scenario Comparison</h2>
-      <p>Conditional formatting: green = good or best, yellow = acceptable/watch, red = high or overload.</p>
-    </div>
-    <div class="performance-guide">
-      <span><i class="dot good"></i>Good</span>
-      <span><i class="dot warn"></i>Acceptable</span>
-      <span><i class="dot high"></i>High / Overload</span>
-    </div>
-  </div>
+    rows_html = "".join(body_rows)
 
-  <div class="comparison-table-wrap">
-    <table class="comparison-table">
-      <thead>
-        <tr>
-          <th>Metric</th>
-          {header_cells}
-          <th>Best</th>
-          <th>Units</th>
-        </tr>
-      </thead>
-      <tbody>
-        {''.join(body_rows)}
-      </tbody>
-    </table>
-  </div>
-
-  <p class="comparison-note">Values are calculated from the selected C-rate, container, and PCS for each enabled scenario.</p>
-</div>
-"""
+    return (
+        "<div class='comparison-panel'>"
+        "<div class='comparison-panel-head'>"
+        "<div>"
+        "<h2>Scenario Comparison</h2>"
+        "<p>Conditional formatting: green = good or best, yellow = acceptable/watch, red = high or overload.</p>"
+        "</div>"
+        "<div class='performance-guide'>"
+        "<span><i class='dot good'></i>Good</span>"
+        "<span><i class='dot warn'></i>Acceptable</span>"
+        "<span><i class='dot high'></i>High / Overload</span>"
+        "</div>"
+        "</div>"
+        "<div class='comparison-table-wrap'>"
+        "<table class='comparison-table'>"
+        "<thead>"
+        "<tr>"
+        "<th>Metric</th>"
+        f"{header_cells}"
+        "<th>Best</th>"
+        "<th>Units</th>"
+        "</tr>"
+        "</thead>"
+        "<tbody>"
+        f"{rows_html}"
+        "</tbody>"
+        "</table>"
+        "</div>"
+        "<p class='comparison-note'>Values are calculated from the selected C-rate, container, and PCS for each enabled scenario.</p>"
+        "</div>"
+    )
 
 
 def render_scenario_kpi_strip(result: Dict[str, Any]) -> str:
@@ -1203,6 +1256,10 @@ def render_scenario_kpi_strip(result: Dict[str, Any]) -> str:
 </div>
 """
 
+
+# ---------------------------------------------------------------------
+# Table editor helpers
+# ---------------------------------------------------------------------
 
 def flatten_item(item_id: str, item: Dict[str, Any]) -> Dict[str, Any]:
     row = {"id": item_id}
@@ -1273,6 +1330,10 @@ def unflatten_table(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
     return result
 
 
+# ---------------------------------------------------------------------
+# Pages
+# ---------------------------------------------------------------------
+
 def dashboard_page(db: Dict[str, Any]) -> None:
     validation_errors = validate_minimum_db(db)
 
@@ -1291,7 +1352,7 @@ def dashboard_page(db: Dict[str, Any]) -> None:
             db=db,
             selected_c_rate=selection["c_rate"],
             selected_container_id=selection["container"],
-            selected_pcs_id=selection["pcs"]
+            selected_pcs_id=selection["pcs"],
         )
 
         calc = calculate_dashboard(working_db, selection["c_rate"])
@@ -1329,7 +1390,7 @@ def dashboard_page(db: Dict[str, Any]) -> None:
     except Exception as exc:
         render_exception_box(
             "Dashboard rendering failed. Check selected container, PCS, and db.json field values.",
-            exc
+            exc,
         )
 
 
@@ -1450,7 +1511,12 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
         st.info("Enable at least one scenario to view comparison outputs.")
         return
 
-    st.markdown(render_comparison_table(results), unsafe_allow_html=True)
+    comparison_html = render_comparison_table(results)
+    render_html_block(
+        comparison_html,
+        height=COMPARISON_TABLE_HEIGHT,
+        scrolling=True,
+    )
 
     st.markdown(
         """
@@ -1469,12 +1535,12 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
             st.markdown(render_scenario_kpi_strip(result), unsafe_allow_html=True)
             sld_html = render_sld_html(
                 result["working_db"],
-                str(result["scenario"]["c_rate"])
+                str(result["scenario"]["c_rate"]),
             )
             render_html_block(
                 sld_html,
                 height=SCENARIO_SLD_IFRAME_HEIGHT,
-                scrolling=True
+                scrolling=True,
             )
 
 
@@ -1525,7 +1591,7 @@ def c_rate_profiles_page(db: Dict[str, Any]) -> None:
         [
             {
                 "c_rate_option": key,
-                "numeric_c_rate": parse_c_rate(key)
+                "numeric_c_rate": parse_c_rate(key),
             }
             for key in c_rate_options
         ]
@@ -1565,8 +1631,8 @@ def c_rate_profiles_page(db: Dict[str, Any]) -> None:
                         "c_rate": parse_c_rate(option),
                         "power_kw": 0,
                         "dc_bus_current_a": 0,
-                        "containers_per_pcs": 1
-                    }
+                        "containers_per_pcs": 1,
+                    },
                 )
 
             save_db(db)
@@ -1581,7 +1647,7 @@ def excel_import_page(db: Dict[str, Any]) -> None:
 
     uploaded_file = st.file_uploader(
         "Upload Excel workbook",
-        type=["xlsx", "xlsm", "xls"]
+        type=["xlsx", "xlsm", "xls"],
     )
 
     if uploaded_file is None:
@@ -1716,7 +1782,7 @@ def calculation_debug_page(db: Dict[str, Any]) -> None:
             db=db,
             selected_c_rate=selected_c_rate,
             selected_container_id=selected_container,
-            selected_pcs_id=selected_pcs
+            selected_pcs_id=selected_pcs,
         )
 
         result = calculate_dashboard(working_db, selected_c_rate)
@@ -1780,7 +1846,7 @@ def main() -> None:
     page = st.sidebar.radio(
         "Navigation",
         pages,
-        key="nav_page"
+        key="nav_page",
     )
 
     try:
