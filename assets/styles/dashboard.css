@@ -1321,3 +1321,88 @@ details{
     border-bottom: none;
   }
 }
+/* ============================================================
+   Action button styling
+   Applies to:
+   - Scenario Analysis
+   - Dashboard
+   - Sync Scenario 1
+   - Reset Scenarios
+   ============================================================ */
+
+div[data-testid="stButton"] button[kind="primary"],
+div[data-testid="stButton"] button[data-testid="baseButton-primary"],
+.stButton > button[kind="primary"],
+.stButton > button[data-testid="baseButton-primary"]{
+  background: linear-gradient(135deg, #00d9ff 0%, #10c7df 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(0,217,255,.95) !important;
+  border-radius: 10px !important;
+  min-height: 44px !important;
+  font-weight: 850 !important;
+  letter-spacing: .1px !important;
+  box-shadow:
+    0 0 18px rgba(0,217,255,.22),
+    inset 0 0 12px rgba(255,255,255,.10) !important;
+  transition:
+    transform .14s ease,
+    box-shadow .14s ease,
+    filter .14s ease !important;
+}
+
+div[data-testid="stButton"] button[kind="primary"]:hover,
+div[data-testid="stButton"] button[data-testid="baseButton-primary"]:hover,
+.stButton > button[kind="primary"]:hover,
+.stButton > button[data-testid="baseButton-primary"]:hover{
+  background: linear-gradient(135deg, #16e4ff 0%, #00c3df 100%) !important;
+  border-color: #5ef2ff !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 24px rgba(0,217,255,.38),
+    inset 0 0 14px rgba(255,255,255,.16) !important;
+  transform: translateY(-1px);
+  filter: saturate(1.08);
+}
+
+div[data-testid="stButton"] button[kind="primary"]:active,
+div[data-testid="stButton"] button[data-testid="baseButton-primary"]:active,
+.stButton > button[kind="primary"]:active,
+.stButton > button[data-testid="baseButton-primary"]:active{
+  transform: translateY(0);
+  box-shadow:
+    0 0 12px rgba(0,217,255,.22),
+    inset 0 0 10px rgba(0,0,0,.18) !important;
+}
+
+div[data-testid="stButton"] button[kind="primary"]:focus,
+div[data-testid="stButton"] button[data-testid="baseButton-primary"]:focus,
+.stButton > button[kind="primary"]:focus,
+.stButton > button[data-testid="baseButton-primary"]:focus{
+  outline: none !important;
+  box-shadow:
+    0 0 0 2px rgba(7,17,31,1),
+    0 0 0 4px rgba(0,217,255,.75),
+    0 0 22px rgba(0,217,255,.35) !important;
+}
+
+/* Keep icon + text nicely centered */
+div[data-testid="stButton"] button[kind="primary"] p,
+div[data-testid="stButton"] button[data-testid="baseButton-primary"] p,
+.stButton > button[kind="primary"] p,
+.stButton > button[data-testid="baseButton-primary"] p{
+  color: #ffffff !important;
+  font-weight: 850 !important;
+  margin: 0 !important;
+}
+
+/* Disabled primary action button */
+div[data-testid="stButton"] button[kind="primary"]:disabled,
+div[data-testid="stButton"] button[data-testid="baseButton-primary"]:disabled,
+.stButton > button[kind="primary"]:disabled,
+.stButton > button[data-testid="baseButton-primary"]:disabled{
+  background: rgba(0,217,255,.20) !important;
+  color: rgba(255,255,255,.55) !important;
+  border-color: rgba(0,217,255,.22) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
