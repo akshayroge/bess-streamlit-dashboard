@@ -1656,7 +1656,7 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
     container_options = get_container_options(db)
     pcs_options = get_pcs_options(db)
 
-    top1, top2, top3 = st.columns([2.0, 1.0, 1.0], gap="medium")
+    top1, top2, top3, top4 = st.columns([1.7, 1.0, 1.0, 1.25], gap="medium")
 
     with top1:
         st.markdown(
@@ -1677,6 +1677,9 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
         if st.button("↺ Reset Scenarios", use_container_width=True, type="primary"):
             reset_comparison_scenarios(db)
             st.rerun()
+
+    with top4:
+        export_button_slot = st.empty()
 
     with st.container(border=True):
         st.markdown(
@@ -1747,23 +1750,33 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
         st.warning(message)
 
     if not results:
-        st.info("Enable at least one scenario to view comparison outputs.")
+        with export_button_slot:
+            st.button(
+                "📄 Export PDF",
+                use_container_width=True,
+                type="primary",
+                disabled=True,
+            )
+
+        st.info("Enable at least one scenario to view comparison outputs and export a PDF.")
         return
 
-    comparison_html = render_comparison_table(results)
-    render_component_html(
-        comparison_html,
-        height=COMPARISON_TABLE_HEIGHT,
-        scrolling=True,
-    )
-
-    st.markdown("<div class='pdf-export-spacer'></div>", unsafe_allow_html=True)
+    pdf_export_error = None
 
     if build_scenario_pdf_bytes is None:
+        with export_button_slot:
+            st.button(
+                "📄 Export PDF",
+                use_container_width=True,
+                type="primary",
+                disabled=True,
+            )
+
         st.warning(
             "PDF export is unavailable because the reporting module could not be imported. "
             "Confirm `reportlab` is in requirements.txt and `src/reporting/pdf_report.py` exists."
         )
+
         if REPORT_IMPORT_ERROR is not None:
             with st.expander("PDF export technical details"):
                 st.code(str(REPORT_IMPORT_ERROR))
@@ -1776,17 +1789,36 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
 
             file_stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-            st.download_button(
-                label="📄 Export Scenario Analysis PDF",
-                data=pdf_bytes,
-                file_name=f"bess_scenario_analysis_{file_stamp}.pdf",
-                mime="application/pdf",
-                use_container_width=True,
-                type="primary",
-                key="export_scenario_analysis_pdf",
-            )
+            with export_button_slot:
+                st.download_button(
+                    label="📄 Export PDF",
+                    data=pdf_bytes,
+                    file_name=f"bess_scenario_analysis_{file_stamp}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                    type="primary",
+                    key="export_scenario_analysis_pdf_top",
+                )
         except Exception as exc:
-            render_exception_box("Could not prepare Scenario Analysis PDF export.", exc)
+            pdf_export_error = exc
+
+            with export_button_slot:
+                st.button(
+                    "📄 Export PDF",
+                    use_container_width=True,
+                    type="primary",
+                    disabled=True,
+                )
+
+    comparison_html = render_comparison_table(results)
+    render_component_html(
+        comparison_html,
+        height=COMPARISON_TABLE_HEIGHT,
+        scrolling=True,
+    )
+
+    if pdf_export_error is not None:
+        render_exception_box("Could not prepare Scenario Analysis PDF export.", pdf_export_error)
 
 
 def component_library_page(db: Dict[str, Any]) -> None:
