@@ -31,103 +31,108 @@ def eval_row(label: str, value: str) -> str:
     """
 
 
-def symbol_html(kind: str) -> str:
+def c_rate_label(c_rate_key: str) -> str:
+    text = str(c_rate_key).strip()
+    if text.upper().endswith("C"):
+        return text
+    return f"{text}C"
+
+
+def component_symbol(kind: str) -> str:
     """
-    CSS-drawn component symbols used in cards and SLD.
-
-    kind options:
-      cell, pack, rack, container, pcs, grid, dc_bus, cc_panel, combiner
+    Stable inline SVG symbols.
+    These stay inside their own boxes and do not rely on large absolute CSS shapes.
     """
 
-    if kind == "cell":
-        return """
-        <div class="symbol symbol-cell">
-          <div class="cell-plus"></div>
-          <div class="cell-body">
-            <span>LFP</span>
-          </div>
-        </div>
+    symbols = {
+        "cell": """
+        <svg viewBox="0 0 120 84" role="img" aria-label="Cell">
+          <rect x="42" y="16" width="36" height="54" rx="7" fill="#09241d" stroke="#00d590" stroke-width="4"/>
+          <rect x="52" y="8" width="16" height="9" rx="3" fill="#00d590"/>
+          <text x="60" y="48" text-anchor="middle" fill="#d8fff3" font-size="13" font-weight="900">LFP</text>
+        </svg>
+        """,
+        "pack": """
+        <svg viewBox="0 0 120 84" role="img" aria-label="Pack">
+          <rect x="18" y="25" width="84" height="36" rx="7" fill="#11231f" stroke="#ff9900" stroke-width="4"/>
+          <rect x="102" y="36" width="8" height="14" rx="2" fill="#ff9900"/>
+          <rect x="28" y="33" width="10" height="20" rx="2" fill="#2bdf8a"/>
+          <rect x="43" y="33" width="10" height="20" rx="2" fill="#2bdf8a"/>
+          <rect x="58" y="33" width="10" height="20" rx="2" fill="#2bdf8a"/>
+          <rect x="73" y="33" width="10" height="20" rx="2" fill="#2bdf8a"/>
+          <rect x="88" y="33" width="6" height="20" rx="2" fill="#2bdf8a"/>
+        </svg>
+        """,
+        "rack": """
+        <svg viewBox="0 0 120 84" role="img" aria-label="Rack">
+          <rect x="37" y="9" width="46" height="66" rx="6" fill="#101a2a" stroke="#8b7cff" stroke-width="3"/>
+          <rect x="44" y="18" width="32" height="9" rx="2" fill="#1b2335" stroke="#ff9900" stroke-width="2"/>
+          <rect x="44" y="31" width="32" height="9" rx="2" fill="#1b2335" stroke="#ff9900" stroke-width="2"/>
+          <rect x="44" y="44" width="32" height="9" rx="2" fill="#1b2335" stroke="#ff9900" stroke-width="2"/>
+          <rect x="44" y="57" width="32" height="9" rx="2" fill="#1b2335" stroke="#ff9900" stroke-width="2"/>
+          <rect x="29" y="18" width="5" height="48" rx="2" fill="#ff6b00"/>
+        </svg>
+        """,
+        "container": """
+        <svg viewBox="0 0 140 84" role="img" aria-label="Container">
+          <rect x="12" y="20" width="116" height="44" rx="5" fill="#dfe6ec" stroke="#ffd000" stroke-width="3"/>
+          <rect x="20" y="27" width="28" height="30" rx="2" fill="#f6f8fb" stroke="#6d7c87" stroke-width="2"/>
+          <line x1="56" y1="23" x2="56" y2="62" stroke="#7b8790" stroke-width="2"/>
+          <line x1="68" y1="23" x2="68" y2="62" stroke="#7b8790" stroke-width="2"/>
+          <line x1="80" y1="23" x2="80" y2="62" stroke="#7b8790" stroke-width="2"/>
+          <line x1="92" y1="23" x2="92" y2="62" stroke="#7b8790" stroke-width="2"/>
+          <rect x="104" y="30" width="16" height="24" rx="2" fill="#46515a"/>
+          <line x1="107" y1="35" x2="117" y2="35" stroke="#cfd8df" stroke-width="1.5"/>
+          <line x1="107" y1="41" x2="117" y2="41" stroke="#cfd8df" stroke-width="1.5"/>
+          <line x1="107" y1="47" x2="117" y2="47" stroke="#cfd8df" stroke-width="1.5"/>
+        </svg>
+        """,
+        "pcs": """
+        <svg viewBox="0 0 140 84" role="img" aria-label="PCS">
+          <rect x="20" y="18" width="100" height="48" rx="6" fill="#e8edf2" stroke="#ff517c" stroke-width="3"/>
+          <rect x="31" y="28" width="37" height="18" rx="3" fill="#07111f" stroke="#00d9ff" stroke-width="2"/>
+          <text x="49.5" y="42" text-anchor="middle" fill="#00d9ff" font-size="19" font-weight="900">∿</text>
+          <rect x="82" y="28" width="24" height="28" rx="2" fill="#5d6872"/>
+          <line x1="86" y1="33" x2="102" y2="33" stroke="#d6e2ea" stroke-width="1.5"/>
+          <line x1="86" y1="39" x2="102" y2="39" stroke="#d6e2ea" stroke-width="1.5"/>
+          <line x1="86" y1="45" x2="102" y2="45" stroke="#d6e2ea" stroke-width="1.5"/>
+          <line x1="86" y1="51" x2="102" y2="51" stroke="#d6e2ea" stroke-width="1.5"/>
+        </svg>
+        """,
+        "grid": """
+        <svg viewBox="0 0 120 84" role="img" aria-label="AC Grid">
+          <polygon points="60,14 88,70 32,70" fill="none" stroke="#00eaff" stroke-width="4" stroke-linejoin="round"/>
+          <line x1="47" y1="44" x2="73" y2="44" stroke="#00eaff" stroke-width="3"/>
+          <line x1="40" y1="57" x2="80" y2="57" stroke="#00eaff" stroke-width="3"/>
+          <circle cx="60" cy="14" r="4" fill="#00eaff"/>
+        </svg>
+        """,
+        "combiner": """
+        <svg viewBox="0 0 120 84" role="img" aria-label="Rack Combiner">
+          <line x1="24" y1="50" x2="96" y2="50" stroke="#c8dfff" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="58" cy="50" r="8" fill="#07111f" stroke="#c8dfff" stroke-width="4"/>
+          <line x1="66" y1="45" x2="96" y2="32" stroke="#c8dfff" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        """,
+        "dc_bus": """
+        <svg viewBox="0 0 120 84" role="img" aria-label="DC Bus">
+          <rect x="39" y="8" width="42" height="68" rx="8" fill="#2f6bd8" stroke="#95bdff" stroke-width="3"/>
+          <text x="60" y="49" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="900">DC</text>
+        </svg>
+        """,
+        "cc_panel": """
+        <svg viewBox="0 0 120 84" role="img" aria-label="CC Panel">
+          <rect x="25" y="14" width="70" height="56" rx="7" fill="#101c2f" stroke="#00d9ff" stroke-width="3"/>
+          <rect x="40" y="28" width="9" height="28" rx="3" fill="#ff9900"/>
+          <rect x="56" y="28" width="9" height="28" rx="3" fill="#ff9900"/>
+          <rect x="72" y="28" width="9" height="28" rx="3" fill="#ff9900"/>
+        </svg>
         """
+    }
 
-    if kind == "pack":
-        return """
-        <div class="symbol symbol-pack">
-          <div class="pack-shell">
-            <span></span><span></span><span></span><span></span><span></span>
-          </div>
-        </div>
-        """
-
-    if kind == "rack":
-        return """
-        <div class="symbol symbol-rack">
-          <div class="rack-cabinet">
-            <span></span><span></span><span></span><span></span>
-          </div>
-        </div>
-        """
-
-    if kind == "container":
-        return """
-        <div class="symbol symbol-container">
-          <div class="container-box">
-            <div class="container-door"></div>
-            <div class="container-lines"></div>
-            <div class="container-vent"></div>
-          </div>
-        </div>
-        """
-
-    if kind == "pcs":
-        return """
-        <div class="symbol symbol-pcs">
-          <div class="pcs-cabinet">
-            <div class="pcs-screen"></div>
-            <div class="pcs-wave">∿</div>
-            <div class="pcs-vents"></div>
-          </div>
-        </div>
-        """
-
-    if kind == "grid":
-        return """
-        <div class="symbol symbol-grid">
-          <div class="grid-triangle"></div>
-          <div class="grid-line grid-line-1"></div>
-          <div class="grid-line grid-line-2"></div>
-          <div class="grid-line grid-line-3"></div>
-        </div>
-        """
-
-    if kind == "dc_bus":
-        return """
-        <div class="symbol symbol-dc-bus">
-          <div class="bus-bar"></div>
-          <div class="bus-value">DC</div>
-        </div>
-        """
-
-    if kind == "cc_panel":
-        return """
-        <div class="symbol symbol-cc-panel">
-          <div class="panel-door">
-            <span></span><span></span><span></span>
-          </div>
-        </div>
-        """
-
-    if kind == "combiner":
-        return """
-        <div class="symbol symbol-combiner">
-          <div class="combiner-line"></div>
-          <div class="combiner-node"></div>
-          <div class="combiner-switch"></div>
-        </div>
-        """
-
-    return """
-    <div class="symbol symbol-generic">
-      <span>●</span>
+    return f"""
+    <div class="component-symbol component-symbol-{kind}">
+      {symbols.get(kind, symbols["grid"])}
     </div>
     """
 
@@ -149,7 +154,7 @@ def get_dashboard_objects(db: Dict[str, Any], c_rate_key: str) -> Dict[str, Any]
 
     pack_config = pack.get("configuration")
     if not pack_config:
-        pack_config = f'{pack.get("cells_series", 104)}S x {pack.get("cells_parallel", 1)}P'
+        pack_config = f'{pack.get("cells_parallel", 1)}P{pack.get("cells_series", 104)}S'
 
     rack_dc_window = (
         f'{fmt(rack.get("minimum_voltage_v", container.get("dc_window_min_v", 0)), 0)}-'
@@ -227,7 +232,7 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
       </div>
 
       <div class="imgband module-imgband symbol-imgband">
-        {symbol_html("cell")}
+        {component_symbol("cell")}
       </div>
 
       <div class="module-param-title">CELL PARAMETERS</div>
@@ -248,7 +253,7 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
       </div>
 
       <div class="imgband module-imgband symbol-imgband">
-        {symbol_html("pack")}
+        {component_symbol("pack")}
       </div>
 
       <div class="module-param-title">PACK PARAMETERS</div>
@@ -269,7 +274,7 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
       </div>
 
       <div class="imgband module-imgband symbol-imgband">
-        {symbol_html("rack")}
+        {component_symbol("rack")}
       </div>
 
       <div class="module-param-title">RACK (STRING) PARAMETERS</div>
@@ -290,13 +295,13 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
       </div>
 
       <div class="imgband module-imgband symbol-imgband">
-        {symbol_html("container")}
+        {component_symbol("container")}
       </div>
 
       <div class="module-param-title">CONTAINER PARAMETERS</div>
       {kv("Model", dash(container.get("name")))}
       {kv("Total Energy", f'{fmt(calc["container_mwh"], 2)} MWh')}
-      {kv("Racks / Container", f'{container["racks_per_container"]}')}
+      {kv("Racks / Container", f'{container.get("racks_per_container", 0)}')}
       {kv("DC Window", calc["dc_window_text"])}
       {kv("DC Bus Current", f'{fmt(calc["dc_bus_current_a"], 1)} A')}
       {kv("Cooling", container.get("cooling", "Liquid Cooling"))}
@@ -311,7 +316,7 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
       </div>
 
       <div class="imgband module-imgband symbol-imgband">
-        {symbol_html("pcs")}
+        {component_symbol("pcs")}
       </div>
 
       <div class="module-param-title">PCS PARAMETERS</div>
@@ -350,6 +355,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
     container_name = container.get("name", "Container")
     container_company = container.get("manufacturer", "")
     pcs_label = pcs.get("label", pcs.get("model", "PCS"))
+    c_rate_text = c_rate_label(c_rate_key)
 
     return f"""
 <div class="bess-shell">
@@ -359,7 +365,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
     <div class="sld-ref-header">
       <div>
         <h2>Single Line Diagram</h2>
-        <p>{container_name} {f"({container_company})" if container_company else ""} · {c_rate_key}C · {pcs_label}</p>
+        <p>{container_name} {f"({container_company})" if container_company else ""} · {c_rate_text} · {pcs_label}</p>
       </div>
       <div class="sld-ref-meta">
         <div><b>System:</b> {fmt(calc["container_mwh"], 2)} MWh · {fmt(calc["power_kw"], 0)} kW</div>
@@ -372,7 +378,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
       <div class="sld-flow-card cyan">
         <div class="sld-card-title">CELL</div>
         <div class="sld-card-symbol">
-          {symbol_html("cell")}
+          {component_symbol("cell")}
         </div>
         <div class="sld-kv"><span>Capacity</span><b>{fmt(cell.get("capacity_ah", 0), 0)} Ah</b></div>
         <div class="sld-kv"><span>Voltage</span><b>{fmt(cell.get("nominal_voltage_v", 0), 2)} V</b></div>
@@ -387,7 +393,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
       <div class="sld-flow-card yellow">
         <div class="sld-card-title">PACK</div>
         <div class="sld-card-symbol">
-          {symbol_html("pack")}
+          {component_symbol("pack")}
         </div>
         <div class="sld-kv"><span>Config</span><b>{pack_config}</b></div>
         <div class="sld-kv"><span>Voltage</span><b>{fmt(calc["pack_v"], 1)} V</b></div>
@@ -402,7 +408,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
       <div class="sld-flow-card purple">
         <div class="sld-card-title">RACK / STRING</div>
         <div class="sld-card-symbol">
-          {symbol_html("rack")}
+          {component_symbol("rack")}
         </div>
         <div class="sld-kv"><span>Voltage</span><b>{fmt(calc["rack_v"], 0)} V</b></div>
         <div class="sld-kv"><span>Current</span><b>{fmt(string_current_a, 1)} A</b></div>
@@ -417,7 +423,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
       <div class="sld-flow-card yellow">
         <div class="sld-card-title">CONTAINER</div>
         <div class="sld-card-symbol">
-          {symbol_html("container")}
+          {component_symbol("container")}
         </div>
         <div class="sld-kv"><span>Energy</span><b>{fmt(calc["container_mwh"], 2)} MWh</b></div>
         <div class="sld-kv"><span>Bus V</span><b>{bus_voltage_text}</b></div>
@@ -432,7 +438,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
       <div class="sld-flow-card pink">
         <div class="sld-card-title">PCS</div>
         <div class="sld-card-symbol">
-          {symbol_html("pcs")}
+          {component_symbol("pcs")}
         </div>
         <div class="sld-kv"><span>Rating</span><b>{fmt(pcs.get("rating_kva", 0), 0)} kVA</b></div>
         <div class="sld-kv"><span>AC</span><b>{fmt(pcs.get("ac_voltage_v", 0), 0)} V</b></div>
@@ -447,7 +453,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
       <div class="sld-flow-card cyan">
         <div class="sld-card-title">AC GRID</div>
         <div class="sld-card-symbol">
-          {symbol_html("grid")}
+          {component_symbol("grid")}
         </div>
         <div class="sld-kv"><span>Connection</span><b>3-phase</b></div>
         <div class="sld-kv"><span>Voltage</span><b>{fmt(pcs.get("ac_voltage_v", 0), 0)} V</b></div>
@@ -482,7 +488,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
           <h4>RACK COMBINER</h4>
           <p>One combiner per rack string</p>
           <div class="sld-small-symbol">
-            {symbol_html("combiner")}
+            {component_symbol("combiner")}
           </div>
           <div class="sld-kv"><span>Combiner fuse</span><b>{rack_hvcb} A / 25 kA</b></div>
           <div class="sld-kv"><span>Rack output</span><b>{bus_voltage_text}</b></div>
@@ -495,7 +501,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
           <h4>DC BUS</h4>
           <p>Container bus</p>
           <div class="sld-small-symbol">
-            {symbol_html("dc_bus")}
+            {component_symbol("dc_bus")}
           </div>
           <div class="sld-kv"><span>Voltage</span><b>{bus_voltage_text}</b></div>
           <div class="sld-kv"><span>Total current</span><b>{fmt(calc["dc_bus_current_a"], 1)} A</b></div>
@@ -507,7 +513,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
           <h4>CC PANEL</h4>
           <p>DC collection and protection panel</p>
           <div class="sld-small-symbol">
-            {symbol_html("cc_panel")}
+            {component_symbol("cc_panel")}
           </div>
           <div class="sld-kv"><span>Main fuse</span><b>{system_fuse} A / 25 kA</b></div>
           <div class="sld-kv"><span>Output cable</span><b>600 kcmil x 6 runs</b></div>
@@ -519,7 +525,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
           <h4>PCS</h4>
           <p>DC/AC conversion</p>
           <div class="sld-small-symbol">
-            {symbol_html("pcs")}
+            {component_symbol("pcs")}
           </div>
           <div class="sld-kv"><span>Rating</span><b>{fmt(pcs.get("rating_kva", 0), 0)} kVA</b></div>
           <div class="sld-kv"><span>AC voltage</span><b>{fmt(pcs.get("ac_voltage_v", 0), 0)} V</b></div>
@@ -531,7 +537,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
       <div class="sld-architecture-row">
         <div><span>Parallel strings / racks in container</span><b>{container.get("racks_per_container", 0)} racks in parallel</b></div>
         <div><span>Container-to-PCS architecture</span><b>{calc["architecture_text"]}</b></div>
-        <div><span>System power at {c_rate_key}C</span><b>{fmt(calc["power_kw"], 0)} kW</b></div>
+        <div><span>System power at {c_rate_text}</span><b>{fmt(calc["power_kw"], 0)} kW</b></div>
         <div><span>Discharge duration</span><b>{fmt(calc["duration_h"], 1)} h</b></div>
       </div>
     </div>
@@ -556,7 +562,7 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <div class="bus-gradient"></div>
         <div class="container-mini">
           <div class="container-mini-symbol">
-            {symbol_html("container")}
+            {component_symbol("container")}
           </div>
           <div>
             <b>{container.get("racks_per_container", 0)} racks in parallel</b>
