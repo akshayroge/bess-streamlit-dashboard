@@ -1,7 +1,8 @@
 import json
 import traceback
 from copy import deepcopy
-from typing import Any, Dict, List, Optional
+from html import escape
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 import streamlit as st
@@ -16,6 +17,15 @@ from src.ui import render_cards_html, render_sld_html
 
 DASHBOARD_IFRAME_HEIGHT = 1600
 CARDS_IFRAME_HEIGHT = 560
+SCENARIO_SLD_IFRAME_HEIGHT = 1600
+
+SCENARIO_ACCENTS = ["cyan", "yellow", "pink", "green"]
+SCENARIO_NAMES = [
+    "Scenario 1 (Baseline)",
+    "Scenario 2",
+    "Scenario 3",
+    "Scenario 4"
+]
 
 
 def inject_css() -> None:
@@ -94,6 +104,17 @@ def get_nested(db: Dict[str, Any], path: List[str], default: Any = None) -> Any:
 def parse_c_rate(c_rate_key: str) -> float:
     text = str(c_rate_key).strip().upper().replace("C", "")
     return safe_float(text, 0.0)
+
+
+def c_rate_display_label(c_rate_key: str) -> str:
+    return str(c_rate_key)
+
+
+def c_rate_label(c_rate_key: str) -> str:
+    text = str(c_rate_key).strip()
+    if text.upper().endswith("C"):
+        return text
+    return f"{text}C"
 
 
 def format_number(value: Any, decimals: int = 1) -> str:
@@ -280,10 +301,6 @@ def pcs_display_label(pcs_id: str, db: Dict[str, Any]) -> str:
     return str(model)
 
 
-def c_rate_display_label(c_rate_key: str) -> str:
-    return str(c_rate_key)
-
-
 def ensure_selection_state(db: Dict[str, Any]) -> None:
     c_rate_options = get_c_rate_options(db)
     container_options = get_container_options(db)
@@ -310,7 +327,7 @@ def render_bess_header(db: Dict[str, Any]) -> None:
 <div class="bess-shell">
   <div class="bess-top clean-bess-header">
     <div class="bess-title">
-      <h1>{db.get("project", {}).get("name", "BESS Dashboard")}</h1>
+      <h1>{escape(db.get("project", {}).get("name", "BESS Dashboard"))}</h1>
     </div>
   </div>
 </div>
@@ -332,7 +349,7 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
             unsafe_allow_html=True,
         )
 
-        col1, col2, col3 = st.columns([1, 2.4, 1.7], gap="medium")
+        col1, col2, col3, col4 = st.columns([1.0, 2.25, 1.65, 1.05], gap="medium")
 
         with col1:
             selected_c_rate = st.selectbox(
@@ -360,6 +377,13 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
                 format_func=lambda key: pcs_display_label(key, db),
                 key="selected_pcs",
             )
+
+        with col4:
+            st.markdown("<div class='scenario-button-spacer'></div>", unsafe_allow_html=True)
+            if st.button("Scenario Analysis", key="open_scenario_analysis", use_container_width=True):
+                sync_scenario_one_from_dashboard(db)
+                st.session_state["nav_page"] = "Scenario Analysis"
+                st.rerun()
 
     return {
         "c_rate": selected_c_rate,
@@ -683,7 +707,11 @@ def build_virtual_cell_pack_rack(container: Dict[str, Any]) -> Dict[str, Dict[st
     }
 
 
-def compute_dynamic_profile(container: Dict[str, Any], pcs: Dict[str, Any], c_rate_key: str) -> Dict[str, Any]:
+def compute_dynamic_profile(
+    container: Dict[str, Any],
+    pcs: Dict[str, Any],
+    c_rate_key: str
+) -> Dict[str, Any]:
     c_rate = parse_c_rate(c_rate_key)
 
     container_energy_kwh = safe_float(container.get("energy_kwh"), 0)
@@ -691,11 +719,7 @@ def compute_dynamic_profile(container: Dict[str, Any], pcs: Dict[str, Any], c_ra
     pcs_rating_kw = safe_float(first_value(pcs.get("rated_power_kw"), pcs.get("rating_kva"), default=0), 0)
 
     power_kw = container_energy_kwh * c_rate if container_energy_kwh > 0 else 0
-
-    if power_kw > 0 and container_dc_min_v > 0:
-        dc_bus_current_a = power_kw * 1000 / container_dc_min_v
-    else:
-        dc_bus_current_a = 0
+    dc_bus_current_a = power_kw * 1000 / container_dc_min_v if power_kw > 0 and container_dc_min_v > 0 else 0
 
     if power_kw > 0 and pcs_rating_kw > 0:
         containers_per_pcs = max(1, int(round(pcs_rating_kw / power_kw)))
@@ -728,8 +752,14 @@ def build_working_db(
 ) -> Dict[str, Any]:
     working_db = deepcopy(db)
 
-    container = normalise_container(resolve_selected_container(db, selected_container_id), selected_container_id)
-    pcs = normalise_pcs(resolve_selected_pcs(db, selected_pcs_id), selected_pcs_id)
+    container = normalise_container(
+        resolve_selected_container(db, selected_container_id),
+        selected_container_id
+    )
+    pcs = normalise_pcs(
+        resolve_selected_pcs(db, selected_pcs_id),
+        selected_pcs_id
+    )
 
     virtual_components = build_virtual_cell_pack_rack(container)
     dynamic_profile = compute_dynamic_profile(container, pcs, selected_c_rate)
@@ -792,14 +822,384 @@ def validate_minimum_db(db: Dict[str, Any]) -> List[str]:
     return errors
 
 
+def current_dashboard_selection(db: Dict[str, Any]) -> Dict[str, str]:
+    ensure_selection_state(db)
+    return {
+        "c_rate": st.session_state["selected_c_rate"],
+        "container": st.session_state["selected_container"],
+        "pcs": st.session_state["selected_pcs"],
+    }
+
+
+def option_at(options: List[str], index: int, fallback: Optional[str] = None) -> str:
+    if not options:
+        return fallback or ""
+    if index < len(options):
+        return options[index]
+    return fallback if fallback in options else options[0]
+
+
+def create_default_scenarios(db: Dict[str, Any]) -> List[Dict[str, Any]]:
+    main = current_dashboard_selection(db)
+
+    c_rates = get_c_rate_options(db)
+    containers = get_container_options(db)
+    pcs_options = get_pcs_options(db)
+
+    container_0 = main["container"]
+    pcs_0 = main["pcs"]
+
+    return [
+        {
+            "name": "Scenario 1 (Baseline)",
+            "enabled": True,
+            "c_rate": main["c_rate"],
+            "container": main["container"],
+            "pcs": main["pcs"],
+            "accent": "cyan",
+        },
+        {
+            "name": "Scenario 2",
+            "enabled": True,
+            "c_rate": option_at(c_rates, 1, main["c_rate"]),
+            "container": container_0,
+            "pcs": pcs_0,
+            "accent": "yellow",
+        },
+        {
+            "name": "Scenario 3",
+            "enabled": True,
+            "c_rate": option_at(c_rates, 2, main["c_rate"]),
+            "container": option_at(containers, 2, container_0),
+            "pcs": option_at(pcs_options, 3, pcs_0),
+            "accent": "pink",
+        },
+        {
+            "name": "Scenario 4",
+            "enabled": True,
+            "c_rate": option_at(c_rates, 0, main["c_rate"]),
+            "container": option_at(containers, 1, container_0),
+            "pcs": option_at(pcs_options, 1, pcs_0),
+            "accent": "green",
+        },
+    ]
+
+
+def clear_scenario_widget_keys() -> None:
+    prefixes = [
+        "cmp_enabled_",
+        "cmp_c_rate_",
+        "cmp_container_",
+        "cmp_pcs_"
+    ]
+
+    for key in list(st.session_state.keys()):
+        if any(str(key).startswith(prefix) for prefix in prefixes):
+            del st.session_state[key]
+
+
+def ensure_comparison_state(db: Dict[str, Any]) -> None:
+    if "comparison_scenarios" not in st.session_state:
+        st.session_state["comparison_scenarios"] = create_default_scenarios(db)
+
+    scenarios = st.session_state["comparison_scenarios"]
+
+    if not isinstance(scenarios, list) or len(scenarios) != 4:
+        st.session_state["comparison_scenarios"] = create_default_scenarios(db)
+        clear_scenario_widget_keys()
+        return
+
+    c_rates = get_c_rate_options(db)
+    containers = get_container_options(db)
+    pcs_options = get_pcs_options(db)
+
+    for index, scenario in enumerate(st.session_state["comparison_scenarios"]):
+        scenario.setdefault("name", SCENARIO_NAMES[index])
+        scenario.setdefault("enabled", True)
+        scenario.setdefault("accent", SCENARIO_ACCENTS[index])
+
+        if scenario.get("c_rate") not in c_rates:
+            scenario["c_rate"] = c_rates[0]
+        if scenario.get("container") not in containers:
+            scenario["container"] = containers[0]
+        if scenario.get("pcs") not in pcs_options:
+            scenario["pcs"] = pcs_options[0]
+
+
+def sync_scenario_one_from_dashboard(db: Dict[str, Any]) -> None:
+    ensure_comparison_state(db)
+
+    main = current_dashboard_selection(db)
+    scenario = st.session_state["comparison_scenarios"][0]
+
+    scenario["enabled"] = True
+    scenario["c_rate"] = main["c_rate"]
+    scenario["container"] = main["container"]
+    scenario["pcs"] = main["pcs"]
+
+    widget_values = {
+        "cmp_enabled_0": True,
+        "cmp_c_rate_0": main["c_rate"],
+        "cmp_container_0": main["container"],
+        "cmp_pcs_0": main["pcs"],
+    }
+
+    for key, value in widget_values.items():
+        if key in st.session_state:
+            st.session_state[key] = value
+
+
+def reset_comparison_scenarios(db: Dict[str, Any]) -> None:
+    st.session_state["comparison_scenarios"] = create_default_scenarios(db)
+    clear_scenario_widget_keys()
+
+
+def build_scenario_result(
+    db: Dict[str, Any],
+    scenario: Dict[str, Any],
+    index: int
+) -> Dict[str, Any]:
+    working_db = build_working_db(
+        db=db,
+        selected_c_rate=str(scenario["c_rate"]),
+        selected_container_id=str(scenario["container"]),
+        selected_pcs_id=str(scenario["pcs"]),
+    )
+
+    calc = calculate_dashboard(working_db, str(scenario["c_rate"]))
+
+    return {
+        "index": index,
+        "name": scenario.get("name", SCENARIO_NAMES[index]),
+        "accent": scenario.get("accent", SCENARIO_ACCENTS[index]),
+        "scenario": scenario,
+        "working_db": working_db,
+        "calc": calc,
+        "container_label": container_display_label(str(scenario["container"]), db),
+        "pcs_label": pcs_display_label(str(scenario["pcs"]), db),
+        "c_rate_label": c_rate_label(str(scenario["c_rate"])),
+        "error": None,
+    }
+
+
+def collect_enabled_scenario_results(db: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], List[str]]:
+    ensure_comparison_state(db)
+
+    results: List[Dict[str, Any]] = []
+    errors: List[str] = []
+
+    for index, scenario in enumerate(st.session_state["comparison_scenarios"]):
+        if not scenario.get("enabled", False):
+            continue
+
+        try:
+            results.append(build_scenario_result(db, scenario, index))
+        except Exception as exc:
+            errors.append(f"Scenario {index + 1}: {exc}")
+
+    return results, errors
+
+
+def metric_value(result: Dict[str, Any], key: str) -> float:
+    calc = result["calc"]
+
+    mapping = {
+        "energy": calc.get("container_mwh", 0),
+        "power": calc.get("power_kw", 0),
+        "current": calc.get("dc_bus_current_a", 0),
+        "duration": calc.get("duration_h", 0),
+        "containers": calc.get("containers_per_pcs", 0),
+        "utilisation": calc.get("pcs_utilization", 0),
+        "max_racks": calc.get("max_racks_per_pcs", 0),
+    }
+
+    return safe_float(mapping.get(key), 0.0)
+
+
+def metric_display(result: Dict[str, Any], key: str) -> str:
+    calc = result["calc"]
+
+    if key == "energy":
+        return f"{format_number(calc.get('container_mwh'), 2)} MWh"
+    if key == "power":
+        return f"{format_number(calc.get('power_kw'), 0)} kW"
+    if key == "current":
+        return f"{format_number(calc.get('dc_bus_current_a'), 1)} A"
+    if key == "duration":
+        return f"{format_number(calc.get('duration_h'), 1)} h"
+    if key == "containers":
+        return f"{safe_int(calc.get('containers_per_pcs'), 0)}"
+    if key == "utilisation":
+        return f"{format_number(calc.get('pcs_utilization'), 1)} %"
+    if key == "max_racks":
+        return f"{safe_int(calc.get('max_racks_per_pcs'), 0)}"
+
+    return "-"
+
+
+def best_result_for_metric(
+    results: List[Dict[str, Any]],
+    key: str
+) -> Optional[Dict[str, Any]]:
+    if not results:
+        return None
+
+    if key in ["energy", "power", "duration", "containers", "max_racks"]:
+        return max(results, key=lambda result: metric_value(result, key))
+
+    if key == "current":
+        return min(results, key=lambda result: metric_value(result, key))
+
+    if key == "utilisation":
+        feasible = [result for result in results if metric_value(result, key) <= 105]
+        pool = feasible if feasible else results
+        return min(pool, key=lambda result: abs(metric_value(result, key) - 85))
+
+    return results[0]
+
+
+def status_class(
+    result: Dict[str, Any],
+    key: str,
+    best: Optional[Dict[str, Any]]
+) -> str:
+    value = metric_value(result, key)
+    util = metric_value(result, "utilisation")
+
+    if key == "power":
+        if util > 105:
+            return "status-high"
+        if util >= 95:
+            return "status-warn"
+        return "status-good"
+
+    if key == "current":
+        if value >= 3000:
+            return "status-high"
+        if value >= 2400:
+            return "status-warn"
+        return "status-good"
+
+    if key == "duration":
+        if value < 2:
+            return "status-high"
+        if value < 3:
+            return "status-warn"
+        if best is result:
+            return "status-good"
+        return "status-neutral"
+
+    if key == "utilisation":
+        if value > 105:
+            return "status-high"
+        if value >= 95:
+            return "status-warn"
+        return "status-good"
+
+    if key in ["energy", "containers", "max_racks"]:
+        if best is result:
+            return "status-good"
+        return "status-neutral"
+
+    return "status-neutral"
+
+
+def render_comparison_table(results: List[Dict[str, Any]]) -> str:
+    metrics = [
+        ("energy", "Total Energy", "MWh"),
+        ("power", "Power @ C-rate", "kW"),
+        ("current", "DC Bus Current", "A"),
+        ("duration", "Duration", "h"),
+        ("containers", "Containers / PCS", "Nos."),
+        ("utilisation", "PCS Utilisation", "%"),
+        ("max_racks", "Max Racks / PCS", "Nos."),
+    ]
+
+    header_cells = "".join(
+        f"<th class='scenario-col scenario-accent-{escape(result['accent'])}'>Scenario {result['index'] + 1}</th>"
+        for result in results
+    )
+
+    body_rows = []
+
+    for key, label, unit in metrics:
+        best = best_result_for_metric(results, key)
+
+        scenario_cells = []
+        for result in results:
+            cls = status_class(result, key, best)
+            scenario_cells.append(
+                f"<td class='{cls}'>{escape(metric_display(result, key))}</td>"
+            )
+
+        best_text = escape(metric_display(best, key)) if best else "-"
+
+        body_rows.append(
+            f"""
+            <tr>
+              <td class="metric-name">{escape(label)}</td>
+              {''.join(scenario_cells)}
+              <td class="best-cell">{best_text}</td>
+              <td class="unit-cell">{escape(unit)}</td>
+            </tr>
+            """
+        )
+
+    return f"""
+<div class="comparison-panel">
+  <div class="comparison-panel-head">
+    <div>
+      <h2>Scenario Comparison</h2>
+      <p>Conditional formatting: green = good or best, yellow = acceptable/watch, red = high or overload.</p>
+    </div>
+    <div class="performance-guide">
+      <span><i class="dot good"></i>Good</span>
+      <span><i class="dot warn"></i>Acceptable</span>
+      <span><i class="dot high"></i>High / Overload</span>
+    </div>
+  </div>
+
+  <div class="comparison-table-wrap">
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          {header_cells}
+          <th>Best</th>
+          <th>Units</th>
+        </tr>
+      </thead>
+      <tbody>
+        {''.join(body_rows)}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="comparison-note">Values are calculated from the selected C-rate, container, and PCS for each enabled scenario.</p>
+</div>
+"""
+
+
+def render_scenario_kpi_strip(result: Dict[str, Any]) -> str:
+    calc = result["calc"]
+
+    return f"""
+<div class="scenario-kpi-strip scenario-accent-border-{escape(result['accent'])}">
+  <div><span>Container Energy</span><b>{format_number(calc.get('container_mwh'), 2)} MWh</b></div>
+  <div><span>Power @ C-rate</span><b>{format_number(calc.get('power_kw'), 0)} kW</b></div>
+  <div><span>DC Bus Current</span><b>{format_number(calc.get('dc_bus_current_a'), 1)} A</b></div>
+  <div><span>Containers / PCS</span><b>{calc.get('containers_per_pcs')}</b></div>
+  <div><span>Duration</span><b>{format_number(calc.get('duration_h'), 1)} h</b></div>
+  <div><span>PCS Utilisation</span><b>{format_number(calc.get('pcs_utilization'), 1)} %</b></div>
+</div>
+"""
+
+
 def flatten_item(item_id: str, item: Dict[str, Any]) -> Dict[str, Any]:
     row = {"id": item_id}
 
     for key, value in item.items():
-        if isinstance(value, (dict, list)):
-            row[key] = json.dumps(value)
-        else:
-            row[key] = value
+        row[key] = json.dumps(value) if isinstance(value, (dict, list)) else value
 
     return row
 
@@ -893,31 +1293,11 @@ def dashboard_page(db: Dict[str, Any]) -> None:
         output_html = f"""
 <div class="output-strip">
   <div class="output-label">OUTPUT</div>
-
-  <div class="output-item">
-    <span>Container Energy</span>
-    <b>{format_number(calc.get("container_mwh"), 2)} MWh</b>
-  </div>
-
-  <div class="output-item">
-    <span>Power @ C-rate</span>
-    <b>{format_number(calc.get("power_kw"), 0)} kW</b>
-  </div>
-
-  <div class="output-item">
-    <span>DC Bus Current</span>
-    <b>{format_number(calc.get("dc_bus_current_a"), 1)} A</b>
-  </div>
-
-  <div class="output-item">
-    <span>Containers / PCS</span>
-    <b>{calc.get("containers_per_pcs")}</b>
-  </div>
-
-  <div class="output-item">
-    <span>Duration</span>
-    <b>{format_number(calc.get("duration_h"), 1)} h</b>
-  </div>
+  <div class="output-item"><span>Container Energy</span><b>{format_number(calc.get('container_mwh'), 2)} MWh</b></div>
+  <div class="output-item"><span>Power @ C-rate</span><b>{format_number(calc.get('power_kw'), 0)} kW</b></div>
+  <div class="output-item"><span>DC Bus Current</span><b>{format_number(calc.get('dc_bus_current_a'), 1)} A</b></div>
+  <div class="output-item"><span>Containers / PCS</span><b>{calc.get('containers_per_pcs')}</b></div>
+  <div class="output-item"><span>Duration</span><b>{format_number(calc.get('duration_h'), 1)} h</b></div>
 </div>
 """
         st.markdown(output_html, unsafe_allow_html=True)
@@ -942,6 +1322,147 @@ def dashboard_page(db: Dict[str, Any]) -> None:
             "Dashboard rendering failed. Check selected container, PCS, and db.json field values.",
             exc
         )
+
+
+def scenario_analysis_page(db: Dict[str, Any]) -> None:
+    validation_errors = validate_minimum_db(db)
+
+    if validation_errors:
+        st.error("The JSON database is incomplete. Fix data/db.json before rendering scenario analysis.")
+        for item in validation_errors:
+            st.warning(item)
+        return
+
+    ensure_selection_state(db)
+    ensure_comparison_state(db)
+    render_bess_header(db)
+
+    c_rate_options = get_c_rate_options(db)
+    container_options = get_container_options(db)
+    pcs_options = get_pcs_options(db)
+
+    top1, top2, top3 = st.columns([1.6, 1, 1], gap="medium")
+
+    with top1:
+        st.markdown(
+            """
+<div class="scenario-page-title">
+  <h2>Scenario Analysis</h2>
+  <p>Compare up to four BESS system configurations side by side.</p>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
+
+    with top2:
+        if st.button("Sync Scenario 1 from Dashboard", use_container_width=True):
+            sync_scenario_one_from_dashboard(db)
+            st.success("Scenario 1 updated from the main dashboard selection.")
+            st.rerun()
+
+    with top3:
+        if st.button("Reset Scenarios", use_container_width=True):
+            reset_comparison_scenarios(db)
+            st.rerun()
+
+    with st.container(border=True):
+        st.markdown(
+            """
+<div class="scenario-builder-head">
+  <span>Scenario Builder</span>
+  <small>Enable up to 4 scenarios. Scenario 1 is your dashboard baseline by default.</small>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
+
+        scenario_cols = st.columns(4, gap="medium")
+
+        for index, col in enumerate(scenario_cols):
+            scenario = st.session_state["comparison_scenarios"][index]
+            accent = scenario.get("accent", SCENARIO_ACCENTS[index])
+
+            with col:
+                with st.container(border=True):
+                    st.markdown(
+                        f"""
+<div class="scenario-card-heading scenario-heading-{escape(accent)}">
+  <b>{escape(scenario.get('name', SCENARIO_NAMES[index]))}</b>
+  <span>{escape('Baseline' if index == 0 else c_rate_label(str(scenario.get('c_rate', ''))))}</span>
+</div>
+""",
+                        unsafe_allow_html=True,
+                    )
+
+                    enabled = st.toggle(
+                        "Enabled",
+                        value=bool(scenario.get("enabled", True)),
+                        key=f"cmp_enabled_{index}",
+                    )
+
+                    c_rate = st.selectbox(
+                        "C-rate",
+                        c_rate_options,
+                        index=default_index(c_rate_options, scenario.get("c_rate")),
+                        key=f"cmp_c_rate_{index}",
+                    )
+
+                    container = st.selectbox(
+                        "Container",
+                        container_options,
+                        index=default_index(container_options, scenario.get("container")),
+                        format_func=lambda key: container_display_label(key, db),
+                        key=f"cmp_container_{index}",
+                    )
+
+                    pcs = st.selectbox(
+                        "PCS",
+                        pcs_options,
+                        index=default_index(pcs_options, scenario.get("pcs")),
+                        format_func=lambda key: pcs_display_label(key, db),
+                        key=f"cmp_pcs_{index}",
+                    )
+
+                    scenario["enabled"] = enabled
+                    scenario["c_rate"] = c_rate
+                    scenario["container"] = container
+                    scenario["pcs"] = pcs
+
+    results, errors = collect_enabled_scenario_results(db)
+
+    for message in errors:
+        st.warning(message)
+
+    if not results:
+        st.info("Enable at least one scenario to view comparison outputs.")
+        return
+
+    st.markdown(render_comparison_table(results), unsafe_allow_html=True)
+
+    st.markdown(
+        """
+<div class="scenario-sld-title">
+  <h2>Single Line Diagrams (SLD)</h2>
+  <p>Expand any scenario to view its detailed SLD using the same dashboard visual style.</p>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+    for position, result in enumerate(results):
+        title = f"Scenario {result['index'] + 1} - {result['c_rate_label']} - {result['container_label']}"
+
+        with st.expander(title, expanded=(position == 0)):
+            st.markdown(render_scenario_kpi_strip(result), unsafe_allow_html=True)
+            sld_html = render_sld_html(
+                result["working_db"],
+                str(result["scenario"]["c_rate"])
+            )
+            render_html_block(
+                sld_html,
+                height=SCENARIO_SLD_IFRAME_HEIGHT,
+                scrolling=True
+            )
 
 
 def component_library_page(db: Dict[str, Any]) -> None:
@@ -1061,6 +1582,7 @@ def excel_import_page(db: Dict[str, Any]) -> None:
         return
 
     st.subheader("Detected values")
+
     if detected:
         st.json(detected)
     else:
@@ -1140,7 +1662,7 @@ def export_page(db: Dict[str, Any]) -> None:
 2. Open Streamlit Cloud.
 3. Click New app.
 4. Select the GitHub repository.
-5. Use app.py as the main file path.
+5. Use `app.py` as the main file path.
 6. Deploy.
 
 ### Important note about persistence
@@ -1149,15 +1671,7 @@ Local JSON editing works on a local PC or internal server.
 
 On Streamlit Cloud, changes to local JSON files may reset after redeployment.
 
-For a production multi-user version, store the JSON database in one of these:
-
-- GitHub
-- S3
-- Azure Blob
-- Google Cloud Storage
-- Supabase
-- PostgreSQL
-- Google Sheets
+For a production multi-user version, store the JSON database in GitHub, S3, Azure Blob, Google Cloud Storage, Supabase, PostgreSQL, or Google Sheets.
 """
     )
 
@@ -1171,11 +1685,13 @@ def calculation_debug_page(db: Dict[str, Any]) -> None:
     pcs_options = get_pcs_options(db)
 
     selected_c_rate = st.selectbox("C-rate", c_rate_options)
+
     selected_container = st.selectbox(
         "Container",
         container_options,
         format_func=lambda key: container_display_label(key, db),
     )
+
     selected_pcs = st.selectbox(
         "PCS",
         pcs_options,
@@ -1227,24 +1743,33 @@ def main() -> None:
         render_exception_box("Could not load data/db.json.", exc)
         st.stop()
 
+    pages = [
+        "Dashboard",
+        "Scenario Analysis",
+        "Component Library",
+        "C-rate Profiles",
+        "Excel Import",
+        "JSON Database",
+        "Calculation Debug",
+        "Export / Share",
+    ]
+
+    if "nav_page" not in st.session_state or st.session_state["nav_page"] not in pages:
+        st.session_state["nav_page"] = "Dashboard"
+
     st.sidebar.title("BESS Dashboard")
 
     page = st.sidebar.radio(
         "Navigation",
-        [
-            "Dashboard",
-            "Component Library",
-            "C-rate Profiles",
-            "Excel Import",
-            "JSON Database",
-            "Calculation Debug",
-            "Export / Share",
-        ],
+        pages,
+        key="nav_page"
     )
 
     try:
         if page == "Dashboard":
             dashboard_page(db)
+        elif page == "Scenario Analysis":
+            scenario_analysis_page(db)
         elif page == "Component Library":
             component_library_page(db)
         elif page == "C-rate Profiles":
