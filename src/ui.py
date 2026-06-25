@@ -1,3 +1,4 @@
+import base64
 from typing import Any, Dict
 
 from src.calculations import calculate_dashboard, fmt, selected_objects
@@ -38,101 +39,150 @@ def c_rate_label(c_rate_key: str) -> str:
     return f"{text}C"
 
 
+def svg_to_data_uri(svg: str) -> str:
+    encoded = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
+    return f"data:image/svg+xml;base64,{encoded}"
+
+
+def svg_img(svg: str, alt: str) -> str:
+    return f'<img class="symbol-svg-img" src="{svg_to_data_uri(svg)}" alt="{alt}"/>'
+
+
 def component_symbol(kind: str) -> str:
     """
-    Stable inline SVG symbols.
-    These stay inside their own boxes and do not rely on large absolute CSS shapes.
+    SVG symbols are converted to data-URI images.
+    This is more stable in Streamlit than raw inline <svg> tags.
     """
 
     symbols = {
         "cell": """
-        <svg viewBox="0 0 120 84" role="img" aria-label="Cell">
-          <rect x="42" y="16" width="36" height="54" rx="7" fill="#09241d" stroke="#00d590" stroke-width="4"/>
-          <rect x="52" y="8" width="16" height="9" rx="3" fill="#00d590"/>
-          <text x="60" y="48" text-anchor="middle" fill="#d8fff3" font-size="13" font-weight="900">LFP</text>
-        </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120">
+  <rect width="180" height="120" rx="18" fill="#07111f"/>
+  <circle cx="90" cy="60" r="48" fill="#00d590" opacity="0.08"/>
+  <rect x="68" y="30" width="44" height="64" rx="8" fill="#09251d" stroke="#00d590" stroke-width="5"/>
+  <rect x="80" y="20" width="20" height="11" rx="3" fill="#00d590"/>
+  <rect x="78" y="42" width="24" height="38" rx="4" fill="#0d4d36"/>
+  <text x="90" y="66" fill="#eafff8" font-family="Arial, sans-serif" font-size="15" font-weight="900" text-anchor="middle">LFP</text>
+  <path d="M72 24h-18M126 24h-18" stroke="#8fe6ff" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+  <text x="45" y="27" fill="#8fe6ff" font-family="Arial" font-size="13" font-weight="900">+</text>
+  <text x="130" y="27" fill="#8fe6ff" font-family="Arial" font-size="13" font-weight="900">−</text>
+</svg>
         """,
         "pack": """
-        <svg viewBox="0 0 120 84" role="img" aria-label="Pack">
-          <rect x="18" y="25" width="84" height="36" rx="7" fill="#11231f" stroke="#ff9900" stroke-width="4"/>
-          <rect x="102" y="36" width="8" height="14" rx="2" fill="#ff9900"/>
-          <rect x="28" y="33" width="10" height="20" rx="2" fill="#2bdf8a"/>
-          <rect x="43" y="33" width="10" height="20" rx="2" fill="#2bdf8a"/>
-          <rect x="58" y="33" width="10" height="20" rx="2" fill="#2bdf8a"/>
-          <rect x="73" y="33" width="10" height="20" rx="2" fill="#2bdf8a"/>
-          <rect x="88" y="33" width="6" height="20" rx="2" fill="#2bdf8a"/>
-        </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120">
+  <rect width="180" height="120" rx="18" fill="#07111f"/>
+  <circle cx="90" cy="60" r="50" fill="#ff9900" opacity="0.08"/>
+  <rect x="30" y="38" width="116" height="50" rx="9" fill="#13231f" stroke="#ff9900" stroke-width="5"/>
+  <rect x="146" y="54" width="12" height="18" rx="3" fill="#ff9900"/>
+  <rect x="43" y="49" width="13" height="28" rx="3" fill="#2bdf8a"/>
+  <rect x="62" y="49" width="13" height="28" rx="3" fill="#2bdf8a"/>
+  <rect x="81" y="49" width="13" height="28" rx="3" fill="#2bdf8a"/>
+  <rect x="100" y="49" width="13" height="28" rx="3" fill="#2bdf8a"/>
+  <rect x="119" y="49" width="13" height="28" rx="3" fill="#2bdf8a"/>
+  <path d="M38 32h94" stroke="#ffd36b" stroke-width="2" opacity="0.4"/>
+  <text x="90" y="105" fill="#8fe6ff" font-family="Arial" font-size="12" font-weight="900" text-anchor="middle">BATTERY PACK</text>
+</svg>
         """,
         "rack": """
-        <svg viewBox="0 0 120 84" role="img" aria-label="Rack">
-          <rect x="37" y="9" width="46" height="66" rx="6" fill="#101a2a" stroke="#8b7cff" stroke-width="3"/>
-          <rect x="44" y="18" width="32" height="9" rx="2" fill="#1b2335" stroke="#ff9900" stroke-width="2"/>
-          <rect x="44" y="31" width="32" height="9" rx="2" fill="#1b2335" stroke="#ff9900" stroke-width="2"/>
-          <rect x="44" y="44" width="32" height="9" rx="2" fill="#1b2335" stroke="#ff9900" stroke-width="2"/>
-          <rect x="44" y="57" width="32" height="9" rx="2" fill="#1b2335" stroke="#ff9900" stroke-width="2"/>
-          <rect x="29" y="18" width="5" height="48" rx="2" fill="#ff6b00"/>
-        </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120">
+  <rect width="180" height="120" rx="18" fill="#07111f"/>
+  <circle cx="90" cy="60" r="50" fill="#8b7cff" opacity="0.08"/>
+  <rect x="61" y="16" width="58" height="88" rx="7" fill="#121c2d" stroke="#8b7cff" stroke-width="4"/>
+  <rect x="51" y="28" width="6" height="64" rx="3" fill="#ff6b00"/>
+  <rect x="70" y="27" width="40" height="12" rx="3" fill="#18253a" stroke="#ff9900" stroke-width="2"/>
+  <rect x="70" y="45" width="40" height="12" rx="3" fill="#18253a" stroke="#ff9900" stroke-width="2"/>
+  <rect x="70" y="63" width="40" height="12" rx="3" fill="#18253a" stroke="#ff9900" stroke-width="2"/>
+  <rect x="70" y="81" width="40" height="12" rx="3" fill="#18253a" stroke="#ff9900" stroke-width="2"/>
+  <circle cx="112" cy="33" r="2" fill="#60ff9b"/>
+  <circle cx="112" cy="51" r="2" fill="#60ff9b"/>
+  <circle cx="112" cy="69" r="2" fill="#60ff9b"/>
+  <circle cx="112" cy="87" r="2" fill="#60ff9b"/>
+  <text x="90" y="114" fill="#8fe6ff" font-family="Arial" font-size="11" font-weight="900" text-anchor="middle">RACK / STRING</text>
+</svg>
         """,
         "container": """
-        <svg viewBox="0 0 140 84" role="img" aria-label="Container">
-          <rect x="12" y="20" width="116" height="44" rx="5" fill="#dfe6ec" stroke="#ffd000" stroke-width="3"/>
-          <rect x="20" y="27" width="28" height="30" rx="2" fill="#f6f8fb" stroke="#6d7c87" stroke-width="2"/>
-          <line x1="56" y1="23" x2="56" y2="62" stroke="#7b8790" stroke-width="2"/>
-          <line x1="68" y1="23" x2="68" y2="62" stroke="#7b8790" stroke-width="2"/>
-          <line x1="80" y1="23" x2="80" y2="62" stroke="#7b8790" stroke-width="2"/>
-          <line x1="92" y1="23" x2="92" y2="62" stroke="#7b8790" stroke-width="2"/>
-          <rect x="104" y="30" width="16" height="24" rx="2" fill="#46515a"/>
-          <line x1="107" y1="35" x2="117" y2="35" stroke="#cfd8df" stroke-width="1.5"/>
-          <line x1="107" y1="41" x2="117" y2="41" stroke="#cfd8df" stroke-width="1.5"/>
-          <line x1="107" y1="47" x2="117" y2="47" stroke="#cfd8df" stroke-width="1.5"/>
-        </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 120">
+  <rect width="220" height="120" rx="18" fill="#07111f"/>
+  <circle cx="110" cy="60" r="55" fill="#ffd000" opacity="0.08"/>
+  <rect x="30" y="36" width="156" height="52" rx="6" fill="#dfe7ee" stroke="#ffd000" stroke-width="4"/>
+  <rect x="42" y="44" width="35" height="36" rx="3" fill="#f8fbff" stroke="#6d7c87" stroke-width="2"/>
+  <line x1="87" y1="39" x2="87" y2="85" stroke="#7b8790" stroke-width="2"/>
+  <line x1="104" y1="39" x2="104" y2="85" stroke="#7b8790" stroke-width="2"/>
+  <line x1="121" y1="39" x2="121" y2="85" stroke="#7b8790" stroke-width="2"/>
+  <line x1="138" y1="39" x2="138" y2="85" stroke="#7b8790" stroke-width="2"/>
+  <rect x="152" y="48" width="23" height="26" rx="3" fill="#46515a"/>
+  <line x1="156" y1="53" x2="171" y2="53" stroke="#cfd8df" stroke-width="1.8"/>
+  <line x1="156" y1="59" x2="171" y2="59" stroke="#cfd8df" stroke-width="1.8"/>
+  <line x1="156" y1="65" x2="171" y2="65" stroke="#cfd8df" stroke-width="1.8"/>
+  <rect x="34" y="88" width="148" height="6" rx="3" fill="#6a747b"/>
+  <text x="110" y="111" fill="#8fe6ff" font-family="Arial" font-size="11" font-weight="900" text-anchor="middle">BESS CONTAINER</text>
+</svg>
         """,
         "pcs": """
-        <svg viewBox="0 0 140 84" role="img" aria-label="PCS">
-          <rect x="20" y="18" width="100" height="48" rx="6" fill="#e8edf2" stroke="#ff517c" stroke-width="3"/>
-          <rect x="31" y="28" width="37" height="18" rx="3" fill="#07111f" stroke="#00d9ff" stroke-width="2"/>
-          <text x="49.5" y="42" text-anchor="middle" fill="#00d9ff" font-size="19" font-weight="900">∿</text>
-          <rect x="82" y="28" width="24" height="28" rx="2" fill="#5d6872"/>
-          <line x1="86" y1="33" x2="102" y2="33" stroke="#d6e2ea" stroke-width="1.5"/>
-          <line x1="86" y1="39" x2="102" y2="39" stroke="#d6e2ea" stroke-width="1.5"/>
-          <line x1="86" y1="45" x2="102" y2="45" stroke="#d6e2ea" stroke-width="1.5"/>
-          <line x1="86" y1="51" x2="102" y2="51" stroke="#d6e2ea" stroke-width="1.5"/>
-        </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
+  <rect width="200" height="120" rx="18" fill="#07111f"/>
+  <circle cx="100" cy="60" r="54" fill="#ff517c" opacity="0.08"/>
+  <rect x="38" y="36" width="124" height="50" rx="7" fill="#e8edf2" stroke="#ff517c" stroke-width="4"/>
+  <rect x="52" y="47" width="42" height="21" rx="4" fill="#07111f" stroke="#00d9ff" stroke-width="2.5"/>
+  <text x="73" y="64" fill="#00d9ff" font-family="Arial" font-size="22" font-weight="900" text-anchor="middle">∿</text>
+  <rect x="114" y="47" width="32" height="28" rx="3" fill="#5d6872"/>
+  <line x1="119" y1="52" x2="141" y2="52" stroke="#d6e2ea" stroke-width="1.6"/>
+  <line x1="119" y1="58" x2="141" y2="58" stroke="#d6e2ea" stroke-width="1.6"/>
+  <line x1="119" y1="64" x2="141" y2="64" stroke="#d6e2ea" stroke-width="1.6"/>
+  <line x1="119" y1="70" x2="141" y2="70" stroke="#d6e2ea" stroke-width="1.6"/>
+  <path d="M40 88h120" stroke="#98a3aa" stroke-width="5" stroke-linecap="round"/>
+  <text x="100" y="109" fill="#8fe6ff" font-family="Arial" font-size="11" font-weight="900" text-anchor="middle">POWER CONVERSION SYSTEM</text>
+</svg>
         """,
         "grid": """
-        <svg viewBox="0 0 120 84" role="img" aria-label="AC Grid">
-          <polygon points="60,14 88,70 32,70" fill="none" stroke="#00eaff" stroke-width="4" stroke-linejoin="round"/>
-          <line x1="47" y1="44" x2="73" y2="44" stroke="#00eaff" stroke-width="3"/>
-          <line x1="40" y1="57" x2="80" y2="57" stroke="#00eaff" stroke-width="3"/>
-          <circle cx="60" cy="14" r="4" fill="#00eaff"/>
-        </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120">
+  <rect width="180" height="120" rx="18" fill="#07111f"/>
+  <circle cx="90" cy="60" r="50" fill="#00d9ff" opacity="0.07"/>
+  <polygon points="90,20 125,90 55,90" fill="none" stroke="#00eaff" stroke-width="5" stroke-linejoin="round"/>
+  <line x1="73" y1="58" x2="107" y2="58" stroke="#00eaff" stroke-width="3"/>
+  <line x1="65" y1="74" x2="115" y2="74" stroke="#00eaff" stroke-width="3"/>
+  <circle cx="90" cy="20" r="5" fill="#00eaff"/>
+  <text x="90" y="112" fill="#8fe6ff" font-family="Arial" font-size="11" font-weight="900" text-anchor="middle">AC GRID</text>
+</svg>
         """,
         "combiner": """
-        <svg viewBox="0 0 120 84" role="img" aria-label="Rack Combiner">
-          <line x1="24" y1="50" x2="96" y2="50" stroke="#c8dfff" stroke-width="4" stroke-linecap="round"/>
-          <circle cx="58" cy="50" r="8" fill="#07111f" stroke="#c8dfff" stroke-width="4"/>
-          <line x1="66" y1="45" x2="96" y2="32" stroke="#c8dfff" stroke-width="4" stroke-linecap="round"/>
-        </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120">
+  <rect width="180" height="120" rx="18" fill="#07111f"/>
+  <circle cx="90" cy="60" r="48" fill="#00d9ff" opacity="0.07"/>
+  <line x1="38" y1="70" x2="142" y2="70" stroke="#c8dfff" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="85" cy="70" r="9" fill="#07111f" stroke="#c8dfff" stroke-width="5"/>
+  <line x1="96" y1="63" x2="142" y2="42" stroke="#c8dfff" stroke-width="5" stroke-linecap="round"/>
+  <text x="90" y="105" fill="#8fe6ff" font-family="Arial" font-size="11" font-weight="900" text-anchor="middle">RACK COMBINER</text>
+</svg>
         """,
         "dc_bus": """
-        <svg viewBox="0 0 120 84" role="img" aria-label="DC Bus">
-          <rect x="39" y="8" width="42" height="68" rx="8" fill="#2f6bd8" stroke="#95bdff" stroke-width="3"/>
-          <text x="60" y="49" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="900">DC</text>
-        </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120">
+  <rect width="180" height="120" rx="18" fill="#07111f"/>
+  <circle cx="90" cy="60" r="50" fill="#2f6bd8" opacity="0.15"/>
+  <rect x="64" y="20" width="52" height="78" rx="10" fill="#2f6bd8" stroke="#95bdff" stroke-width="4"/>
+  <line x1="90" y1="8" x2="90" y2="20" stroke="#8fe6ff" stroke-width="4"/>
+  <line x1="90" y1="98" x2="90" y2="112" stroke="#8fe6ff" stroke-width="4"/>
+  <text x="90" y="66" fill="#ffffff" font-family="Arial" font-size="20" font-weight="900" text-anchor="middle">DC</text>
+</svg>
         """,
         "cc_panel": """
-        <svg viewBox="0 0 120 84" role="img" aria-label="CC Panel">
-          <rect x="25" y="14" width="70" height="56" rx="7" fill="#101c2f" stroke="#00d9ff" stroke-width="3"/>
-          <rect x="40" y="28" width="9" height="28" rx="3" fill="#ff9900"/>
-          <rect x="56" y="28" width="9" height="28" rx="3" fill="#ff9900"/>
-          <rect x="72" y="28" width="9" height="28" rx="3" fill="#ff9900"/>
-        </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120">
+  <rect width="180" height="120" rx="18" fill="#07111f"/>
+  <circle cx="90" cy="60" r="50" fill="#00d9ff" opacity="0.07"/>
+  <rect x="48" y="24" width="84" height="72" rx="8" fill="#101c2f" stroke="#00d9ff" stroke-width="4"/>
+  <rect x="63" y="42" width="12" height="35" rx="4" fill="#ff9900"/>
+  <rect x="84" y="42" width="12" height="35" rx="4" fill="#ff9900"/>
+  <rect x="105" y="42" width="12" height="35" rx="4" fill="#ff9900"/>
+  <line x1="58" y1="34" x2="122" y2="34" stroke="#8fe6ff" stroke-width="2" opacity="0.55"/>
+  <text x="90" y="111" fill="#8fe6ff" font-family="Arial" font-size="11" font-weight="900" text-anchor="middle">CC PANEL</text>
+</svg>
         """
     }
 
+    svg = symbols.get(kind, symbols["grid"])
     return f"""
     <div class="component-symbol component-symbol-{kind}">
-      {symbols.get(kind, symbols["grid"])}
+      {svg_img(svg, kind)}
     </div>
     """
 
