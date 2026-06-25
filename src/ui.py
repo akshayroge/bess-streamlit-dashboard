@@ -1,6 +1,5 @@
 from typing import Any, Dict
 
-from src.assets import asset_to_data_uri
 from src.calculations import calculate_dashboard, fmt, selected_objects
 
 
@@ -32,6 +31,107 @@ def eval_row(label: str, value: str) -> str:
     """
 
 
+def symbol_html(kind: str) -> str:
+    """
+    CSS-drawn component symbols used in cards and SLD.
+
+    kind options:
+      cell, pack, rack, container, pcs, grid, dc_bus, cc_panel, combiner
+    """
+
+    if kind == "cell":
+        return """
+        <div class="symbol symbol-cell">
+          <div class="cell-plus"></div>
+          <div class="cell-body">
+            <span>LFP</span>
+          </div>
+        </div>
+        """
+
+    if kind == "pack":
+        return """
+        <div class="symbol symbol-pack">
+          <div class="pack-shell">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        """
+
+    if kind == "rack":
+        return """
+        <div class="symbol symbol-rack">
+          <div class="rack-cabinet">
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        """
+
+    if kind == "container":
+        return """
+        <div class="symbol symbol-container">
+          <div class="container-box">
+            <div class="container-door"></div>
+            <div class="container-lines"></div>
+            <div class="container-vent"></div>
+          </div>
+        </div>
+        """
+
+    if kind == "pcs":
+        return """
+        <div class="symbol symbol-pcs">
+          <div class="pcs-cabinet">
+            <div class="pcs-screen"></div>
+            <div class="pcs-wave">∿</div>
+            <div class="pcs-vents"></div>
+          </div>
+        </div>
+        """
+
+    if kind == "grid":
+        return """
+        <div class="symbol symbol-grid">
+          <div class="grid-triangle"></div>
+          <div class="grid-line grid-line-1"></div>
+          <div class="grid-line grid-line-2"></div>
+          <div class="grid-line grid-line-3"></div>
+        </div>
+        """
+
+    if kind == "dc_bus":
+        return """
+        <div class="symbol symbol-dc-bus">
+          <div class="bus-bar"></div>
+          <div class="bus-value">DC</div>
+        </div>
+        """
+
+    if kind == "cc_panel":
+        return """
+        <div class="symbol symbol-cc-panel">
+          <div class="panel-door">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        """
+
+    if kind == "combiner":
+        return """
+        <div class="symbol symbol-combiner">
+          <div class="combiner-line"></div>
+          <div class="combiner-node"></div>
+          <div class="combiner-switch"></div>
+        </div>
+        """
+
+    return """
+    <div class="symbol symbol-generic">
+      <span>●</span>
+    </div>
+    """
+
+
 def get_dashboard_objects(db: Dict[str, Any], c_rate_key: str) -> Dict[str, Any]:
     objs = selected_objects(db)
 
@@ -42,12 +142,6 @@ def get_dashboard_objects(db: Dict[str, Any], c_rate_key: str) -> Dict[str, Any]
     pcs = objs["pcs"]
     protection = objs["protection"]
     calc = calculate_dashboard(db, c_rate_key)
-
-    cell_img = asset_to_data_uri(cell.get("image", "assets/images/equipment/cell.png"), "CELL")
-    pack_img = asset_to_data_uri(pack.get("image", "assets/images/equipment/pack.png"), "PACK")
-    rack_img = asset_to_data_uri(rack.get("image", "assets/images/equipment/rack.png"), "RACK")
-    container_img = asset_to_data_uri(container.get("image", "assets/images/equipment/bess_container.png"), "BESS CONTAINER")
-    pcs_img = asset_to_data_uri(pcs.get("image", "assets/images/equipment/pcs_nextpower.png"), "PCS")
 
     pack_fuse = protection.get("pack_fuse", {}).get("rating_a", pack.get("fuse_a", 400))
     rack_hvcb = protection.get("rack_hvcb", {}).get("rating_a", rack.get("hvcb_a", 350))
@@ -85,11 +179,6 @@ def get_dashboard_objects(db: Dict[str, Any], c_rate_key: str) -> Dict[str, Any]
         "container": container,
         "pcs": pcs,
         "calc": calc,
-        "cell_img": cell_img,
-        "pack_img": pack_img,
-        "rack_img": rack_img,
-        "container_img": container_img,
-        "pcs_img": pcs_img,
         "pack_fuse": pack_fuse,
         "rack_hvcb": rack_hvcb,
         "system_fuse": system_fuse,
@@ -116,12 +205,6 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
     pcs = ctx["pcs"]
     calc = ctx["calc"]
 
-    cell_img = ctx["cell_img"]
-    pack_img = ctx["pack_img"]
-    rack_img = ctx["rack_img"]
-    container_img = ctx["container_img"]
-    pcs_img = ctx["pcs_img"]
-
     pack_config = ctx["pack_config"]
     rack_dc_window = ctx["rack_dc_window"]
     pack_tag = ctx["pack_tag"]
@@ -143,8 +226,8 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <span class="tag">LFP</span>
       </div>
 
-      <div class="imgband module-imgband">
-        <img src="{cell_img}" alt="Cell"/>
+      <div class="imgband module-imgband symbol-imgband">
+        {symbol_html("cell")}
       </div>
 
       <div class="module-param-title">CELL PARAMETERS</div>
@@ -164,8 +247,8 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <span class="tag">{pack_tag}</span>
       </div>
 
-      <div class="imgband module-imgband">
-        <img src="{pack_img}" alt="Pack"/>
+      <div class="imgband module-imgband symbol-imgband">
+        {symbol_html("pack")}
       </div>
 
       <div class="module-param-title">PACK PARAMETERS</div>
@@ -185,8 +268,8 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <span class="tag">{rack_tag}</span>
       </div>
 
-      <div class="imgband module-imgband">
-        <img src="{rack_img}" alt="Rack"/>
+      <div class="imgband module-imgband symbol-imgband">
+        {symbol_html("rack")}
       </div>
 
       <div class="module-param-title">RACK (STRING) PARAMETERS</div>
@@ -206,8 +289,8 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <span class="tag">{container_tag}</span>
       </div>
 
-      <div class="imgband module-imgband">
-        <img src="{container_img}" alt="BESS Container"/>
+      <div class="imgband module-imgband symbol-imgband">
+        {symbol_html("container")}
       </div>
 
       <div class="module-param-title">CONTAINER PARAMETERS</div>
@@ -227,8 +310,8 @@ def render_cards_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <span class="tag">{pcs_tag}</span>
       </div>
 
-      <div class="imgband module-imgband">
-        <img src="{pcs_img}" alt="PCS"/>
+      <div class="imgband module-imgband symbol-imgband">
+        {symbol_html("pcs")}
       </div>
 
       <div class="module-param-title">PCS PARAMETERS</div>
@@ -255,12 +338,6 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
     container = ctx["container"]
     pcs = ctx["pcs"]
     calc = ctx["calc"]
-
-    cell_img = ctx["cell_img"]
-    pack_img = ctx["pack_img"]
-    rack_img = ctx["rack_img"]
-    container_img = ctx["container_img"]
-    pcs_img = ctx["pcs_img"]
 
     pack_fuse = ctx["pack_fuse"]
     rack_hvcb = ctx["rack_hvcb"]
@@ -294,8 +371,8 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
       <div class="sld-flow-card cyan">
         <div class="sld-card-title">CELL</div>
-        <div class="sld-card-img small-symbol">
-          <img src="{cell_img}" alt="Cell"/>
+        <div class="sld-card-symbol">
+          {symbol_html("cell")}
         </div>
         <div class="sld-kv"><span>Capacity</span><b>{fmt(cell.get("capacity_ah", 0), 0)} Ah</b></div>
         <div class="sld-kv"><span>Voltage</span><b>{fmt(cell.get("nominal_voltage_v", 0), 2)} V</b></div>
@@ -309,8 +386,8 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
       <div class="sld-flow-card yellow">
         <div class="sld-card-title">PACK</div>
-        <div class="sld-card-img">
-          <img src="{pack_img}" alt="Pack"/>
+        <div class="sld-card-symbol">
+          {symbol_html("pack")}
         </div>
         <div class="sld-kv"><span>Config</span><b>{pack_config}</b></div>
         <div class="sld-kv"><span>Voltage</span><b>{fmt(calc["pack_v"], 1)} V</b></div>
@@ -324,8 +401,8 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
       <div class="sld-flow-card purple">
         <div class="sld-card-title">RACK / STRING</div>
-        <div class="sld-card-img">
-          <img src="{rack_img}" alt="Rack"/>
+        <div class="sld-card-symbol">
+          {symbol_html("rack")}
         </div>
         <div class="sld-kv"><span>Voltage</span><b>{fmt(calc["rack_v"], 0)} V</b></div>
         <div class="sld-kv"><span>Current</span><b>{fmt(string_current_a, 1)} A</b></div>
@@ -339,8 +416,8 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
       <div class="sld-flow-card yellow">
         <div class="sld-card-title">CONTAINER</div>
-        <div class="sld-card-img wide">
-          <img src="{container_img}" alt="Container"/>
+        <div class="sld-card-symbol">
+          {symbol_html("container")}
         </div>
         <div class="sld-kv"><span>Energy</span><b>{fmt(calc["container_mwh"], 2)} MWh</b></div>
         <div class="sld-kv"><span>Bus V</span><b>{bus_voltage_text}</b></div>
@@ -354,8 +431,8 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
       <div class="sld-flow-card pink">
         <div class="sld-card-title">PCS</div>
-        <div class="sld-card-img">
-          <img src="{pcs_img}" alt="PCS"/>
+        <div class="sld-card-symbol">
+          {symbol_html("pcs")}
         </div>
         <div class="sld-kv"><span>Rating</span><b>{fmt(pcs.get("rating_kva", 0), 0)} kVA</b></div>
         <div class="sld-kv"><span>AC</span><b>{fmt(pcs.get("ac_voltage_v", 0), 0)} V</b></div>
@@ -369,7 +446,9 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
 
       <div class="sld-flow-card cyan">
         <div class="sld-card-title">AC GRID</div>
-        <div class="grid-symbol">△</div>
+        <div class="sld-card-symbol">
+          {symbol_html("grid")}
+        </div>
         <div class="sld-kv"><span>Connection</span><b>3-phase</b></div>
         <div class="sld-kv"><span>Voltage</span><b>{fmt(pcs.get("ac_voltage_v", 0), 0)} V</b></div>
         <div class="sld-kv"><span>Std</span><b>UL 1741</b></div>
@@ -402,7 +481,9 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <div class="sld-conn-card">
           <h4>RACK COMBINER</h4>
           <p>One combiner per rack string</p>
-          <div class="switch-symbol"></div>
+          <div class="sld-small-symbol">
+            {symbol_html("combiner")}
+          </div>
           <div class="sld-kv"><span>Combiner fuse</span><b>{rack_hvcb} A / 25 kA</b></div>
           <div class="sld-kv"><span>Rack output</span><b>{bus_voltage_text}</b></div>
           <div class="sld-kv"><span>String current</span><b>{fmt(string_current_a, 1)} A</b></div>
@@ -413,8 +494,10 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <div class="sld-conn-card dc-bus-card">
           <h4>DC BUS</h4>
           <p>Container bus</p>
-          <div class="bus-block">{bus_voltage_text}</div>
-          <div class="sld-kv"><span>Cable</span><b>1/0 AWG x 6</b></div>
+          <div class="sld-small-symbol">
+            {symbol_html("dc_bus")}
+          </div>
+          <div class="sld-kv"><span>Voltage</span><b>{bus_voltage_text}</b></div>
           <div class="sld-kv"><span>Total current</span><b>{fmt(calc["dc_bus_current_a"], 1)} A</b></div>
         </div>
 
@@ -423,7 +506,9 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <div class="sld-conn-card">
           <h4>CC PANEL</h4>
           <p>DC collection and protection panel</p>
-          <div class="cc-panel-box">CC Panel</div>
+          <div class="sld-small-symbol">
+            {symbol_html("cc_panel")}
+          </div>
           <div class="sld-kv"><span>Main fuse</span><b>{system_fuse} A / 25 kA</b></div>
           <div class="sld-kv"><span>Output cable</span><b>600 kcmil x 6 runs</b></div>
         </div>
@@ -433,8 +518,8 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <div class="sld-conn-card">
           <h4>PCS</h4>
           <p>DC/AC conversion</p>
-          <div class="sld-card-img pcs-small">
-            <img src="{pcs_img}" alt="PCS"/>
+          <div class="sld-small-symbol">
+            {symbol_html("pcs")}
           </div>
           <div class="sld-kv"><span>Rating</span><b>{fmt(pcs.get("rating_kva", 0), 0)} kVA</b></div>
           <div class="sld-kv"><span>AC voltage</span><b>{fmt(pcs.get("ac_voltage_v", 0), 0)} V</b></div>
@@ -470,7 +555,9 @@ def render_sld_html(db: Dict[str, Any], c_rate_key: str) -> str:
         <h3>DC BUS & CONTAINER</h3>
         <div class="bus-gradient"></div>
         <div class="container-mini">
-          <img src="{container_img}" alt="Container"/>
+          <div class="container-mini-symbol">
+            {symbol_html("container")}
+          </div>
           <div>
             <b>{container.get("racks_per_container", 0)} racks in parallel</b>
             <span>Bus V: {calc["dc_window_text"]}</span>
