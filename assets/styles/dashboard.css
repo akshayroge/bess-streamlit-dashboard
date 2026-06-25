@@ -100,7 +100,7 @@ div[data-baseweb="select"] > div{
 }
 
 /* =============================
-   Stable inline-SVG symbols
+   SVG symbol rendering
    ============================= */
 
 .component-symbol{
@@ -109,22 +109,40 @@ div[data-baseweb="select"] > div{
   justify-content:center;
   width:100%;
   height:100%;
-  min-height:50px;
+  min-height:70px;
   overflow:hidden;
 }
 
-.component-symbol svg{
+.symbol-svg-img{
   display:block;
   width:100%;
   height:100%;
-  max-width:120px;
-  max-height:78px;
-  overflow:visible;
+  max-width:170px;
+  max-height:100px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 10px rgba(0,217,255,.22));
 }
 
-.component-symbol-container svg,
-.component-symbol-pcs svg{
-  max-width:140px;
+.component-symbol-pack .symbol-svg-img,
+.component-symbol-container .symbol-svg-img,
+.component-symbol-pcs .symbol-svg-img{
+  max-width:190px;
+}
+
+.sld-card-symbol .component-symbol{
+  min-height:72px;
+}
+
+.sld-card-symbol .symbol-svg-img{
+  max-height:72px;
+}
+
+.sld-small-symbol .component-symbol{
+  min-height:70px;
+}
+
+.sld-small-symbol .symbol-svg-img{
+  max-height:70px;
 }
 
 /* =============================
@@ -236,7 +254,9 @@ div[data-baseweb="select"] > div{
 }
 
 .symbol-imgband{
-  background:radial-gradient(circle at center,rgba(0,217,255,.10),rgba(0,0,0,.22));
+  background:
+    radial-gradient(circle at center,rgba(0,217,255,.16),rgba(0,0,0,.18) 62%),
+    linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
 }
 
 .module-param-title{
@@ -427,36 +447,6 @@ div[data-baseweb="select"] > div{
   overflow:hidden;
 }
 
-.sld-card-symbol .component-symbol{
-  height:64px;
-  min-height:64px;
-}
-
-.sld-card-symbol .component-symbol svg{
-  max-height:64px;
-}
-
-.sld-small-symbol{
-  height:70px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:8px 0 10px 0;
-  border-radius:7px;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.10);
-  overflow:hidden;
-}
-
-.sld-small-symbol .component-symbol{
-  height:62px;
-  min-height:62px;
-}
-
-.sld-small-symbol .component-symbol svg{
-  max-height:62px;
-}
-
 .sld-kv{
   display:flex;
   justify-content:space-between;
@@ -617,6 +607,18 @@ div[data-baseweb="select"] > div{
   padding:2px;
 }
 
+.sld-small-symbol{
+  height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:8px 0 10px 0;
+  border-radius:7px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.10);
+  overflow:hidden;
+}
+
 .sld-architecture-row{
   display:grid;
   grid-template-columns:1fr 1fr 1fr 1fr;
@@ -768,12 +770,7 @@ div[data-baseweb="select"] > div{
   overflow:hidden;
 }
 
-.container-mini-symbol .component-symbol{
-  height:54px;
-  min-height:54px;
-}
-
-.container-mini-symbol .component-symbol svg{
+.container-mini-symbol .symbol-svg-img{
   max-height:54px;
 }
 
