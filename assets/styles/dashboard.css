@@ -66,6 +66,120 @@ html, body, [data-testid="stAppViewContainer"]{
   display:none !important;
 }
 
+/* ============================================================
+   Streamlit primary action buttons
+   ============================================================ */
+
+div[data-testid="stButton"] button[kind="primary"],
+div[data-testid="stButton"] button[data-testid="baseButton-primary"],
+.stButton > button[kind="primary"],
+.stButton > button[data-testid="baseButton-primary"]{
+  background:linear-gradient(180deg,rgba(18,31,80,.98) 0%,rgba(19,6,62,.98) 58%,rgba(7,17,31,.98) 100%) !important;
+  color:#ffffff !important;
+  border:1.35px solid rgba(0,217,255,.92) !important;
+  border-radius:10px !important;
+  min-height:44px !important;
+  font-weight:850 !important;
+  letter-spacing:.1px !important;
+  box-shadow:
+    0 0 16px rgba(0,217,255,.32),
+    inset 0 0 15px rgba(0,217,255,.10),
+    inset 0 -10px 18px rgba(0,0,0,.22) !important;
+  transition:transform .14s ease, box-shadow .14s ease, filter .14s ease !important;
+}
+
+div[data-testid="stButton"] button[kind="primary"]:hover,
+div[data-testid="stButton"] button[data-testid="baseButton-primary"]:hover,
+.stButton > button[kind="primary"]:hover,
+.stButton > button[data-testid="baseButton-primary"]:hover{
+  background:linear-gradient(180deg,rgba(25,44,112,.98) 0%,rgba(28,8,82,.98) 56%,rgba(8,22,44,.98) 100%) !important;
+  border-color:#5ef2ff !important;
+  color:#ffffff !important;
+  box-shadow:
+    0 0 24px rgba(0,217,255,.46),
+    inset 0 0 18px rgba(0,217,255,.15),
+    inset 0 -10px 18px rgba(0,0,0,.18) !important;
+  transform:translateY(-1px);
+  filter:saturate(1.08);
+}
+
+div[data-testid="stButton"] button[kind="primary"]:active,
+div[data-testid="stButton"] button[data-testid="baseButton-primary"]:active,
+.stButton > button[kind="primary"]:active,
+.stButton > button[data-testid="baseButton-primary"]:active{
+  transform:translateY(0);
+}
+
+div[data-testid="stButton"] button[kind="primary"] p,
+div[data-testid="stButton"] button[data-testid="baseButton-primary"] p,
+.stButton > button[kind="primary"] p,
+.stButton > button[data-testid="baseButton-primary"] p{
+  color:#ffffff !important;
+  font-weight:850 !important;
+  margin:0 !important;
+}
+
+/* ============================================================
+   PDF export / download button styling
+   ============================================================ */
+
+.pdf-export-spacer{
+  height:14px;
+}
+
+div[data-testid="stDownloadButton"] button[kind="primary"],
+div[data-testid="stDownloadButton"] button[data-testid="baseButton-primary"],
+.stDownloadButton > button[kind="primary"],
+.stDownloadButton > button[data-testid="baseButton-primary"]{
+  background:linear-gradient(180deg,rgba(18,31,80,.98) 0%,rgba(19,6,62,.98) 58%,rgba(7,17,31,.98) 100%) !important;
+  color:#ffffff !important;
+  border:1.35px solid rgba(0,217,255,.92) !important;
+  border-radius:10px !important;
+  min-height:44px !important;
+  font-weight:850 !important;
+  letter-spacing:.1px !important;
+  box-shadow:
+    0 0 16px rgba(0,217,255,.32),
+    inset 0 0 15px rgba(0,217,255,.10),
+    inset 0 -10px 18px rgba(0,0,0,.22) !important;
+  transition:transform .14s ease, box-shadow .14s ease, filter .14s ease !important;
+}
+
+div[data-testid="stDownloadButton"] button[kind="primary"]:hover,
+div[data-testid="stDownloadButton"] button[data-testid="baseButton-primary"]:hover,
+.stDownloadButton > button[kind="primary"]:hover,
+.stDownloadButton > button[data-testid="baseButton-primary"]:hover{
+  background:linear-gradient(180deg,rgba(25,44,112,.98) 0%,rgba(28,8,82,.98) 56%,rgba(8,22,44,.98) 100%) !important;
+  border-color:#5ef2ff !important;
+  color:#ffffff !important;
+  box-shadow:
+    0 0 24px rgba(0,217,255,.46),
+    inset 0 0 18px rgba(0,217,255,.15),
+    inset 0 -10px 18px rgba(0,0,0,.18) !important;
+  transform:translateY(-1px);
+  filter:saturate(1.08);
+}
+
+div[data-testid="stDownloadButton"] button[kind="primary"]:active,
+div[data-testid="stDownloadButton"] button[data-testid="baseButton-primary"]:active,
+.stDownloadButton > button[kind="primary"]:active,
+.stDownloadButton > button[data-testid="baseButton-primary"]:active{
+  transform:translateY(0);
+}
+
+div[data-testid="stDownloadButton"] button[kind="primary"] p,
+div[data-testid="stDownloadButton"] button[data-testid="baseButton-primary"] p,
+.stDownloadButton > button[kind="primary"] p,
+.stDownloadButton > button[data-testid="baseButton-primary"] p{
+  color:#ffffff !important;
+  font-weight:850 !important;
+  margin:0 !important;
+}
+
+/* ============================================================
+   System selection panel
+   ============================================================ */
+
 div[data-testid="stVerticalBlockBorderWrapper"]{
   border:1px solid rgba(0,217,255,.35) !important;
   border-radius:18px !important;
@@ -87,6 +201,10 @@ div[data-testid="stVerticalBlockBorderWrapper"]{
   margin-bottom:12px;
 }
 
+.scenario-button-spacer{
+  height:29px;
+}
+
 div[data-testid="stSelectbox"] label{
   color:#f4f8ff !important;
   font-weight:800 !important;
@@ -99,9 +217,9 @@ div[data-baseweb="select"] > div{
   color:#f4f8ff !important;
 }
 
-/* =============================
+/* ============================================================
    SVG symbol rendering
-   ============================= */
+   ============================================================ */
 
 .component-symbol{
   display:flex;
@@ -145,9 +263,9 @@ div[data-baseweb="select"] > div{
   max-height:70px;
 }
 
-/* =============================
-   Top five cards
-   ============================= */
+/* ============================================================
+   Five dashboard cards
+   ============================================================ */
 
 .grid5{
   display:grid !important;
@@ -172,14 +290,16 @@ div[data-baseweb="select"] > div{
 .grid5::-webkit-scrollbar,
 .sld-main-flow::-webkit-scrollbar,
 .sld-connection-grid::-webkit-scrollbar,
-.output-strip::-webkit-scrollbar{
+.output-strip::-webkit-scrollbar,
+.comparison-table-wrap::-webkit-scrollbar{
   height:8px;
 }
 
 .grid5::-webkit-scrollbar-track,
 .sld-main-flow::-webkit-scrollbar-track,
 .sld-connection-grid::-webkit-scrollbar-track,
-.output-strip::-webkit-scrollbar-track{
+.output-strip::-webkit-scrollbar-track,
+.comparison-table-wrap::-webkit-scrollbar-track{
   background:rgba(255,255,255,.04);
   border-radius:999px;
 }
@@ -187,7 +307,8 @@ div[data-baseweb="select"] > div{
 .grid5::-webkit-scrollbar-thumb,
 .sld-main-flow::-webkit-scrollbar-thumb,
 .sld-connection-grid::-webkit-scrollbar-thumb,
-.output-strip::-webkit-scrollbar-thumb{
+.output-strip::-webkit-scrollbar-thumb,
+.comparison-table-wrap::-webkit-scrollbar-thumb{
   background:rgba(255,153,0,.38);
   border-radius:999px;
 }
@@ -293,9 +414,9 @@ div[data-baseweb="select"] > div{
   display:none !important;
 }
 
-/* =============================
+/* ============================================================
    Output strip
-   ============================= */
+   ============================================================ */
 
 .output-strip{
   display:grid;
@@ -344,9 +465,9 @@ div[data-baseweb="select"] > div{
   white-space:nowrap;
 }
 
-/* =============================
-   Stable SLD layout
-   ============================= */
+/* ============================================================
+   SLD layout
+   ============================================================ */
 
 .sld-reference{
   border:2px solid rgba(0,217,255,.85);
@@ -490,9 +611,9 @@ div[data-baseweb="select"] > div{
   text-align:center;
 }
 
-/* =============================
+/* ============================================================
    Electrical path
-   ============================= */
+   ============================================================ */
 
 .sld-connection-block{
   margin-top:18px;
@@ -645,9 +766,9 @@ div[data-baseweb="select"] > div{
   font-size:13px;
 }
 
-/* =============================
+/* ============================================================
    Lower SLD panels
-   ============================= */
+   ============================================================ */
 
 .sld-lower-grid{
   display:grid;
@@ -855,6 +976,299 @@ div[data-baseweb="select"] > div{
   font-size:15px;
 }
 
+/* ============================================================
+   Scenario Analysis
+   ============================================================ */
+
+.scenario-page-title{
+  margin:4px 0 14px 0;
+}
+
+.scenario-page-title h2{
+  margin:0;
+  color:#ffffff;
+  font-size:28px;
+  font-weight:950;
+  line-height:34px;
+}
+
+.scenario-page-title p{
+  margin:4px 0 0 0;
+  color:#a9dfff;
+  font-size:13px;
+}
+
+.scenario-builder-head{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:12px;
+}
+
+.scenario-builder-head span{
+  color:#5ef2ff;
+  font-size:17px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+
+.scenario-builder-head small{
+  color:#9eb5cc;
+  font-size:12px;
+}
+
+.scenario-card-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:8px;
+  padding:9px 10px;
+  border-radius:11px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.13);
+}
+
+.scenario-card-heading b{
+  color:#ffffff;
+  font-size:14px;
+  font-weight:950;
+}
+
+.scenario-card-heading span{
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.scenario-heading-cyan{
+  border-color:rgba(0,217,255,.60);
+  box-shadow:inset 0 0 14px rgba(0,217,255,.08);
+}
+
+.scenario-heading-cyan span{
+  color:#00d9ff;
+}
+
+.scenario-heading-yellow{
+  border-color:rgba(240,185,0,.68);
+  box-shadow:inset 0 0 14px rgba(240,185,0,.08);
+}
+
+.scenario-heading-yellow span{
+  color:#f0b900;
+}
+
+.scenario-heading-pink{
+  border-color:rgba(255,81,124,.70);
+  box-shadow:inset 0 0 14px rgba(255,81,124,.08);
+}
+
+.scenario-heading-pink span{
+  color:#ff517c;
+}
+
+.scenario-heading-green{
+  border-color:rgba(96,255,155,.65);
+  box-shadow:inset 0 0 14px rgba(96,255,155,.08);
+}
+
+.scenario-heading-green span{
+  color:#60ff9b;
+}
+
+/* ============================================================
+   Scenario comparison table
+   ============================================================ */
+
+.comparison-panel{
+  margin:18px 0;
+  padding:16px;
+  border:1.5px solid rgba(0,217,255,.42);
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(0,217,255,.055),rgba(255,255,255,.025));
+  box-shadow:0 0 22px rgba(0,217,255,.10);
+}
+
+.comparison-panel-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:12px;
+}
+
+.comparison-panel-head h2{
+  margin:0;
+  color:#5ef2ff;
+  font-size:22px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.3px;
+}
+
+.comparison-panel-head p{
+  margin:4px 0 0 0;
+  color:#9eb5cc;
+  font-size:12px;
+}
+
+.performance-guide{
+  display:flex;
+  gap:14px;
+  align-items:center;
+  flex-wrap:wrap;
+  color:#ffffff;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.performance-guide span{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+
+.dot{
+  width:10px;
+  height:10px;
+  display:inline-block;
+  border-radius:50%;
+}
+
+.dot.good{
+  background:#60ff9b;
+  box-shadow:0 0 9px rgba(96,255,155,.45);
+}
+
+.dot.warn{
+  background:#f0b900;
+  box-shadow:0 0 9px rgba(240,185,0,.45);
+}
+
+.dot.high{
+  background:#ff517c;
+  box-shadow:0 0 9px rgba(255,81,124,.45);
+}
+
+.comparison-table-wrap{
+  width:100%;
+  overflow-x:auto;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:11px;
+}
+
+.comparison-table{
+  width:100%;
+  min-width:980px;
+  border-collapse:collapse;
+  color:#ffffff;
+  background:rgba(0,0,0,.12);
+}
+
+.comparison-table th{
+  color:#f4f8ff;
+  font-size:12px;
+  font-weight:950;
+  padding:12px 10px;
+  background:rgba(7,17,31,.86);
+  border-bottom:1px solid rgba(255,255,255,.13);
+  border-right:1px solid rgba(255,255,255,.10);
+  text-align:center;
+}
+
+.comparison-table td{
+  font-size:13px;
+  padding:11px 10px;
+  border-bottom:1px solid rgba(255,255,255,.09);
+  border-right:1px solid rgba(255,255,255,.08);
+  text-align:center;
+  font-weight:850;
+}
+
+.comparison-table tr:last-child td{
+  border-bottom:none;
+}
+
+.comparison-table .metric-name{
+  text-align:left;
+  color:#c8ecff;
+  font-weight:900;
+  width:210px;
+}
+
+.scenario-col{
+  font-weight:950;
+}
+
+.scenario-accent-cyan{
+  color:#00d9ff !important;
+}
+
+.scenario-accent-yellow{
+  color:#f0b900 !important;
+}
+
+.scenario-accent-pink{
+  color:#ff517c !important;
+}
+
+.scenario-accent-green{
+  color:#60ff9b !important;
+}
+
+.status-good{
+  background:linear-gradient(90deg,rgba(96,255,155,.14),rgba(96,255,155,.05));
+  color:#eafff2;
+}
+
+.status-warn{
+  background:linear-gradient(90deg,rgba(240,185,0,.22),rgba(240,185,0,.08));
+  color:#fff9dc;
+}
+
+.status-high{
+  background:linear-gradient(90deg,rgba(255,81,124,.28),rgba(255,81,124,.10));
+  color:#ffe1e8;
+}
+
+.status-neutral{
+  background:rgba(0,217,255,.035);
+  color:#f4f8ff;
+}
+
+.comparison-note{
+  margin:10px 0 0 0;
+  color:#9eb5cc;
+  font-size:12px;
+}
+
+.scenario-accent-border-cyan{
+  border-color:rgba(0,217,255,.65);
+  box-shadow:0 0 14px rgba(0,217,255,.12);
+}
+
+.scenario-accent-border-yellow{
+  border-color:rgba(240,185,0,.70);
+  box-shadow:0 0 14px rgba(240,185,0,.12);
+}
+
+.scenario-accent-border-pink{
+  border-color:rgba(255,81,124,.70);
+  box-shadow:0 0 14px rgba(255,81,124,.12);
+}
+
+.scenario-accent-border-green{
+  border-color:rgba(96,255,155,.70);
+  box-shadow:0 0 14px rgba(96,255,155,.12);
+}
+
+/* ============================================================
+   General
+   ============================================================ */
+
 .footer-note{
   margin-top:12px;
   color:var(--muted);
@@ -870,9 +1284,9 @@ details{
   border-radius:14px !important;
 }
 
-/* =============================
+/* ============================================================
    Responsive
-   ============================= */
+   ============================================================ */
 
 @media(max-width:1250px){
   .grid5{
@@ -913,6 +1327,10 @@ details{
   .sld-bottom-summary{
     grid-template-columns:repeat(2,1fr);
   }
+
+  .comparison-panel-head{
+    flex-direction:column;
+  }
 }
 
 @media(max-width:700px){
@@ -936,473 +1354,4 @@ details{
   .sld-ref-meta{
     text-align:left;
   }
-}
-/* ============================================================
-   Scenario Analysis page
-   ============================================================ */
-
-.scenario-button-spacer{
-  height: 29px;
-}
-
-.scenario-page-title{
-  margin: 4px 0 14px 0;
-}
-
-.scenario-page-title h2{
-  margin: 0;
-  color: #ffffff;
-  font-size: 28px;
-  font-weight: 950;
-  line-height: 34px;
-}
-
-.scenario-page-title p{
-  margin: 4px 0 0 0;
-  color: #a9dfff;
-  font-size: 13px;
-}
-
-.scenario-builder-head{
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 12px;
-}
-
-.scenario-builder-head span{
-  color: #5ef2ff;
-  font-size: 17px;
-  font-weight: 950;
-  text-transform: uppercase;
-  letter-spacing: .4px;
-}
-
-.scenario-builder-head small{
-  color: #9eb5cc;
-  font-size: 12px;
-}
-
-.scenario-card-heading{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-  padding: 9px 10px;
-  border-radius: 11px;
-  background: rgba(255,255,255,.035);
-  border: 1px solid rgba(255,255,255,.13);
-}
-
-.scenario-card-heading b{
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 950;
-}
-
-.scenario-card-heading span{
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.scenario-heading-cyan{
-  border-color: rgba(0,217,255,.60);
-  box-shadow: inset 0 0 14px rgba(0,217,255,.08);
-}
-
-.scenario-heading-cyan span{
-  color: #00d9ff;
-}
-
-.scenario-heading-yellow{
-  border-color: rgba(240,185,0,.68);
-  box-shadow: inset 0 0 14px rgba(240,185,0,.08);
-}
-
-.scenario-heading-yellow span{
-  color: #f0b900;
-}
-
-.scenario-heading-pink{
-  border-color: rgba(255,81,124,.70);
-  box-shadow: inset 0 0 14px rgba(255,81,124,.08);
-}
-
-.scenario-heading-pink span{
-  color: #ff517c;
-}
-
-.scenario-heading-green{
-  border-color: rgba(96,255,155,.65);
-  box-shadow: inset 0 0 14px rgba(96,255,155,.08);
-}
-
-.scenario-heading-green span{
-  color: #60ff9b;
-}
-
-/* ============================================================
-   Comparison matrix with conditional formatting
-   ============================================================ */
-
-.comparison-panel{
-  margin: 18px 0;
-  padding: 16px;
-  border: 1.5px solid rgba(0,217,255,.42);
-  border-radius: 16px;
-  background: linear-gradient(180deg,rgba(0,217,255,.055),rgba(255,255,255,.025));
-  box-shadow: 0 0 22px rgba(0,217,255,.10);
-}
-
-.comparison-panel-head{
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.comparison-panel-head h2{
-  margin: 0;
-  color: #5ef2ff;
-  font-size: 22px;
-  font-weight: 950;
-  text-transform: uppercase;
-  letter-spacing: .3px;
-}
-
-.comparison-panel-head p{
-  margin: 4px 0 0 0;
-  color: #9eb5cc;
-  font-size: 12px;
-}
-
-.performance-guide{
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  flex-wrap: wrap;
-  color: #ffffff;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.performance-guide span{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.dot{
-  width: 10px;
-  height: 10px;
-  display: inline-block;
-  border-radius: 50%;
-}
-
-.dot.good{
-  background: #60ff9b;
-  box-shadow: 0 0 9px rgba(96,255,155,.45);
-}
-
-.dot.warn{
-  background: #f0b900;
-  box-shadow: 0 0 9px rgba(240,185,0,.45);
-}
-
-.dot.high{
-  background: #ff517c;
-  box-shadow: 0 0 9px rgba(255,81,124,.45);
-}
-
-.comparison-table-wrap{
-  width: 100%;
-  overflow-x: auto;
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 11px;
-}
-
-.comparison-table{
-  width: 100%;
-  min-width: 980px;
-  border-collapse: collapse;
-  color: #ffffff;
-  background: rgba(0,0,0,.12);
-}
-
-.comparison-table th{
-  color: #f4f8ff;
-  font-size: 12px;
-  font-weight: 950;
-  padding: 12px 10px;
-  background: rgba(7,17,31,.86);
-  border-bottom: 1px solid rgba(255,255,255,.13);
-  border-right: 1px solid rgba(255,255,255,.10);
-  text-align: center;
-}
-
-.comparison-table td{
-  font-size: 13px;
-  padding: 11px 10px;
-  border-bottom: 1px solid rgba(255,255,255,.09);
-  border-right: 1px solid rgba(255,255,255,.08);
-  text-align: center;
-  font-weight: 850;
-}
-
-.comparison-table tr:last-child td{
-  border-bottom: none;
-}
-
-.comparison-table .metric-name{
-  text-align: left;
-  color: #c8ecff;
-  font-weight: 900;
-  width: 210px;
-}
-
-.comparison-table .unit-cell{
-  color: #9eb5cc;
-  font-weight: 800;
-}
-
-.comparison-table .best-cell{
-  color: #60ff9b;
-  font-weight: 950;
-  background: rgba(96,255,155,.08);
-}
-
-.scenario-col{
-  font-weight: 950;
-}
-
-.scenario-accent-cyan{
-  color: #00d9ff !important;
-}
-
-.scenario-accent-yellow{
-  color: #f0b900 !important;
-}
-
-.scenario-accent-pink{
-  color: #ff517c !important;
-}
-
-.scenario-accent-green{
-  color: #60ff9b !important;
-}
-
-.status-good{
-  background: linear-gradient(90deg,rgba(96,255,155,.14),rgba(96,255,155,.05));
-  color: #eafff2;
-}
-
-.status-warn{
-  background: linear-gradient(90deg,rgba(240,185,0,.22),rgba(240,185,0,.08));
-  color: #fff9dc;
-}
-
-.status-high{
-  background: linear-gradient(90deg,rgba(255,81,124,.28),rgba(255,81,124,.10));
-  color: #ffe1e8;
-}
-
-.status-neutral{
-  background: rgba(0,217,255,.035);
-  color: #f4f8ff;
-}
-
-.comparison-note{
-  margin: 10px 0 0 0;
-  color: #9eb5cc;
-  font-size: 12px;
-}
-
-/* ============================================================
-   Scenario SLD section
-   ============================================================ */
-
-.scenario-sld-title{
-  margin: 22px 0 10px 0;
-}
-
-.scenario-sld-title h2{
-  margin: 0;
-  color: #5ef2ff;
-  font-size: 22px;
-  font-weight: 950;
-  text-transform: uppercase;
-}
-
-.scenario-sld-title p{
-  margin: 4px 0 0 0;
-  color: #9eb5cc;
-  font-size: 12px;
-}
-
-.scenario-kpi-strip{
-  display: grid;
-  grid-template-columns: repeat(6,minmax(0,1fr));
-  gap: 0;
-  margin: 8px 0 14px 0;
-  border: 1.5px solid rgba(0,217,255,.40);
-  border-radius: 13px;
-  overflow: hidden;
-  background: rgba(255,255,255,.035);
-}
-
-.scenario-kpi-strip div{
-  padding: 12px 13px;
-  border-right: 1px solid rgba(255,255,255,.12);
-}
-
-.scenario-kpi-strip div:last-child{
-  border-right: none;
-}
-
-.scenario-kpi-strip span{
-  display: block;
-  color: #9eb5cc;
-  font-size: 11px;
-  margin-bottom: 5px;
-}
-
-.scenario-kpi-strip b{
-  display: block;
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 950;
-}
-
-.scenario-accent-border-cyan{
-  border-color: rgba(0,217,255,.65);
-  box-shadow: 0 0 14px rgba(0,217,255,.12);
-}
-
-.scenario-accent-border-yellow{
-  border-color: rgba(240,185,0,.70);
-  box-shadow: 0 0 14px rgba(240,185,0,.12);
-}
-
-.scenario-accent-border-pink{
-  border-color: rgba(255,81,124,.70);
-  box-shadow: 0 0 14px rgba(255,81,124,.12);
-}
-
-.scenario-accent-border-green{
-  border-color: rgba(96,255,155,.70);
-  box-shadow: 0 0 14px rgba(96,255,155,.12);
-}
-
-@media(max-width: 1250px){
-  .comparison-panel-head{
-    flex-direction: column;
-  }
-
-  .scenario-kpi-strip{
-    grid-template-columns: repeat(3,minmax(0,1fr));
-  }
-}
-
-@media(max-width: 760px){
-  .scenario-kpi-strip{
-    grid-template-columns: 1fr;
-  }
-
-  .scenario-kpi-strip div{
-    border-right: none;
-    border-bottom: 1px solid rgba(255,255,255,.12);
-  }
-
-  .scenario-kpi-strip div:last-child{
-    border-bottom: none;
-  }
-}
-/* ============================================================
-   Action button styling
-   Applies to:
-   - Scenario Analysis
-   - Dashboard
-   - Sync Scenario 1
-   - Reset Scenarios
-   ============================================================ */
-
-div[data-testid="stButton"] button[kind="primary"],
-div[data-testid="stButton"] button[data-testid="baseButton-primary"],
-.stButton > button[kind="primary"],
-.stButton > button[data-testid="baseButton-primary"]{
-  background: linear-gradient(135deg, #170b63 0%, #0a023d 100%) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(0,217,255,.95) !important;
-  border-radius: 10px !important;
-  min-height: 44px !important;
-  font-weight: 850 !important;
-  letter-spacing: .1px !important;
-  box-shadow:
-    0 0 18px rgba(0,217,255,.22),
-    inset 0 0 12px rgba(255,255,255,.10) !important;
-  transition:
-    transform .14s ease,
-    box-shadow .14s ease,
-    filter .14s ease !important;
-}
-
-div[data-testid="stButton"] button[kind="primary"]:hover,
-div[data-testid="stButton"] button[data-testid="baseButton-primary"]:hover,
-.stButton > button[kind="primary"]:hover,
-.stButton > button[data-testid="baseButton-primary"]:hover{
-  background: linear-gradient(135deg, #16e4ff 0%, #00c3df 100%) !important;
-  border-color: #5ef2ff !important;
-  color: #ffffff !important;
-  box-shadow:
-    0 0 24px rgba(0,217,255,.38),
-    inset 0 0 14px rgba(255,255,255,.16) !important;
-  transform: translateY(-1px);
-  filter: saturate(1.08);
-}
-
-div[data-testid="stButton"] button[kind="primary"]:active,
-div[data-testid="stButton"] button[data-testid="baseButton-primary"]:active,
-.stButton > button[kind="primary"]:active,
-.stButton > button[data-testid="baseButton-primary"]:active{
-  transform: translateY(0);
-  box-shadow:
-    0 0 12px rgba(0,217,255,.22),
-    inset 0 0 10px rgba(0,0,0,.18) !important;
-}
-
-div[data-testid="stButton"] button[kind="primary"]:focus,
-div[data-testid="stButton"] button[data-testid="baseButton-primary"]:focus,
-.stButton > button[kind="primary"]:focus,
-.stButton > button[data-testid="baseButton-primary"]:focus{
-  outline: none !important;
-  box-shadow:
-    0 0 0 2px rgba(7,17,31,1),
-    0 0 0 4px rgba(0,217,255,.75),
-    0 0 22px rgba(0,217,255,.35) !important;
-}
-
-/* Keep icon + text nicely centered */
-div[data-testid="stButton"] button[kind="primary"] p,
-div[data-testid="stButton"] button[data-testid="baseButton-primary"] p,
-.stButton > button[kind="primary"] p,
-.stButton > button[data-testid="baseButton-primary"] p{
-  color: #ffffff !important;
-  font-weight: 850 !important;
-  margin: 0 !important;
-}
-
-/* Disabled primary action button */
-div[data-testid="stButton"] button[kind="primary"]:disabled,
-div[data-testid="stButton"] button[data-testid="baseButton-primary"]:disabled,
-.stButton > button[kind="primary"]:disabled,
-.stButton > button[data-testid="baseButton-primary"]:disabled{
-  background: rgba(0,217,255,.20) !important;
-  color: rgba(255,255,255,.55) !important;
-  border-color: rgba(0,217,255,.22) !important;
-  box-shadow: none !important;
-  transform: none !important;
 }
