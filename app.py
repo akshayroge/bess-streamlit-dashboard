@@ -120,7 +120,7 @@ def render_html_block(html: str, height: int = 600, scrolling: bool = False) -> 
 def render_component_html(html: str, height: int = 900, scrolling: bool = True) -> None:
     """
     Always render through Streamlit components so the in-table SLD buttons
-    can use small JavaScript toggles inside the iframe.
+    can use JavaScript toggles inside the iframe.
     """
     components.html(
         build_iframe_document(html),
@@ -1169,6 +1169,9 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
     The final visible table row has one SLD button per scenario.
     Clicking a button shows that scenario's SLD as the last row inside
     the same table.
+
+    SLD buttons are styled to match the dark/cyan/purple action-button
+    look used for Dashboard, Sync Scenario 1, and Reset Scenarios.
     """
     metrics = [
         ("energy", "Total Energy"),
@@ -1229,7 +1232,6 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
     )
 
     sld_rows: List[str] = []
-
     colspan = len(results) + 1
 
     for position, result in enumerate(results):
@@ -1261,7 +1263,7 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
 <div id="{table_id}" class="comparison-panel comparison-panel-with-sld">
   <style>
     .comparison-panel-with-sld .sld-action-row td {{
-      background: rgba(0,217,255,.035);
+      background: rgba(0,217,255,.030);
       border-top: 1px solid rgba(0,217,255,.30);
     }}
 
@@ -1275,32 +1277,90 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
     .comparison-panel-with-sld .sld-button-cell {{
       padding: 9px 10px !important;
       text-align: center;
+      background:
+        radial-gradient(circle at top, rgba(0,217,255,.045), rgba(7,17,31,.22)) !important;
     }}
 
     .comparison-panel-with-sld .sld-toggle-btn {{
       width: 100%;
-      min-height: 34px;
+      min-height: 38px;
       border-radius: 9px;
-      border: 1px solid rgba(0,217,255,.75);
-      background: linear-gradient(135deg, rgba(0,217,255,.95), rgba(16,199,223,.92));
+      border: 1.35px solid rgba(0,217,255,.92);
+      background:
+        linear-gradient(180deg, rgba(18,31,80,.98) 0%, rgba(19,6,62,.98) 58%, rgba(7,17,31,.98) 100%);
       color: #ffffff;
       font-size: 12px;
-      font-weight: 900;
+      font-weight: 950;
+      letter-spacing: .15px;
       cursor: pointer;
-      box-shadow: 0 0 14px rgba(0,217,255,.20);
-      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+      box-shadow:
+        0 0 16px rgba(0,217,255,.32),
+        inset 0 0 15px rgba(0,217,255,.10),
+        inset 0 -10px 18px rgba(0,0,0,.22);
+      transition:
+        transform .14s ease,
+        box-shadow .14s ease,
+        border-color .14s ease,
+        background .14s ease,
+        filter .14s ease;
     }}
 
     .comparison-panel-with-sld .sld-toggle-btn:hover {{
       transform: translateY(-1px);
+      border-color: #5ef2ff;
+      background:
+        linear-gradient(180deg, rgba(25,44,112,.98) 0%, rgba(28,8,82,.98) 56%, rgba(8,22,44,.98) 100%);
+      box-shadow:
+        0 0 24px rgba(0,217,255,.46),
+        inset 0 0 18px rgba(0,217,255,.15),
+        inset 0 -10px 18px rgba(0,0,0,.18);
       filter: saturate(1.08);
-      box-shadow: 0 0 22px rgba(0,217,255,.36);
+    }}
+
+    .comparison-panel-with-sld .sld-toggle-btn:active {{
+      transform: translateY(0);
+      box-shadow:
+        0 0 12px rgba(0,217,255,.26),
+        inset 0 0 14px rgba(0,0,0,.32);
     }}
 
     .comparison-panel-with-sld .sld-toggle-btn.active {{
-      background: linear-gradient(135deg, rgba(255,153,0,.95), rgba(240,185,0,.92));
-      border-color: rgba(255,208,0,.95);
-      box-shadow: 0 0 20px rgba(240,185,0,.34);
+      background:
+        linear-gradient(180deg, rgba(44,18,88,.98) 0%, rgba(36,9,72,.98) 45%, rgba(21,10,44,.98) 100%);
+      border-color: rgba(255,153,0,.95);
+      color: #ffffff;
+      box-shadow:
+        0 0 18px rgba(255,153,0,.28),
+        0 0 28px rgba(0,217,255,.22),
+        inset 0 0 16px rgba(255,153,0,.12);
+    }}
+
+    .comparison-panel-with-sld .sld-toggle-cyan.active {{
+      border-color: rgba(0,217,255,.98);
+      box-shadow:
+        0 0 22px rgba(0,217,255,.40),
+        inset 0 0 16px rgba(0,217,255,.14);
+    }}
+
+    .comparison-panel-with-sld .sld-toggle-yellow.active {{
+      border-color: rgba(240,185,0,.98);
+      box-shadow:
+        0 0 22px rgba(240,185,0,.36),
+        inset 0 0 16px rgba(240,185,0,.14);
+    }}
+
+    .comparison-panel-with-sld .sld-toggle-pink.active {{
+      border-color: rgba(255,81,124,.98);
+      box-shadow:
+        0 0 22px rgba(255,81,124,.36),
+        inset 0 0 16px rgba(255,81,124,.14);
+    }}
+
+    .comparison-panel-with-sld .sld-toggle-green.active {{
+      border-color: rgba(96,255,155,.98);
+      box-shadow:
+        0 0 22px rgba(96,255,155,.34),
+        inset 0 0 16px rgba(96,255,155,.14);
     }}
 
     .comparison-panel-with-sld .sld-expanded-row td {{
@@ -1315,7 +1375,8 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
       justify-content: space-between;
       gap: 12px;
       padding: 12px 14px;
-      background: linear-gradient(90deg, rgba(0,217,255,.10), rgba(255,153,0,.04));
+      background:
+        linear-gradient(90deg, rgba(0,217,255,.10), rgba(255,153,0,.04));
       border-bottom: 1px solid rgba(255,255,255,.12);
     }}
 
@@ -1445,21 +1506,6 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
       }}
     }}
   </script>
-</div>
-"""
-
-
-def render_scenario_kpi_strip(result: Dict[str, Any]) -> str:
-    calc = result["calc"]
-
-    return f"""
-<div class="scenario-kpi-strip scenario-accent-border-{escape(result['accent'])}">
-  <div><span>Container Energy</span><b>{format_number(calc.get('container_mwh'), 2)} MWh</b></div>
-  <div><span>Power @ C-rate</span><b>{format_number(calc.get('power_kw'), 0)} kW</b></div>
-  <div><span>DC Bus Current</span><b>{format_number(calc.get('dc_bus_current_a'), 1)} A</b></div>
-  <div><span>Containers / PCS</span><b>{calc.get('containers_per_pcs')}</b></div>
-  <div><span>Duration</span><b>{format_number(calc.get('duration_h'), 1)} h</b></div>
-  <div><span>PCS Utilisation</span><b>{format_number(calc.get('pcs_utilization'), 1)} %</b></div>
 </div>
 """
 
