@@ -17,8 +17,7 @@ from src.ui import render_cards_html, render_sld_html
 
 DASHBOARD_IFRAME_HEIGHT = 1600
 CARDS_IFRAME_HEIGHT = 560
-SCENARIO_SLD_IFRAME_HEIGHT = 1600
-COMPARISON_TABLE_HEIGHT = 520
+COMPARISON_TABLE_HEIGHT = 980
 
 SCENARIO_ACCENTS = ["cyan", "yellow", "pink", "green"]
 SCENARIO_NAMES = [
@@ -103,6 +102,9 @@ def build_iframe_document(html: str) -> str:
 
 
 def render_html_block(html: str, height: int = 600, scrolling: bool = False) -> None:
+    """
+    Render HTML without Markdown parsing.
+    """
     html_renderer = getattr(st, "html", None)
 
     if html_renderer is not None:
@@ -113,6 +115,18 @@ def render_html_block(html: str, height: int = 600, scrolling: bool = False) -> 
             height=height,
             scrolling=scrolling,
         )
+
+
+def render_component_html(html: str, height: int = 900, scrolling: bool = True) -> None:
+    """
+    Always render through Streamlit components so the in-table SLD buttons
+    can use small JavaScript toggles inside the iframe.
+    """
+    components.html(
+        build_iframe_document(html),
+        height=height,
+        scrolling=scrolling,
+    )
 
 
 def render_exception_box(title: str, exc: Exception) -> None:
@@ -1150,10 +1164,11 @@ def status_class(
 
 def render_comparison_table(results: List[Dict[str, Any]]) -> str:
     """
-    Build scenario comparison table without Best and Units columns.
+    Build Scenario Comparison table with an in-table SLD row.
 
-    Conditional formatting still uses the internally calculated best value,
-    but the displayed table now only shows Metric + Scenario columns.
+    The final visible table row has one SLD button per scenario.
+    Clicking a button shows that scenario's SLD as the last row inside
+    the same table.
     """
     metrics = [
         ("energy", "Total Energy"),
@@ -1164,6 +1179,8 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
         ("utilisation", "PCS Utilisation"),
         ("max_racks", "Max Racks / PCS"),
     ]
+
+    table_id = "scenario-comparison-table"
 
     header_cells = "".join(
         f"<th class='scenario-col scenario-accent-{escape(result['accent'])}'>"
@@ -1192,37 +1209,244 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
         )
         body_rows.append(row_html)
 
-    rows_html = "".join(body_rows)
-
-    return (
-        "<div class='comparison-panel'>"
-        "<div class='comparison-panel-head'>"
-        "<div>"
-        "<h2>Scenario Comparison</h2>"
-        "<p>Conditional formatting: green = good or best, yellow = acceptable/watch, red = high or overload.</p>"
-        "</div>"
-        "<div class='performance-guide'>"
-        "<span><i class='dot good'></i>Good</span>"
-        "<span><i class='dot warn'></i>Acceptable</span>"
-        "<span><i class='dot high'></i>High / Overload</span>"
-        "</div>"
-        "</div>"
-        "<div class='comparison-table-wrap'>"
-        "<table class='comparison-table'>"
-        "<thead>"
-        "<tr>"
-        "<th>Metric</th>"
-        f"{header_cells}"
-        "</tr>"
-        "</thead>"
-        "<tbody>"
-        f"{rows_html}"
-        "</tbody>"
-        "</table>"
-        "</div>"
-        "<p class='comparison-note'>Values are calculated from the selected C-rate, container, and PCS for each enabled scenario.</p>"
-        "</div>"
+    sld_buttons = "".join(
+        (
+            f"<td class='sld-button-cell scenario-accent-bg-{escape(result['accent'])}'>"
+            f"<button type='button' class='sld-toggle-btn sld-toggle-{escape(result['accent'])}' "
+            f"onclick=\"toggleScenarioSld('{table_id}', {position}, this)\">"
+            f"📐 View SLD"
+            f"</button>"
+            f"</td>"
+        )
+        for position, result in enumerate(results)
     )
+
+    sld_button_row = (
+        "<tr class='sld-action-row'>"
+        "<td class='metric-name sld-action-label'>Single Line Diagram</td>"
+        f"{sld_buttons}"
+        "</tr>"
+    )
+
+    sld_rows: List[str] = []
+
+    colspan = len(results) + 1
+
+    for position, result in enumerate(results):
+        sld_html = render_sld_html(
+            result["working_db"],
+            str(result["scenario"]["c_rate"]),
+        )
+
+        sld_rows.append(
+            f"<tr id='{table_id}-sld-{position}' class='sld-expanded-row' style='display:none;'>"
+            f"<td colspan='{colspan}'>"
+            f"<div class='embedded-sld-heading scenario-accent-border-{escape(result['accent'])}'>"
+            f"<div>"
+            f"<b>Scenario {result['index'] + 1} SLD</b>"
+            f"<span>{escape(result['c_rate_label'])} · {escape(result['container_label'])} · {escape(result['pcs_label'])}</span>"
+            f"</div>"
+            f"<button type='button' class='sld-close-btn' onclick=\"closeScenarioSld('{table_id}')\">✕ Close</button>"
+            f"</div>"
+            f"<div class='embedded-sld-container'>"
+            f"{sld_html}"
+            f"</div>"
+            f"</td>"
+            f"</tr>"
+        )
+
+    rows_html = "".join(body_rows) + sld_button_row + "".join(sld_rows)
+
+    return f"""
+<div id="{table_id}" class="comparison-panel comparison-panel-with-sld">
+  <style>
+    .comparison-panel-with-sld .sld-action-row td {{
+      background: rgba(0,217,255,.035);
+      border-top: 1px solid rgba(0,217,255,.30);
+    }}
+
+    .comparison-panel-with-sld .sld-action-label {{
+      color: #8fe6ff;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .3px;
+    }}
+
+    .comparison-panel-with-sld .sld-button-cell {{
+      padding: 9px 10px !important;
+      text-align: center;
+    }}
+
+    .comparison-panel-with-sld .sld-toggle-btn {{
+      width: 100%;
+      min-height: 34px;
+      border-radius: 9px;
+      border: 1px solid rgba(0,217,255,.75);
+      background: linear-gradient(135deg, rgba(0,217,255,.95), rgba(16,199,223,.92));
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 0 14px rgba(0,217,255,.20);
+      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+    }}
+
+    .comparison-panel-with-sld .sld-toggle-btn:hover {{
+      transform: translateY(-1px);
+      filter: saturate(1.08);
+      box-shadow: 0 0 22px rgba(0,217,255,.36);
+    }}
+
+    .comparison-panel-with-sld .sld-toggle-btn.active {{
+      background: linear-gradient(135deg, rgba(255,153,0,.95), rgba(240,185,0,.92));
+      border-color: rgba(255,208,0,.95);
+      box-shadow: 0 0 20px rgba(240,185,0,.34);
+    }}
+
+    .comparison-panel-with-sld .sld-expanded-row td {{
+      padding: 0 !important;
+      background: rgba(7,17,31,.98);
+      border-top: 1.5px solid rgba(0,217,255,.52);
+    }}
+
+    .comparison-panel-with-sld .embedded-sld-heading {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      background: linear-gradient(90deg, rgba(0,217,255,.10), rgba(255,153,0,.04));
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }}
+
+    .comparison-panel-with-sld .embedded-sld-heading b {{
+      display: block;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 950;
+      margin-bottom: 3px;
+    }}
+
+    .comparison-panel-with-sld .embedded-sld-heading span {{
+      color: #a9dfff;
+      font-size: 11px;
+    }}
+
+    .comparison-panel-with-sld .sld-close-btn {{
+      border: 1px solid rgba(255,81,124,.75);
+      border-radius: 8px;
+      background: rgba(255,81,124,.16);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 7px 10px;
+      cursor: pointer;
+    }}
+
+    .comparison-panel-with-sld .sld-close-btn:hover {{
+      background: rgba(255,81,124,.28);
+      box-shadow: 0 0 12px rgba(255,81,124,.22);
+    }}
+
+    .comparison-panel-with-sld .embedded-sld-container {{
+      max-height: 780px;
+      overflow: auto;
+      padding: 14px;
+      background: #07111f;
+    }}
+
+    .comparison-panel-with-sld .embedded-sld-container::-webkit-scrollbar {{
+      width: 8px;
+      height: 8px;
+    }}
+
+    .comparison-panel-with-sld .embedded-sld-container::-webkit-scrollbar-track {{
+      background: rgba(255,255,255,.04);
+      border-radius: 999px;
+    }}
+
+    .comparison-panel-with-sld .embedded-sld-container::-webkit-scrollbar-thumb {{
+      background: rgba(0,217,255,.38);
+      border-radius: 999px;
+    }}
+  </style>
+
+  <div class="comparison-panel-head">
+    <div>
+      <h2>Scenario Comparison</h2>
+      <p>Conditional formatting: green = good or best, yellow = acceptable/watch, red = high or overload.</p>
+    </div>
+    <div class="performance-guide">
+      <span><i class="dot good"></i>Good</span>
+      <span><i class="dot warn"></i>Acceptable</span>
+      <span><i class="dot high"></i>High / Overload</span>
+    </div>
+  </div>
+
+  <div class="comparison-table-wrap">
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          {header_cells}
+        </tr>
+      </thead>
+      <tbody>
+        {rows_html}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="comparison-note">
+    Values are calculated from the selected C-rate, container, and PCS for each enabled scenario.
+    Use the SLD row to open one scenario diagram inside this table.
+  </p>
+
+  <script>
+    function closeScenarioSld(rootId) {{
+      const root = document.getElementById(rootId);
+      if (!root) return;
+
+      const rows = root.querySelectorAll('.sld-expanded-row');
+      const buttons = root.querySelectorAll('.sld-toggle-btn');
+
+      rows.forEach(function(row) {{
+        row.style.display = 'none';
+      }});
+
+      buttons.forEach(function(button) {{
+        button.classList.remove('active');
+        button.innerText = '📐 View SLD';
+      }});
+    }}
+
+    function toggleScenarioSld(rootId, index, button) {{
+      const root = document.getElementById(rootId);
+      if (!root) return;
+
+      const target = document.getElementById(rootId + '-sld-' + index);
+      if (!target) return;
+
+      const alreadyOpen = target.style.display !== 'none';
+
+      closeScenarioSld(rootId);
+
+      if (!alreadyOpen) {{
+        target.style.display = 'table-row';
+        button.classList.add('active');
+        button.innerText = '▴ Hide SLD';
+
+        setTimeout(function() {{
+          target.scrollIntoView({{
+            behavior: 'smooth',
+            block: 'nearest'
+          }});
+        }}, 80);
+      }}
+    }}
+  </script>
+</div>
+"""
 
 
 def render_scenario_kpi_strip(result: Dict[str, Any]) -> str:
@@ -1495,36 +1719,11 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
         return
 
     comparison_html = render_comparison_table(results)
-    render_html_block(
+    render_component_html(
         comparison_html,
         height=COMPARISON_TABLE_HEIGHT,
         scrolling=True,
     )
-
-    st.markdown(
-        """
-<div class="scenario-sld-title">
-  <h2>Single Line Diagrams (SLD)</h2>
-  <p>Expand any scenario to view its detailed SLD using the same dashboard visual style.</p>
-</div>
-""",
-        unsafe_allow_html=True,
-    )
-
-    for position, result in enumerate(results):
-        title = f"Scenario {result['index'] + 1} - {result['c_rate_label']} - {result['container_label']}"
-
-        with st.expander(title, expanded=(position == 0)):
-            st.markdown(render_scenario_kpi_strip(result), unsafe_allow_html=True)
-            sld_html = render_sld_html(
-                result["working_db"],
-                str(result["scenario"]["c_rate"]),
-            )
-            render_html_block(
-                sld_html,
-                height=SCENARIO_SLD_IFRAME_HEIGHT,
-                scrolling=True,
-            )
 
 
 def component_library_page(db: Dict[str, Any]) -> None:
