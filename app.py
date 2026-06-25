@@ -1,6 +1,7 @@
 import json
 import traceback
 from copy import deepcopy
+from datetime import datetime
 from html import escape
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -13,6 +14,14 @@ from src.calculations import calculate_dashboard
 from src.excel_importer import detect_excel_values
 from src.store import load_db, save_db
 from src.ui import render_cards_html, render_sld_html
+
+try:
+    from src.reporting import build_scenario_pdf_bytes
+except Exception as report_import_error:
+    build_scenario_pdf_bytes = None
+    REPORT_IMPORT_ERROR = report_import_error
+else:
+    REPORT_IMPORT_ERROR = None
 
 
 DASHBOARD_IFRAME_HEIGHT = 1600
@@ -1747,6 +1756,37 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
         height=COMPARISON_TABLE_HEIGHT,
         scrolling=True,
     )
+
+    st.markdown("<div class='pdf-export-spacer'></div>", unsafe_allow_html=True)
+
+    if build_scenario_pdf_bytes is None:
+        st.warning(
+            "PDF export is unavailable because the reporting module could not be imported. "
+            "Confirm `reportlab` is in requirements.txt and `src/reporting/pdf_report.py` exists."
+        )
+        if REPORT_IMPORT_ERROR is not None:
+            with st.expander("PDF export technical details"):
+                st.code(str(REPORT_IMPORT_ERROR))
+    else:
+        try:
+            pdf_bytes = build_scenario_pdf_bytes(
+                project_name=db.get("project", {}).get("name", "BESS Dashboard"),
+                results=results,
+            )
+
+            file_stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            st.download_button(
+                label="📄 Export Scenario Analysis PDF",
+                data=pdf_bytes,
+                file_name=f"bess_scenario_analysis_{file_stamp}.pdf",
+                mime="application/pdf",
+                use_container_width=True,
+                type="primary",
+                key="export_scenario_analysis_pdf",
+            )
+        except Exception as exc:
+            render_exception_box("Could not prepare Scenario Analysis PDF export.", exc)
 
 
 def component_library_page(db: Dict[str, Any]) -> None:
