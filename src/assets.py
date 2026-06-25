@@ -10,10 +10,6 @@ def load_css() -> str:
 
 
 def placeholder_svg(label: str) -> str:
-    """
-    Clean placeholder image.
-    Does not show the old 'Add image in assets/images' text.
-    """
     svg = f"""
     <svg xmlns="http://www.w3.org/2000/svg" width="360" height="160" viewBox="0 0 360 160">
       <rect width="360" height="160" rx="16" fill="#101c2f"/>
