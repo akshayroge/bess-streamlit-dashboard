@@ -102,9 +102,6 @@ def build_iframe_document(html: str) -> str:
 
 
 def render_html_block(html: str, height: int = 600, scrolling: bool = False) -> None:
-    """
-    Render HTML without Markdown parsing.
-    """
     html_renderer = getattr(st, "html", None)
 
     if html_renderer is not None:
@@ -118,10 +115,6 @@ def render_html_block(html: str, height: int = 600, scrolling: bool = False) -> 
 
 
 def render_component_html(html: str, height: int = 900, scrolling: bool = True) -> None:
-    """
-    Always render through Streamlit components so the in-table SLD buttons
-    can use JavaScript toggles inside the iframe.
-    """
     components.html(
         build_iframe_document(html),
         height=height,
@@ -1163,16 +1156,6 @@ def status_class(
 
 
 def render_comparison_table(results: List[Dict[str, Any]]) -> str:
-    """
-    Build Scenario Comparison table with an in-table SLD row.
-
-    The final visible table row has one SLD button per scenario.
-    Clicking a button shows that scenario's SLD as the last row inside
-    the same table.
-
-    SLD buttons are styled to match the dark/cyan/purple action-button
-    look used for Dashboard, Sync Scenario 1, and Reset Scenarios.
-    """
     metrics = [
         ("energy", "Total Energy"),
         ("power", "Power @ C-rate"),
@@ -1664,7 +1647,7 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
     container_options = get_container_options(db)
     pcs_options = get_pcs_options(db)
 
-    top1, top2, top3, top4 = st.columns([1.6, 1, 1, 1], gap="medium")
+    top1, top2, top3 = st.columns([2.0, 1.0, 1.0], gap="medium")
 
     with top1:
         st.markdown(
@@ -1682,12 +1665,6 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
             request_navigation("Dashboard")
 
     with top3:
-        if st.button("🔄 Sync Scenario 1", use_container_width=True, type="primary"):
-            sync_scenario_one_from_dashboard(db)
-            st.success("Scenario 1 updated from the main dashboard selection.")
-            st.rerun()
-
-    with top4:
         if st.button("↺ Reset Scenarios", use_container_width=True, type="primary"):
             reset_comparison_scenarios(db)
             st.rerun()
