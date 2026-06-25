@@ -1,6 +1,6 @@
 {
   "project": {
-    "name": "BESS Dashboard",
+    "name": "BESS Sizing & SLD Application",
     "system_type": "Excel / JSON based BESS comparison dashboard",
     "default_c_rate": "0.25",
     "description": "Database generated from provided BESS raw data. Dropdowns are C-rate, Container, and PCS."
