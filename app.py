@@ -335,6 +335,16 @@ def render_bess_header(db: Dict[str, Any]) -> None:
     render_html_block(header_html, height=120, scrolling=False)
 
 
+def request_navigation(page_name: str) -> None:
+    """
+    Do not write to st.session_state['nav_page'] directly after the sidebar radio
+    has been instantiated. Streamlit blocks that. Instead, set a pending target
+    page and apply it at the start of the next run, before the radio is created.
+    """
+    st.session_state["pending_nav_page"] = page_name
+    st.rerun()
+
+
 def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
     c_rate_options = get_c_rate_options(db)
     container_options = get_container_options(db)
@@ -382,8 +392,7 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
             st.markdown("<div class='scenario-button-spacer'></div>", unsafe_allow_html=True)
             if st.button("Scenario Analysis", key="open_scenario_analysis", use_container_width=True):
                 sync_scenario_one_from_dashboard(db)
-                st.session_state["nav_page"] = "Scenario Analysis"
-                st.rerun()
+                request_navigation("Scenario Analysis")
 
     return {
         "c_rate": selected_c_rate,
@@ -1341,7 +1350,7 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
     container_options = get_container_options(db)
     pcs_options = get_pcs_options(db)
 
-    top1, top2, top3 = st.columns([1.6, 1, 1], gap="medium")
+    top1, top2, top3, top4 = st.columns([1.6, 1, 1, 1], gap="medium")
 
     with top1:
         st.markdown(
@@ -1355,12 +1364,16 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
         )
 
     with top2:
+        if st.button("Dashboard", use_container_width=True):
+            request_navigation("Dashboard")
+
+    with top3:
         if st.button("Sync Scenario 1 from Dashboard", use_container_width=True):
             sync_scenario_one_from_dashboard(db)
             st.success("Scenario 1 updated from the main dashboard selection.")
             st.rerun()
 
-    with top3:
+    with top4:
         if st.button("Reset Scenarios", use_container_width=True):
             reset_comparison_scenarios(db)
             st.rerun()
@@ -1756,6 +1769,11 @@ def main() -> None:
 
     if "nav_page" not in st.session_state or st.session_state["nav_page"] not in pages:
         st.session_state["nav_page"] = "Dashboard"
+
+    pending_page = st.session_state.pop("pending_nav_page", None)
+
+    if pending_page in pages:
+        st.session_state["nav_page"] = pending_page
 
     st.sidebar.title("BESS Dashboard")
 
