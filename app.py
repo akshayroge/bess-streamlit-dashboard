@@ -14,7 +14,7 @@ from src.store import load_db, save_db
 from src.ui import render_cards_html, render_sld_html
 
 
-DASHBOARD_IFRAME_HEIGHT = 1250
+DASHBOARD_IFRAME_HEIGHT = 1600
 CARDS_IFRAME_HEIGHT = 560
 
 
@@ -175,10 +175,6 @@ def build_iframe_document(html: str) -> str:
 
 
 def render_html_block(html: str, height: int = 600, scrolling: bool = False) -> None:
-    """
-    Render HTML without Markdown parsing.
-    This prevents raw HTML from appearing on the page.
-    """
     html_renderer = getattr(st, "html", None)
 
     if html_renderer is not None:
@@ -1144,7 +1140,7 @@ def export_page(db: Dict[str, Any]) -> None:
 2. Open Streamlit Cloud.
 3. Click New app.
 4. Select the GitHub repository.
-5. Use `app.py` as the main file path.
+5. Use app.py as the main file path.
 6. Deploy.
 
 ### Important note about persistence
