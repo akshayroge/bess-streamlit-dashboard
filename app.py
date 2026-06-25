@@ -18,7 +18,7 @@ from src.ui import render_cards_html, render_sld_html
 DASHBOARD_IFRAME_HEIGHT = 1600
 CARDS_IFRAME_HEIGHT = 560
 SCENARIO_SLD_IFRAME_HEIGHT = 1600
-COMPARISON_TABLE_HEIGHT = 560
+COMPARISON_TABLE_HEIGHT = 520
 
 SCENARIO_ACCENTS = ["cyan", "yellow", "pink", "green"]
 SCENARIO_NAMES = [
@@ -103,13 +103,6 @@ def build_iframe_document(html: str) -> str:
 
 
 def render_html_block(html: str, height: int = 600, scrolling: bool = False) -> None:
-    """
-    Render HTML without Markdown parsing.
-
-    This is important for scenario comparison tables and SLD blocks, because
-    st.markdown can treat indented table rows as code blocks and display raw
-    HTML instead of rendering it.
-    """
     html_renderer = getattr(st, "html", None)
 
     if html_renderer is not None:
@@ -326,12 +319,6 @@ def pcs_display_label(pcs_id: str, db: Dict[str, Any]) -> str:
 # ---------------------------------------------------------------------
 
 def request_navigation(page_name: str) -> None:
-    """
-    Do not write directly to st.session_state['nav_page'] after the sidebar
-    radio has been instantiated. Streamlit blocks that mutation. Instead,
-    store a pending page and apply it at the start of the next run, before
-    the sidebar radio widget is created.
-    """
     st.session_state["pending_nav_page"] = page_name
     st.rerun()
 
@@ -439,7 +426,7 @@ def render_dropdown_panel(db: Dict[str, Any]) -> Dict[str, str]:
 
         with col4:
             st.markdown("<div class='scenario-button-spacer'></div>", unsafe_allow_html=True)
-            if st.button("Scenario Analysis", key="open_scenario_analysis", use_container_width=True):
+            if st.button("📊 Scenario Analysis", key="open_scenario_analysis", use_container_width=True, type="primary"):
                 sync_scenario_one_from_dashboard(db)
                 request_navigation("Scenario Analysis")
 
@@ -1163,17 +1150,19 @@ def status_class(
 
 def render_comparison_table(results: List[Dict[str, Any]]) -> str:
     """
-    Build scenario comparison table without indented HTML rows.
-    Render this with render_html_block(), not st.markdown().
+    Build scenario comparison table without Best and Units columns.
+
+    Conditional formatting still uses the internally calculated best value,
+    but the displayed table now only shows Metric + Scenario columns.
     """
     metrics = [
-        ("energy", "Total Energy", "MWh"),
-        ("power", "Power @ C-rate", "kW"),
-        ("current", "DC Bus Current", "A"),
-        ("duration", "Duration", "h"),
-        ("containers", "Containers / PCS", "Nos."),
-        ("utilisation", "PCS Utilisation", "%"),
-        ("max_racks", "Max Racks / PCS", "Nos."),
+        ("energy", "Total Energy"),
+        ("power", "Power @ C-rate"),
+        ("current", "DC Bus Current"),
+        ("duration", "Duration"),
+        ("containers", "Containers / PCS"),
+        ("utilisation", "PCS Utilisation"),
+        ("max_racks", "Max Racks / PCS"),
     ]
 
     header_cells = "".join(
@@ -1185,7 +1174,7 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
 
     body_rows: List[str] = []
 
-    for key, label, unit in metrics:
+    for key, label in metrics:
         best = best_result_for_metric(results, key)
 
         scenario_cells = "".join(
@@ -1195,14 +1184,10 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
             for result in results
         )
 
-        best_text = escape(metric_display(best, key)) if best else "-"
-
         row_html = (
             "<tr>"
             f"<td class='metric-name'>{escape(label)}</td>"
             f"{scenario_cells}"
-            f"<td class='best-cell'>{best_text}</td>"
-            f"<td class='unit-cell'>{escape(unit)}</td>"
             "</tr>"
         )
         body_rows.append(row_html)
@@ -1228,8 +1213,6 @@ def render_comparison_table(results: List[Dict[str, Any]]) -> str:
         "<tr>"
         "<th>Metric</th>"
         f"{header_cells}"
-        "<th>Best</th>"
-        "<th>Units</th>"
         "</tr>"
         "</thead>"
         "<tbody>"
@@ -1425,17 +1408,17 @@ def scenario_analysis_page(db: Dict[str, Any]) -> None:
         )
 
     with top2:
-        if st.button("Dashboard", use_container_width=True):
+        if st.button("🏠 Dashboard", use_container_width=True, type="primary"):
             request_navigation("Dashboard")
 
     with top3:
-        if st.button("Sync Scenario 1 from Dashboard", use_container_width=True):
+        if st.button("🔄 Sync Scenario 1", use_container_width=True, type="primary"):
             sync_scenario_one_from_dashboard(db)
             st.success("Scenario 1 updated from the main dashboard selection.")
             st.rerun()
 
     with top4:
-        if st.button("Reset Scenarios", use_container_width=True):
+        if st.button("↺ Reset Scenarios", use_container_width=True, type="primary"):
             reset_comparison_scenarios(db)
             st.rerun()
 
